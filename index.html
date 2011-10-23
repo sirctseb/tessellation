@@ -1,18 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Paper.js stuff</title>
+		<link rel="stylesheet" href="style.css" />
+		<script type="text/javascript" src="jquery-1.6.1.js"></script>
+		<script type="text/javascript" src="paper.js"></script>
+		<script type="text/javascript" src="js.js"></script>
+		<script type="text/javascript">
+		// global tools so html can reference them
+		var tool1, tool2;
+		// declarations of library variables for jslint
+		var paper;
+		var $;
+			$(function() {
+				// Get a reference to the canvas object
+				var canvas = $("#testcanvas").get(0);
 
-<head>
-  <meta charset="utf-8" />
-  <title>Paper.js stuff</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="text/javascript" src="jquery-1.6.1.js"></script>
-  <script type="text/javascript" src="js.js"></script>
-</head>
- 
-<body>
-	<header><h1>Paper.js stuff</h1></header>
-	<div>
-	</div>
-	<footer>&copy; sirctseb</footer>
-</body>
+				// Create an empty project and view for the canvas
+				paper.setup(canvas);
+
+				// create a path and make a line
+				var path = new paper.Path();
+				
+				// set path color
+				path.strokeColor = 'black';
+				
+				var start = new paper.Point(100,100);
+				
+				// move to start
+				path.moveTo(start);
+				
+				// draw line to a new point
+				path.lineTo(start.add([200, -50]));
+				path.selected = true;
+				
+				var circle = new paper.Path.Circle(new paper.Point(50,50), 20);
+				circle.fillColor = 'black';
+				circle.selected = true;
+				
+				// draw the view
+				paper.view.draw();
+				
+				/*paper.view.onFrame = function(event) {
+					path.rotate(3);
+				}*/
+				
+				var tool = new paper.Tool();
+				var toolPath;
+				tool.onMouseDown = function(event) {
+					toolPath = new paper.Path();
+					toolPath.strokeColor = 'black';
+					toolPath.add(event.point);
+				};
+				
+				tool.onMouseDrag = function(event) {
+					toolPath.add(event.point);
+				};
+				
+				// shared mouse down event
+				var sharedToolPath;
+				function mouseDownEvent(event) {
+					sharedToolPath = new paper.Path();
+					sharedToolPath.strokeColor = 'black';
+					sharedToolPath.add(event.point);
+				}
+				
+				tool1 = new paper.Tool();
+				tool1.onMouseDown = mouseDownEvent;
+				tool1.onMouseDrag = function(event) {
+					sharedToolPath.add(event.point);
+				};
+				
+				tool2 = new paper.Tool();
+				tool2.minDistance = 20;
+				tool2.onMouseDown = mouseDownEvent;
+				tool2.onMouseDrag = function(event) {
+					sharedToolPath.arcTo(event.point);
+				};
+				
+				
+			});
+
+		</script>
+	</head>
+	<body>
+		<header>
+			<h1>Paper.js stuff</h1>
+		</header>
+		<a href="javascript:tool1.activate();">Lines</a>
+		<a href="javascript:tool2.activate();">Clouds</a>
+		<canvas id="testcanvas"></canvas>
+		<footer>
+			&copy; sirctseb
+		</footer>
+	</body>
 </html>
