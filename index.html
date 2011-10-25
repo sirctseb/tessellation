@@ -33,11 +33,52 @@
 				
 				// draw line to a new point
 				path.lineTo(start.add([200, -50]));
-				path.selected = true;
+				//path.selected = true;
 				
-				var circle = new paper.Path.Circle(new paper.Point(50,50), 20);
+				var circle = new paper.Path.Circle(new paper.Point(200,200), 80);
 				circle.fillColor = 'black';
-				circle.selected = true;
+				//circle.selected = true;
+				console.log(circle.segments);
+				
+				// draw little circles at the segment points of that circle
+				//for(var segment in circle.segments) {
+				/*$.each(circle.segments, function(index, segment) {
+					var segmentcircle = new paper.Path.Circle(segment.point, 8);
+					segmentcircle.fillColor = 'red';
+					var handleInCircle = new paper.Path.Circle(segment.handleIn.add(segment.point), 4);
+					handleInCircle.fillColor = 'green';
+					//console.log(segment.point);
+					//console.log(segment.handleIn);
+					//console.log(segment);
+				});*/
+				
+				// TODO was testing. figured out that it's options.segments, not options.segment
+				// monte carlo simulation of trying to click on segments
+				// define options for hit test
+				/*var hitTestOptions = {
+					//type: paper.PathItem, // TODO as a string or what? // I don't think this is used
+					segments: true, // look for segment points
+					handles: true, // look for segment handles
+					selected: true, // look for selected paths
+					tolerance:100
+				};
+				
+				var hitCircle = new paper.Path.Circle(null, 3);
+				hitCircle.fillColor = 'green';
+				var hitSymbol = new paper.Symbol(hitCircle);
+				var missCircle = new paper.Path.Circle(null, 3);
+				missCircle.fillColor = 'red';
+				var missSymbol = new paper.Symbol(missCircle);
+				for(var i = 0; i < 1000; i++) {
+					// perform hit test
+					var testPoint = new paper.Point(Math.random()*400, Math.random()*400);
+					var hitResult = paper.project.activeLayer.hitTest(testPoint, hitTestOptions);
+					if(hitResult) {
+						hitSymbol.place(testPoint);
+					} else {
+						missSymbol.place(testPoint);
+					}
+				}*/
 				
 				// draw the view
 				paper.view.draw();
@@ -79,7 +120,12 @@
 					sharedToolPath.arcTo(event.point);
 				};
 				
+				// make a new selected edit tool and activate it
+				//var selectedEditTool = GetSelectedEditTool().activate();
 				
+				// make a new stock tool and actdivate it
+				//var stockTool = GetStockTool().activate();
+				app.stockTool.activate();
 			});
 
 		</script>
@@ -90,7 +136,7 @@
 		</header>
 		<a href="javascript:tool1.activate();">Lines</a>
 		<a href="javascript:tool2.activate();">Clouds</a>
-		<canvas id="testcanvas"></canvas>
+		<canvas id="testcanvas" width="400px" height="400px"></canvas>
 		<footer>
 			&copy; sirctseb
 		</footer>
