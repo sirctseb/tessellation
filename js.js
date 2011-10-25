@@ -95,39 +95,8 @@ var stockTool = (function() {
 			var markerGroup = new paper.Group();
 			// create markers for control points and add to group
 			$.each(hitResult.item.segments, function(index, segment) {
-
-				// create a marker for segment
-				//var segmentMark = new paper.Path.Circle(segment.point, 4);
-				//segmentMark.fillColor = 'blue';
-				// add marker as child of path
-				//markerGroup.addChild(segmentMark);
-				
-				// create a marker for handleIn
-				var handleInMark = new paper.Path.Circle(segment.handleIn.add(segment.point), 4);
-				handleInMark.fillColor = selectedColor;
-				handleInMark.name = "handleInMark"+index;
-				// add marker as child of path
-				markerGroup.addChild(handleInMark);
-				
-				// create a line to handleIn
-				var handleInLine = new paper.Path.Line(segment.point, segment.point.add(segment.handleIn));
-				handleInLine.strokeColor = selectedColor;
-				handleInLine.name = "handleInLine";
-				markerGroup.addChild(handleInLine);
-				
-				// create a marker for handleOut
-				var handleOutMark = new paper.Path.Circle(segment.handleOut.add(segment.point), 4);
-				handleOutMark.fillColor = selectedColor;
-				handleOutMark.name = "handleOutMark";
-				// add marker as child of path
-				markerGroup.addChild(handleOutMark);
-				
-				// create a line ot handleOut
-				var handleOutLine = new paper.Path.Line(segment.point, segment.point.add(segment.handleOut));
-				handleOutLine.strokeColor = selectedColor;
-				handleOutLine.name = "handleOutLine";
-				markerGroup.addChild(handleOutLine);
-			});
+				segment.selected = true;
+			}
 			console.log("moveAbove: " + markerGroup.moveAbove(hitResult.item));
 			console.log("is below: " + markerGroup.isBelow(hitResult.item));
 			
