@@ -33,11 +33,11 @@
 				
 				// draw line to a new point
 				path.lineTo(start.add([200, -50]));
-				path.selected = true;
+				//path.selected = true;
 				
 				var circle = new paper.Path.Circle(new paper.Point(200,200), 80);
 				circle.fillColor = 'black';
-				circle.selected = true;
+				//circle.selected = true;
 				console.log(circle.segments);
 				
 				// draw little circles at the segment points of that circle
@@ -124,7 +124,8 @@
 				//var selectedEditTool = GetSelectedEditTool().activate();
 				
 				// make a new stock tool and actdivate it
-				var stockTool = GetStockTool().activate();
+				//var stockTool = GetStockTool().activate();
+				app.stockTool.activate();
 			});
 
 		</script>
