@@ -4,7 +4,7 @@ var paper, console, $;
 var app = ( function() {
 
 	var grid = {
-		scale: 50
+		scale: 100
 	};
 	var stockTool, editTool;
 
@@ -34,9 +34,13 @@ var app = ( function() {
 
 			// if we went down on nothing, remove all the selected things and go to stock tool
 			if(!this.hitResult) {
-				if(event.modifiers.shift && paper.project.selectedItems.length == 1) {
+				//if(event.modifiers.shift && paper.project.selectedItems.length == 1) {
+				if(event.modifiers.shift) {
 					// add to path
-					paper.project.selectedItems[0].lineTo(event.point);
+					//paper.project.selectedItems[0].lineTo(event.point);
+					// add to last symbol
+					lastSymbol.definition.lineTo(event.point.subtract(lastSymbolPoint));
+					//lastSymbol.definition.strokeColor = 'black';
 				} else {
 					app.deselectAll();
 					stockTool.activate();
@@ -98,6 +102,8 @@ var app = ( function() {
 		return selectedEditTool;
 	})();
 
+	var lastSymbol; // TODO this is bad
+	var lastSymbolPoint; // TODO very bad
 	stockTool = ( function() {
 		// create tool instance
 		var stockTool = new paper.Tool();
@@ -106,6 +112,8 @@ var app = ( function() {
 
 		// mouse down handler
 		function mouseDown(event) {
+			console.log(event.item);
+			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
 
@@ -119,14 +127,42 @@ var app = ( function() {
 				$.each(hitResult.item.segments, function(index, segment) {
 					segment.selected = true;
 				});
+				
 				// activate edit tool
 				editTool.activate();
+				
 			} else if(event.modifiers.shift) {
+				
 				// create new path
 				var newPath = new paper.Path([event.point]);
+				//var newPath = new paper.Path([event.point, event.point.add([20,0])]);
+				//var newPath = new paper.Path.Circle(event.point, 20);
 				newPath.strokeColor = 'black';
+				
 				// select it
 				newPath.selected = true;
+				
+				// store offset from tile
+				var offset = newPath.position.subtract(getTileAt(newPath.position).multiply(grid.scale));
+				console.log(newPath.position.x, newPath.position.y);
+				console.log(offset.x, offset.y);
+				
+				// make symbol and place over grid
+				var newPathSymbol = new paper.Symbol(newPath);
+				
+				// put original back in the layer
+				paper.project.activeLayer.addChild(newPath);
+				
+				overGrid(function(tile, tileCenter) {
+					//console.log(offset.x, offset.y);
+					//console.log(tile.x, tile.y);
+					var pos = tile.multiply(grid.scale).add(offset);
+					//console.log(pos.x, pos.y);
+					newPathSymbol.place(tile.multiply(grid.scale).add(offset));
+				});
+				lastSymbol = newPathSymbol;
+				lastSymbolPoint = event.point;
+				
 				// activate edit tool
 				editTool.activate();
 			}
@@ -134,7 +170,6 @@ var app = ( function() {
 
 		// mouse move handler
 		function mouseMove(event) {
-			return;
 			// check if hover over a path
 
 			// perform hit test
@@ -184,6 +219,29 @@ var app = ( function() {
 		
 		// activate original layer
 		gridLayer.previousSibling.activate();
+	};
+	
+	
+	var overGrid = function(func) {
+		// TODO make app a jquery plugin
+		var width = $("#testcanvas").width();
+		var height = $("#testcanvas").height();
+		
+		// call a function for each grid tile
+		for(var i = 0; i < width / grid.scale; i++) {
+			for(var j = 0; j < height / grid.scale; j++) {
+				func(new paper.Point(i,j),
+					new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
+			}
+		}
+	};
+	
+	var getTileAt = function(point) {
+		/*var canvasPoint = this.elementToCanvas(point);
+		return new Point().setxy(Math.floor(canvasPoint.x / this.pathView.panelWidth),
+								Math.floor(canvasPoint.y / this.pathView.panelHeight));*/
+		return new paper.Point(Math.floor(point.x / grid.scale),
+								Math.floor(point.y / grid.scale));
 	};
 	
 	return {
