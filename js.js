@@ -3,6 +3,9 @@ var paper, console, $;
 
 var app = ( function() {
 
+	var grid = {
+		scale: 50
+	};
 	var stockTool, editTool;
 
 	editTool = (function() {
@@ -20,7 +23,6 @@ var app = ( function() {
 				segments : true, // look for segment points
 				handles : true, // look for segment handles
 				selected : true, // look for selected paths
-				fill : true,
 				tolerance : 100 // this appears to be in pixels^2 or something // TODO magic number
 			};
 
@@ -32,8 +34,13 @@ var app = ( function() {
 
 			// if we went down on nothing, remove all the selected things and go to stock tool
 			if(!this.hitResult) {
-				app.deselectAll();
-				stockTool.activate();
+				if(event.modifiers.shift && paper.project.selectedItems.length == 1) {
+					// add to path
+					paper.project.selectedItems[0].lineTo(event.point);
+				} else {
+					app.deselectAll();
+					stockTool.activate();
+				}
 			}
 		}
 
@@ -54,7 +61,6 @@ var app = ( function() {
 					// update location of handle
 					this.hitResult.segment.handleIn = event.point.subtract(this.hitResult.segment.point);
 					if(event.modifiers.shift) {
-						console.log("symmetrical");
 						this.hitResult.segment.handleOut = new paper.Point().subtract(this.hitResult.segment.handleIn);
 					}
 				} else if(this.hitResult.type == "handle-out") {
@@ -115,8 +121,14 @@ var app = ( function() {
 				});
 				// activate edit tool
 				editTool.activate();
-			} else {
-				app.deselectAll();
+			} else if(event.modifiers.shift) {
+				// create new path
+				var newPath = new paper.Path([event.point]);
+				newPath.strokeColor = 'black';
+				// select it
+				newPath.selected = true;
+				// activate edit tool
+				editTool.activate();
 			}
 		}
 
@@ -124,10 +136,6 @@ var app = ( function() {
 		function mouseMove(event) {
 			return;
 			// check if hover over a path
-			// define options for hit test
-			var hitTestOptions = {
-				// TODO anything?
-			};
 
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -149,11 +157,40 @@ var app = ( function() {
 
 	var deselectAll = function() {
 		paper.project.deselectAll();
-	}
+	};
+	
+	var gridLayer;
+	var init = function() {
+		// draw gridlines
+		// TODO make app a jquery plugin
+		var width = $("#testcanvas").width();
+		var height = $("#testcanvas").height();
+		
+		// create layer for grid
+		gridLayer = new paper.Layer();
+		
+		// create grid lines 
+		var gridPath = new paper.Path([new paper.Point(0,grid.scale), new paper.Point(0,0), new paper.Point(grid.scale, 0)]);
+		gridPath.strokeColor = 'black';
+		var gridSymbol = new paper.Symbol(gridPath);
+		
+		// draw grid over canvas
+		for(var i = 0; i < width / grid.scale; i++) {
+			for(var j = 0; j < height / grid.scale; j++) {
+				// add 0.5 * grid.scale because it places at center, and add 0.5 so that it doesn't alias by default
+				gridSymbol.place(new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
+			}
+		}
+		
+		// activate original layer
+		gridLayer.previousSibling.activate();
+	};
+	
 	return {
 		stockTool : stockTool,
 		editTool : editTool,
-		deselectAll : deselectAll
-	}
+		deselectAll : deselectAll,
+		init: init
+	};
 
 }());
