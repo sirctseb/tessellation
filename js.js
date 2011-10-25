@@ -3,9 +3,9 @@ var paper, console, $;
 
 var app = ( function() {
 
-	var stockTool, selectedEditTool;
+	var stockTool, editTool;
 
-	var editTool = (function() {
+	editTool = (function() {
 
 		// create tool instance
 		var selectedEditTool = new paper.Tool();
@@ -92,7 +92,7 @@ var app = ( function() {
 		return selectedEditTool;
 	})();
 
-	var stockTool = ( function() {
+	stockTool = ( function() {
 		// create tool instance
 		var stockTool = new paper.Tool();
 
