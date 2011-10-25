@@ -35,30 +35,29 @@ var editTool = (function() {
 	}
 	// mouse drag handler
 	function mouseDrag(event) {
-		console.log("selectedEditTool.mousedrag");
+		//console.log("selectedEditTool.mousedrag");
 		
 		// if anything was hit
 		if(this.hitResult) {
-			console.log("hit");
+			//console.log("hit");
 			
 			// test for hit type
 			if(this.hitResult.type === "segment") {
-				console.log("segment, moving");
+				//console.log("segment, moving");
 				// set new segment location
 				this.hitResult.segment.point = event.point;
-				// redraw
-				// TODO it looks like paper js automatically redraws here
-				//paper.view.draw();
 			} else if(this.hitResult.type == "handle-in") {
 				// update location of handle
 				this.hitResult.segment.handleIn = event.point.subtract(this.hitResult.segment.point);
-				// get group of control point marks
-				var markGroup = this.hitResult.item.nextSibling;
-				// update location of handleInMark
-				markGroup.children.handleInMark.position = event.point;
-				paper.view.draw();
-			} else if(this.hitResult.type == "fill") {
-				this.hitResult.item.position = event.point;
+				if(event.modifiers.shift) {
+					console.log("symmetrical");
+					this.hitResult.segment.handleOut = new paper.Point().subtract(this.hitResult.segment.handleIn);
+				}
+			} else if(this.hitResult.type == "handle-out") {
+				this.hitResult.segment.handleOut = event.point.subtract(this.hitResult.segment.point);
+				if(event.modifiers.shift) {
+					this.hitResult.segment.handleIn = new paper.Point().subtract(this.hitResult.segment.handleOut);
+				}
 			}
 		}
 	}
@@ -68,10 +67,19 @@ var editTool = (function() {
 		// TODO this is not actually necessary after using mouseDrag instead of mouseMove
 		this.hitResult = null;
 	}
+	// TODO we don't get a keydown for shift key
+	// i wanted to use it to impose symmetry on the handles when shift went down after
+	// already having dragged one point somewhere
+	function keyDown(event) {
+		/*console.log(event.type);
+		console.log(event.character);
+		console.log(event.key);*/
+	}
 	
 	selectedEditTool.onMouseDown = mouseDown;
 	selectedEditTool.onMouseDrag = mouseDrag;
 	selectedEditTool.onMouseUp = mouseUp;
+	selectedEditTool.onKeyDown = keyDown;
 	
 	// return tool
 	return selectedEditTool;
@@ -90,15 +98,14 @@ var stockTool = (function() {
 		
 		// if click on path, draw its control points
 		if(hitResult) {
+			
+			// select path
 			hitResult.item.selected = true;
-			// create new group for markers
-			var markerGroup = new paper.Group();
-			// create markers for control points and add to group
+			
+			// select segments
 			$.each(hitResult.item.segments, function(index, segment) {
 				segment.selected = true;
-			}
-			console.log("moveAbove: " + markerGroup.moveAbove(hitResult.item));
-			console.log("is below: " + markerGroup.isBelow(hitResult.item));
+			});
 			
 			// activate edit tool
 			editTool.activate();
@@ -133,12 +140,6 @@ var stockTool = (function() {
 }());
 
 var deselectAll = function() {	
-	
-	// if clicked on nothing, removed children from any selected paths
-	$.each(paper.project.selectedItems, function(index, item) {
-		// find group which is the next sibling, and remove it
-		item.nextSibling.remove();
-	});
 	paper.project.deselectAll();
 }
 
