@@ -39,4 +39,15 @@ var setObj = {
 };
 setObj.name = "blah";
 
+var dom = {};
+// bad
+var addHandlers = function(nodes) {
+	var i;
+	for(i = 0; i < nodes.length; i++) {
+		nodes[i].onclick = function (e) {
+			console.log(i);
+		}
+	}
+}
+
 phantom.exit();
