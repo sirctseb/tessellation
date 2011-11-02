@@ -78,7 +78,17 @@ var app = ( function() {
 					// go back to stock tool
 					stockTool.activate();
 				}
+			} else {
+				// set segment selected if we land on it
+				if(this.hitResult.type === "segment") {
+					// first deselect any other selected segments
+					$.each(this.hitResult.item.segments, function(index, segment) {
+						segment.selected = false;
+					});
+					this.hitResult.segment.selected = true;
+				}
 			}
+			
 		}
 
 		// mouse drag handler
@@ -277,6 +287,13 @@ var app = ( function() {
 	}());
 
 	var deselectAll = function() {
+		// deselect selected segments of selected paths
+		// TODO check that a selected item is a path at all
+		$.each(paper.project.selectedItems, function(index, selected) {
+			$.each(selected.segments, function(index, segment) {
+				segment.selected = false;
+			});
+		});
 		paper.project.deselectAll();
 	};
 	
