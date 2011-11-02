@@ -12,7 +12,10 @@ var app = ( function() {
 	};
 
 	var grid = {
-		scale: 100
+		origin: new paper.Point(),
+		scale: 100,
+		topLeft: new paper.Point(),
+		topRight: new paper.Point()
 	};
 	var stockTool, editTool;
 
@@ -23,7 +26,7 @@ var app = ( function() {
 
 		// mouse down handler
 		function mouseDown(event) {
-			//console.log("selectedEditTool.mousedown");
+			console.log("selectedEditTool.mousedown");
 
 			// define options for hit test
 			var hitTestOptions = {
@@ -37,21 +40,42 @@ var app = ( function() {
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point, hitTestOptions);
 
-			// we don't do any real work here, so just store the whole hitresult on the tool
+			// store the whole hitresult on the tool
 			this.hitResult = hitResult;
 
-			// if we went down on nothing, remove all the selected things and go to stock tool
+			// if we went down on nothing, check if we're holding shift to add a point somewhere
 			if(!this.hitResult) {
-				//if(event.modifiers.shift && paper.project.selectedItems.length == 1) {
 				if(event.modifiers.shift) {
-					// add to path
-					//paper.project.selectedItems[0].lineTo(event.point);
-					
-					// add to last symbol
-					//lastSymbol.definition.lineTo(event.point.subtract(lastSymbolPoint));
-					lastSymbol.definition.lineTo(event.point);
+					// check for hit on a stroke for inserting point
+					// define options for hit test for stroke
+					var strokeHitTestOptions = {
+						stroke: true, // look for strokes
+						selected : true, // look for selected paths
+						tolerance : 2 // this appears to be in pixels^2 or something // TODO magic number
+					};
+					// perform hit test
+					hitResult = paper.project.activeLayer.hitTest(event.point, strokeHitTestOptions);
+					// if we hit a stroke, insert a segment there
+					if(hitResult) {
+						console.log("hit stroke: " + hitResult.location.index+1);
+						
+						// if we went down on a stroke and we have shift selected, insert a new point on the path there
+						hitResult.item.insert(hitResult.location.index+1, event.point);
+						
+						// redo the hit test so that the new segment will be hit
+						this.hitResult = paper.project.activeLayer.hitTest(event.point, hitTestOptions);
+					} else {
+						// if we don't hit a stroke, append a point to the end
+						console.log("shift held, adding point");
+						
+						// add to last symbol
+						lastSymbol.definition.lineTo(event.point);
+					}
 				} else {
+					// if not holding shift, just deselect everything
+					console.log("deselecting");
 					app.deselectAll();
+					// go back to stock tool
 					stockTool.activate();
 				}
 			}
@@ -70,14 +94,14 @@ var app = ( function() {
 					//console.log("segment, moving");
 					// set new segment location
 					this.hitResult.segment.point = event.point;
-				} else if(this.hitResult.type == "handle-in") {
+				} else if(this.hitResult.type === "handle-in") {
 					// update location of handle
 					this.hitResult.segment.handleIn = event.point.subtract(this.hitResult.segment.point);
 					// make symmetric if shift held
 					if(event.modifiers.shift) {
 						this.hitResult.segment.handleOut = this.hitResult.segment.handleIn.negate();
 					}
-				} else if(this.hitResult.type == "handle-out") {
+				} else if(this.hitResult.type === "handle-out") {
 					// update location of handle
 					this.hitResult.segment.handleOut = event.point.subtract(this.hitResult.segment.point);
 					// make symmetric if shift held
@@ -136,9 +160,9 @@ var app = ( function() {
 				hitResult.item.selected = true;
 
 				// select segments
-				$.each(hitResult.item.segments, function(index, segment) {
+				/*$.each(hitResult.item.segments, function(index, segment) {
 					segment.selected = true;
-				});
+				});*/
 				
 				// activate edit tool
 				editTool.activate();
@@ -157,10 +181,8 @@ var app = ( function() {
 				
 				// store offset from zero
 				var originalPosition = newPath.position.clone();
-				// store offset from tile
-				var offset = newPath.position.subtract(getTileAt(newPath.position).multiply(grid.scale));
 				// store offset from 0 to tile
-				var tileOffset = getTileAt(newPath.position).multiply(grid.scale);
+				var tileOffset = tessellationToPaper(getTileAt(newPath.position));
 				// store tile of new path
 				var originalTile = getTileAt(newPath.position);
 				
@@ -188,11 +210,14 @@ var app = ( function() {
 				settings.newPathNumber++;
 				
 				// place symbols
-				overGrid(function(tile, tileCenter) {
+				var zero = new paper.Point();
+				overGrid(function(tile) {
 					// if the original path isn't in this tile, place a symbol
 					if(!tile.equals(originalTile)) {
 						// get position of tile
-						var pos = tile.multiply(grid.scale);
+						//var pos = tileToPaper(zero, tile);
+						var pos = tessellationToPaper(tile).subtract(tessellationToPaper(originalTile));
+						//var pos = tessellationToPaper(tile.subtract(originalTile));
 						var placedSymbol = newPathSymbol.place(pos);
 						// place symbol and put in group
 						copyGroup.addChild(placedSymbol);
@@ -200,7 +225,7 @@ var app = ( function() {
 				});
 				
 				// offset placed symbols by tile offset
-				copyGroup.translate(tileOffset.negate());
+				//copyGroup.translate(tileOffset.negate());
 				
 				lastSymbol = newPathSymbol;
 				lastSymbolPoint = event.point;
@@ -211,6 +236,21 @@ var app = ( function() {
 				// activate edit tool
 				editTool.activate();
 			}
+		}
+		
+		// mouse drag handler
+		function mouseDrag(event) {
+			// translate the whole thing
+			/*$.each(paper.project.layers, function(index, layer) {
+				layer.translate(event.delta);
+			});*/
+			// translate only the layer with the original paths and the layer with the grid
+			// if you translate the symbol layer, the symbols get translated twice because you're
+			// translating the definition also
+			paper.project.layers[0].translate(event.delta);
+			paper.project.layers[1].translate(event.delta);
+			// update the origin
+			grid.origin = grid.origin.add(event.delta);
 		}
 
 		// mouse move handler
@@ -231,6 +271,7 @@ var app = ( function() {
 
 		stockTool.onMouseDown = mouseDown;
 		stockTool.onMouseMove = mouseMove;
+		stockTool.onMouseDrag = mouseDrag;
 
 		return stockTool;
 	}());
@@ -260,15 +301,11 @@ var app = ( function() {
 		var gridSymbol = new paper.Symbol(gridPath);
 		
 		// draw grid over canvas
-		/*for(var i = 0; i < width / grid.scale; i++) {
-			for(var j = 0; j < height / grid.scale; j++) {
-				// add 0.5 * grid.scale because it places at center, and add 0.5 so that it doesn't alias by default
-				gridSymbol.place(new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
-			}
-		}*/
-		overGrid(function(tile, center) {
+		var centerOfTile = new paper.Point(0.505, 0.505);
+		overGrid(function(tile) {
 			//gridSymbol.place(new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
-			gridSymbol.place(center);
+			//gridSymbol.place(center);
+			gridSymbol.place(tileToPaper(centerOfTile, tile));
 		});
 		
 		// activate original layer
@@ -333,8 +370,8 @@ var app = ( function() {
 		// call a function for each grid tile
 		for(var i = 0; i < width / grid.scale; i++) {
 			for(var j = 0; j < height / grid.scale; j++) {
-				func(new paper.Point(i,j),
-					new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
+				func(new paper.Point(i,j));//,
+					//new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
 			}
 		}
 	};
@@ -343,8 +380,27 @@ var app = ( function() {
 		/*var canvasPoint = this.elementToCanvas(point);
 		return new Point().setxy(Math.floor(canvasPoint.x / this.pathView.panelWidth),
 								Math.floor(canvasPoint.y / this.pathView.panelHeight));*/
-		return new paper.Point(Math.floor(point.x / grid.scale),
-								Math.floor(point.y / grid.scale));
+		return new paper.Point(Math.floor((point.x - grid.origin.x) / grid.scale),
+								Math.floor((point.y - grid.origin.y) / grid.scale));
+	};
+	// convert between spaces
+	var paperToTessellation = function(point) {
+		return point.subtract(grid.origin).multiply(1/grid.scale);
+	};
+	var tessellationToPaper = function(point) {
+		return point.multiply(grid.scale).add(grid.origin);
+	};
+	var tileToTessellation = function(point, tile) {
+		return point.add(tile);
+	};
+	var tessellationToTile = function(point, tile) {
+		return point.subtract(tile);
+	};
+	var tileToPaper = function(point, tile) {
+		return tessellationToPaper(tileToTessellation(point,tile));
+	};
+	var paperToTile = function(point, tile) {
+		return tessellationToTile(paperToTessellation(point), tile);
 	};
 	
 	var testHit = function() {
@@ -361,7 +417,8 @@ var app = ( function() {
 			segments: true, // look for segment points
 			handles: true, // look for segment handles
 			selected: true, // look for selected paths
-			tolerance:100
+			stroke: true,
+			tolerance:2
 		};
 		
 		var res = 50;
