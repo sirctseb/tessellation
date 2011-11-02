@@ -101,7 +101,6 @@ var app = ( function() {
 
 				// test for hit type
 				if(this.hitResult.type === "segment") {
-					//console.log("segment, moving");
 					// set new segment location
 					this.hitResult.segment.point = event.point;
 				} else if(this.hitResult.type === "handle-in") {
@@ -250,17 +249,32 @@ var app = ( function() {
 		
 		// mouse drag handler
 		function mouseDrag(event) {
-			// translate the whole thing
-			/*$.each(paper.project.layers, function(index, layer) {
-				layer.translate(event.delta);
-			});*/
-			// translate only the layer with the original paths and the layer with the grid
-			// if you translate the symbol layer, the symbols get translated twice because you're
-			// translating the definition also
-			paper.project.layers[0].translate(event.delta);
-			paper.project.layers[1].translate(event.delta);
-			// update the origin
-			grid.origin = grid.origin.add(event.delta);
+			// scale if alt is held
+			if(event.modifiers.option) {
+				// scale with respect to the upper-left corner of the current tile
+				// get upper left point
+				var ulPoint = tessellationToPaper(getTileAt(event.point));
+				// get last mouse point distance sq
+				var lastDistSq = event.lastPoint.getDistance(ulPoint, true);
+				// get current mouse point distance sq
+				var curDistSq = event.point.getDistance(ulPoint, true);
+				// get ratio
+				var scaleRatio = curDistSq / lastDistSq;
+				// modify scale
+				grid.scale *= scaleRatio;
+				// scale existing paths
+				paper.project.layers[settings.editLayer].scale(scaleRatio, ulPoint);
+				paper.project.layers[settings.gridLayer].scale(scaleRatio, ulPoint);
+				// TODO figure out how to keep this stuff in sync with the grid scale and translation
+			} else {
+				// translate only the layer with the original paths and the layer with the grid
+				// if you translate the symbol layer, the symbols get translated twice because you're
+				// translating the definition also
+				paper.project.layers[settings.editLayer].translate(event.delta);
+				paper.project.layers[settings.gridLayer].translate(event.delta);
+				// update the origin
+				grid.origin = grid.origin.add(event.delta);
+			}
 		}
 
 		// mouse move handler
