@@ -79,16 +79,27 @@ var app = ( function() {
 					stockTool.activate();
 				}
 			} else {
-				// set segment selected if we land on it
+				// if we hit a segment, do selection work
 				if(this.hitResult.type === "segment") {
-					// first deselect any other selected segments
-					$.each(this.hitResult.item.segments, function(index, segment) {
-						segment.selected = false;
-					});
-					this.hitResult.segment.selected = true;
+					// if shift held, toggle selection of segment
+					if(event.modifiers.shift) {
+						// toggle segment selection
+						this.hitResult.segment.selected = !this.hitResult.segment.selected;
+						// TODO should probably also set this.hitResult to null so it doesn't drag
+						paper.view.draw();
+					} else {
+						// if the segment is already selected, don't deselect others
+						if(!this.hitResult.segment.selected) {
+							// first deselect any other selected segments
+							$.each(this.hitResult.item.segments, function(index, segment) {
+								segment.selected = false;
+							});
+							// select this segment
+							this.hitResult.segment.selected = true;
+						}
+					}
 				}
 			}
-			
 		}
 
 		// mouse drag handler
@@ -102,7 +113,13 @@ var app = ( function() {
 				// test for hit type
 				if(this.hitResult.type === "segment") {
 					// set new segment location
-					this.hitResult.segment.point = event.point;
+					//this.hitResult.segment.point = event.point;
+					// translate selected segments
+					$.each(this.hitResult.item.segments, function(index, segment) {
+						if(segment.selected) {
+							segment.point = segment.point.add(event.delta);
+						}
+					});
 				} else if(this.hitResult.type === "handle-in") {
 					// update location of handle
 					this.hitResult.segment.handleIn = event.point.subtract(this.hitResult.segment.point);
@@ -266,6 +283,10 @@ var app = ( function() {
 				paper.project.layers[settings.editLayer].scale(scaleRatio, ulPoint);
 				paper.project.layers[settings.gridLayer].scale(scaleRatio, ulPoint);
 				// TODO figure out how to keep this stuff in sync with the grid scale and translation
+				// one solution would be to make everything a symbol and then we can set the matrix directly
+				// we could write methods on PlacedItem to set parts of the matrix directly
+				// but then we lose the feature of only changing the symbol definitions
+				// can you make a symbol based on another symbol? if so, do both matrices get applied?
 			} else {
 				// translate only the layer with the original paths and the layer with the grid
 				// if you translate the symbol layer, the symbols get translated twice because you're
