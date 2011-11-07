@@ -1,4 +1,4 @@
-var paper, console, $;
+var paper, console, $, tessellation;
 // for jslint
 
 var app = ( function() {
@@ -17,7 +17,10 @@ var app = ( function() {
 		topLeft: new paper.Point(),
 		topRight: new paper.Point()
 	};
+	
+	var paths = [];
 	var stockTool, editTool;
+
 
 	editTool = (function() {
 
@@ -42,17 +45,18 @@ var app = ( function() {
 
 			// store the whole hitresult on the tool
 			this.hitResult = hitResult;
+			
+			// check for hit on a stroke for inserting point
+			// define options for hit test for stroke
+			var strokeHitTestOptions = {
+				stroke: true, // look for strokes
+				selected : true, // look for selected paths
+				tolerance : 2 // this appears to be in pixels^2 or something // TODO magic number
+			};
 
 			// if we went down on nothing, check if we're holding shift to add a point somewhere
 			if(!this.hitResult) {
 				if(event.modifiers.shift) {
-					// check for hit on a stroke for inserting point
-					// define options for hit test for stroke
-					var strokeHitTestOptions = {
-						stroke: true, // look for strokes
-						selected : true, // look for selected paths
-						tolerance : 2 // this appears to be in pixels^2 or something // TODO magic number
-					};
 					// perform hit test
 					hitResult = paper.project.activeLayer.hitTest(event.point, strokeHitTestOptions);
 					// if we hit a stroke, insert a segment there
@@ -72,11 +76,22 @@ var app = ( function() {
 						lastSymbol.definition.lineTo(event.point);
 					}
 				} else {
-					// if not holding shift, just deselect everything
-					console.log("deselecting");
-					app.deselectAll();
-					// go back to stock tool
-					stockTool.activate();
+					// check for hit on stroke
+					hitResult = paper.project.activeLayer.hitTest(event.point, strokeHitTestOptions);
+					if(hitResult) {
+						this.hitResult = hitResult;
+					} else {
+						// if not holding shift, just deselect everything
+						// TODO which of these do we want?
+						// TODO this deselects segments also
+						//app.deselectAll();
+						// TODO this only deselects paths, but leaves segments selected
+						$.each(paper.project.selectedItems, function(index, item) {
+							item.selected = false;
+						});
+						// go back to stock tool
+						stockTool.activate();
+					}
 				}
 			} else {
 				// if we hit a segment, do selection work
@@ -86,9 +101,12 @@ var app = ( function() {
 						// toggle segment selection
 						this.hitResult.segment.selected = !this.hitResult.segment.selected;
 						// TODO should probably also set this.hitResult to null so it doesn't drag
+						// TODO it doesn't draw after this selection for some reason
 						paper.view.draw();
 					} else {
 						// if the segment is already selected, don't deselect others
+						// TODO however, if we mouse up without dragging on an already selected segment,
+						// we should probably select only this one
 						if(!this.hitResult.segment.selected) {
 							// first deselect any other selected segments
 							$.each(this.hitResult.item.segments, function(index, segment) {
@@ -134,6 +152,9 @@ var app = ( function() {
 					if(event.modifiers.shift) {
 						this.hitResult.segment.handleIn = new paper.Point().subtract(this.hitResult.segment.handleOut);
 					}
+				} else if(this.hitResult.type === "stroke") {
+					// translate entire path
+					this.hitResult.item.translate(event.delta);
 				}
 			}
 		}
@@ -198,6 +219,8 @@ var app = ( function() {
 				// create new path
 				var newPath = new paper.Path([event.point]);
 				newPath.strokeColor = 'black';
+				// store in path list
+				paths.push(newPath);
 				
 				// select it
 				newPath.selected = true;
@@ -264,37 +287,83 @@ var app = ( function() {
 			}
 		}
 		
+		blah = {};
 		// mouse drag handler
 		function mouseDrag(event) {
 			// scale if alt is held
 			if(event.modifiers.option) {
-				// scale with respect to the upper-left corner of the current tile
-				// get upper left point
-				var ulPoint = tessellationToPaper(getTileAt(event.point));
-				// get last mouse point distance sq
-				var lastDistSq = event.lastPoint.getDistance(ulPoint, true);
-				// get current mouse point distance sq
-				var curDistSq = event.point.getDistance(ulPoint, true);
-				// get ratio
-				var scaleRatio = curDistSq / lastDistSq;
-				// modify scale
-				grid.scale *= scaleRatio;
-				// scale existing paths
-				paper.project.layers[settings.editLayer].scale(scaleRatio, ulPoint);
-				paper.project.layers[settings.gridLayer].scale(scaleRatio, ulPoint);
-				// TODO figure out how to keep this stuff in sync with the grid scale and translation
-				// one solution would be to make everything a symbol and then we can set the matrix directly
-				// we could write methods on PlacedItem to set parts of the matrix directly
-				// but then we lose the feature of only changing the symbol definitions
-				// can you make a symbol based on another symbol? if so, do both matrices get applied?
+				var newWay = true;
+				if(!newWay) {
+					// scale with respect to the upper-left corner of the current tile
+					// get upper left point
+					var ulPoint = tessellationToPaper(getTileAt(event.point));
+					// get last mouse point distance sq
+					var lastDistSq = event.lastPoint.getDistance(ulPoint, true);
+					// get current mouse point distance sq
+					var curDistSq = event.point.getDistance(ulPoint, true);
+					// get ratio
+					var scaleRatio = curDistSq / lastDistSq;
+					// modify scale
+					grid.scale *= scaleRatio;
+					// scale existing paths
+					paper.project.layers[settings.editLayer].scale(scaleRatio, ulPoint);
+					paper.project.layers[settings.gridLayer].scale(scaleRatio, ulPoint);
+					// TODO figure out how to keep this stuff in sync with the grid scale and translation
+					// one solution would be to make everything a symbol and then we can set the matrix directly
+					// we could write methods on PlacedItem to set parts of the matrix directly
+					// but then we lose the feature of only changing the symbol definitions
+					// can you make a symbol based on another symbol? if so, do both matrices get applied?
+				} else {
+					// get upper left point
+					var ulPoint = tessellationToPaper(getTileAt(event.point));
+					/*if(!blah.ulPoint) {
+						ulPoint = tessellationToPaper(getTileAt(event.point));
+						blah.ulPoint = ulPoint;
+					} else {
+						ulPoint = blah.ulPoint;
+					}*/
+					console.log('ulPoint: ' + ulPoint.toString());
+					var origDistSq = event.downPoint.getDistance(ulPoint,false);
+					console.log('orignDist: ' + origDistSq.toString());
+					var curDistSq = event.point.getDistance(ulPoint,false);
+					console.log('curDist: ' + curDistSq.toString());
+					paper.view.zoom = paper.view.zoom * curDistSq / origDistSq;
+					console.log('ratio: ' + origDistSq / curDistSq);
+					console.log('zoom: ' + paper.view.zoom);
+					paper.view.center = ulPoint.add(paper.view.center.subtract(ulPoint).multiply(
+						//1 / paper.view.center.getDistance(ulPoint) * origDistSq / curDistSq
+						origDistSq / curDistSq
+					));
+					console.log('center: ' + paper.view.center.toString());
+					paper.view.draw();
+					grid.origin = paper.view.center;
+					grid.scale = grid.scale * origDistSq / curDistSq;
+					
+					// scale from center
+					/*var dist1 = event.downPoint.getDistance(paper.view.center,true);
+					var dist2 = event.point.getDistance(paper.view.center,true);
+					paper.view.zoom = paper.view.zoom * dist2 / dist1;
+					paper.view.draw();*/
+				}
 			} else {
-				// translate only the layer with the original paths and the layer with the grid
-				// if you translate the symbol layer, the symbols get translated twice because you're
-				// translating the definition also
-				paper.project.layers[settings.editLayer].translate(event.delta);
-				paper.project.layers[settings.gridLayer].translate(event.delta);
-				// update the origin
-				grid.origin = grid.origin.add(event.delta);
+				var newWay = false;
+				if(!newWay) {
+					// translate only the layer with the original paths and the layer with the grid
+					// if you translate the symbol layer, the symbols get translated twice because you're
+					// translating the definition also
+					paper.project.layers[settings.editLayer].translate(event.delta);
+					paper.project.layers[settings.gridLayer].translate(event.delta);
+					// update the origin
+					grid.origin = grid.origin.add(event.delta);
+				} else {					
+					// TODO try doing it in view
+					//paper.view.center = paper.view.center.subtract(event.delta);
+					// can't use delta because lastPoint is express in
+					// the project coordinates that existed before the move 
+					paper.view.center = paper.view.center.subtract(event.point.subtract(event.downPoint));
+					// TODO i can never tell when we'll have to call draw()
+					paper.view.draw();
+				}
 			}
 		}
 
@@ -332,7 +401,17 @@ var app = ( function() {
 		paper.project.deselectAll();
 	};
 	
-	var init = function() {
+	var init = function() {	
+		/*paper.view.onFrame = function(event) {
+				//paper.view.zoom = 1*Math.sin(event.time/10)+0.1;
+				//console.log(Math.sin(event.time/10));
+				//console.log(paper.view.zoom);
+				//paper.view.zoom = 2;
+				//paper.view.zoom = 0.4;
+				//paper.view.draw();
+		};*/
+		/*
+		//paper.view.zoom = 2;
 		// draw gridlines
 		// TODO make app a jquery plugin
 		var width = $("#testcanvas").width();
@@ -361,7 +440,14 @@ var app = ( function() {
 		});
 		
 		// activate original layer
-		gridLayer.previousSibling.activate();
+		gridLayer.previousSibling.activate();*/
+		
+		// intialize with new tessellation stuff
+		// set zoom
+		paper.view.zoom = 100;
+		paper.view.center.x = 2.5;
+		paper.view.center.y = 2.5;
+		var tess44 = tessellation.setup({type: "{4,4}", gridColor: settings.gridColor});
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
@@ -411,6 +497,44 @@ var app = ( function() {
 		// results of these tests:
 		// translating or the placement point of a placedsymbol affects its matrix,
 		// but translating the definition of the symbol doesn't
+		
+		// test if you can make a symbol from a placeditem, and if so, if both matrices apply
+		// make circle
+		/*var circ = new paper.Path.Circle([50,50], 20);
+		circ.fillColor = 'red';
+		circ.strokeColor = 'black';
+		// make symbol
+		var circSymbol = new paper.Symbol(circ);
+		// place symbol
+		var circPlaced = circSymbol.place([100,100]);
+		// place a second symbol
+		circSymbol.place([150,150]);
+		// make symbol from placed symbol
+		var subSymbol = new paper.Symbol(circPlaced);
+		// place one of those
+		var subPlaced = subSymbol.place([200,200]);
+		// place a second of those
+		subSymbol.place([250,250]);
+		// translate definition of subsymbol, which is a placed symbol
+		//subPlaced.symbol.definition.translate([50,50]);
+		circPlaced.translate([50,50]);
+		circPlaced.scale(2);
+		console.log(subPlaced.matrix);
+		console.log(circPlaced.matrix);*/
+		//console.log(subPlaced.symbol.definition);
+		// it works. both matrices are applied
+		
+		
+		// placement testing
+		/*var circ = new paper.Path.Circle([50,50], 20);
+		circ.fillColor = 'red';
+		var symbol = new paper.Symbol(circ);
+		paper.project.activeLayer.addChild(circ);
+		circ.translate([50,50]);
+		var placed = symbol.place();*/
+		
+		
+		
 	};
 	
 	
