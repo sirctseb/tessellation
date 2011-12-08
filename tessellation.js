@@ -6,7 +6,7 @@ var tessellation = (function() {
 	var tessObject = {};
 	tessObject.tileToPaper = function(point, tile) {
 		// TODO ignoring translation for now
-		return point.add(tile);//.multiply(100);
+		return point.add(tile).multiply(100);
 	};
 	tessObject.init44 = function(options) {
 		// TODO create square grid lines and add to view
@@ -21,9 +21,10 @@ var tessellation = (function() {
 		var gridLayer = new this.paper.Layer();
 		
 		// create path for grid
-		var gridPath = new this.paper.Path([new this.paper.Point(0,1), new this.paper.Point(0,0), new this.paper.Point(1, 0)]);
+		//var gridPath = new this.paper.Path([new this.paper.Point(0,1), new this.paper.Point(0,0), new this.paper.Point(1, 0)]);
+		var gridPath = new this.paper.Path([new this.paper.Point(0,100), new this.paper.Point(0,0), new this.paper.Point(100, 0)]);
 		gridPath.strokeColor = options.gridColor;
-		gridPath.strokeWidth = 0.01;
+		gridPath.strokeWidth = 1;
 		
 		// create a symbol for the grid
 		var gridSymbol = new this.paper.Symbol(gridPath);

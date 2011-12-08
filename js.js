@@ -219,6 +219,7 @@ var app = ( function() {
 				// create new path
 				var newPath = new paper.Path([event.point]);
 				newPath.strokeColor = 'black';
+				newPath.strokeWidth = 0.01;
 				// store in path list
 				paths.push(newPath);
 				
@@ -446,7 +447,7 @@ var app = ( function() {
 		// set zoom
 		paper.view.center.x = 0;
 		paper.view.center.y = 0;
-		paper.view.zoom = 100;
+		paper.view.zoom = 1;
 		var tess44 = tessellation.setup({type: "{4,4}", gridColor: settings.gridColor});
 		
 		/*var group1 = new paper.Group();
