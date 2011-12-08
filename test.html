@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Paper.js stuff</title>
+		<link rel="stylesheet" href="style.css" />
+		<script type="text/javascript" src="jquery-1.6.1.js"></script>
+		<script type="text/javascript" src="paper.js"></script>
+		<script type="text/javascript" src="tessellation.js"></script>
+		<script type="text/javascript" src="js.js"></script>
+		<script type="text/javascript">
+		// declarations of library variables for jslint
+		var paper;
+		var $;
+			$(function() {
+				// Get a reference to the canvas object
+				var canvas = $("#testcanvas").get(0);
+
+				// Create an empty project and view for the canvas
+				paper.setup(canvas);
+				console.log('view.zoom: ' + paper.view.zoom);
+				console.log('view.size: ' + paper.view.size);
+				paper.view.zoom = 2;
+				console.log('view.zoom: ' + paper.view.zoom);
+				console.log('view.size: ' + paper.view.size);
+				paper.view.zoom = 0.5;
+				console.log('view.zoom: ' + paper.view.zoom);
+				console.log('view.size: ' + paper.view.size);
+				
+				var circle = paper.Path.Circle([50,50], 50);
+				circle.strokeColor = 'black';
+				
+				
+				// draw the view
+				paper.view.draw();
+				
+			});
+
+		</script>
+	</head>
+	<body>
+		<header>
+			<h1>Paper.js stuff</h1>
+		</header>
+		<canvas id="testcanvas" width="100px" height="100px"></canvas>
+		<footer>
+			&copy; sirctseb
+		</footer>
+	</body>
+</html>
