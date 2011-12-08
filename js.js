@@ -410,11 +410,11 @@ var app = ( function() {
 				//paper.view.zoom = 0.4;
 				//paper.view.draw();
 		};*/
-		/*
+		
 		//paper.view.zoom = 2;
 		// draw gridlines
 		// TODO make app a jquery plugin
-		var width = $("#testcanvas").width();
+		/*var width = $("#testcanvas").width();
 		var height = $("#testcanvas").height();
 		
 		// create layer for grid
@@ -444,9 +444,9 @@ var app = ( function() {
 		
 		// intialize with new tessellation stuff
 		// set zoom
+		paper.view.center.x = 0;
+		paper.view.center.y = 0;
 		paper.view.zoom = 100;
-		paper.view.center.x = 2.5;
-		paper.view.center.y = 2.5;
 		var tess44 = tessellation.setup({type: "{4,4}", gridColor: settings.gridColor});
 		
 		/*var group1 = new paper.Group();

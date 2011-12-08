@@ -23,6 +23,7 @@ var tessellation = (function() {
 		// create path for grid
 		var gridPath = new this.paper.Path([new this.paper.Point(0,1), new this.paper.Point(0,0), new this.paper.Point(1, 0)]);
 		gridPath.strokeColor = options.gridColor;
+		gridPath.strokeWidth = 0.01;
 		
 		// create a symbol for the grid
 		var gridSymbol = new this.paper.Symbol(gridPath);
