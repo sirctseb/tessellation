@@ -73,7 +73,6 @@ var app = ( function() {
 						console.log("shift held, adding point");
 						
 						// add to selected
-						//lastSymbol.definition.lineTo(event.point);
 						// TODO assumes we have only one selected item
 						if(paper.project.selectedItems.length > 0) {
 							paper.project.selectedItems[0].lineTo(event.point);
@@ -189,8 +188,6 @@ var app = ( function() {
 		return selectedEditTool;
 	})();
 
-	var lastSymbol; // TODO this is bad
-	var lastSymbolPoint; // TODO very bad
 	stockTool = ( function() {
 		// create tool instance
 		var stockTool = new paper.Tool();
@@ -238,7 +235,6 @@ var app = ( function() {
 			}
 		}
 		
-		blah = {};
 		// mouse drag handler
 		function mouseDrag(event) {
 			// scale if alt is held
@@ -267,12 +263,6 @@ var app = ( function() {
 				} else {
 					// get upper left point
 					var ulPoint = tessellationToPaper(getTileAt(event.point));
-					/*if(!blah.ulPoint) {
-						ulPoint = tessellationToPaper(getTileAt(event.point));
-						blah.ulPoint = ulPoint;
-					} else {
-						ulPoint = blah.ulPoint;
-					}*/
 					console.log('ulPoint: ' + ulPoint.toString());
 					var origDistSq = event.downPoint.getDistance(ulPoint,false);
 					console.log('orignDist: ' + origDistSq.toString());
