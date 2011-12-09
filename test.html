@@ -18,17 +18,35 @@
 
 				// Create an empty project and view for the canvas
 				paper.setup(canvas);
-				console.log('view.zoom: ' + paper.view.zoom);
+				/*console.log('view.zoom: ' + paper.view.zoom);
 				console.log('view.size: ' + paper.view.size);
 				paper.view.zoom = 2;
 				console.log('view.zoom: ' + paper.view.zoom);
 				console.log('view.size: ' + paper.view.size);
 				paper.view.zoom = 0.5;
 				console.log('view.zoom: ' + paper.view.zoom);
-				console.log('view.size: ' + paper.view.size);
+				console.log('view.size: ' + paper.view.size);*/
 				
-				var circle = paper.Path.Circle([50,50], 50);
+				var circle = new paper.Path.Circle([50,50], 50);
 				circle.strokeColor = 'black';
+				
+				var subcircle = new paper.Path.Circle([50,50], 20);
+				subcircle.strokeColor = 'red';
+				
+				var subsymbol = new paper.Symbol(subcircle);
+				// readd subcircle
+				paper.project.activeLayer.addChild(subcircle);
+				subsymbol.place([10,10]);
+				console.log(subcircle.position.toString());
+				
+				//circle.translate([10,10]);
+				console.log(circle.position.toString());
+				//paper.project.activeLayer.removeChild(circle);
+				circle.remove();
+				console.log(circle.position.toString());
+				//paper.project.activeLayer.addChild(circle);
+				var circSymbol = new paper.Symbol(circle);
+				console.log(circle.position.toString());
 				
 				
 				// draw the view
