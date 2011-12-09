@@ -88,10 +88,27 @@ var tessellation = (function() {
 		copyGroup.name = path.name;
 		
 		// increment new path number
-		settings.newPathNumber++;
+		//settings.newPathNumber++;
 		
 		// place symbols
+		var width = this.view.viewSize.width;
+		var height = this.view.viewSize.height;
 		var zero = new paper.Point();
+		// draw grid symbols in each tile
+		var tileCenter = new this.paper.Point(0.505,0.505);
+		for(var i = 0; i < width / 100; i++) {
+			for(var j = 0; j < height / 100; j++) {
+				var tile = new paper.Point(i,j);
+				if(!tile.equals(originalTile)) {
+					// get position of tile
+					var pos = this.tessellationToPaper(tile.multiply(100)).subtract(this.tessellationToPaper(originalTile.multiply(100)));
+					// place symbol
+					var placedSymbol = newPathSymbol.place(pos);
+					// put in group
+					copyGroup.addChild(placedSymbol);
+				}
+			}
+		}/*
 		overGrid(function(tile) {
 			// if the original path isn't in this tile, place a symbol
 			if(!tile.equals(originalTile)) {
@@ -103,16 +120,16 @@ var tessellation = (function() {
 				// place symbol and put in group
 				copyGroup.addChild(placedSymbol);
 			}
-		});
+		});*/
 		
 		// offset placed symbols by tile offset
 		//copyGroup.translate(tileOffset.negate());
 		
-		lastSymbol = newPathSymbol;
-		lastSymbolPoint = event.point;
+		//lastSymbol = newPathSymbol;
+		//lastSymbolPoint = event.point;
 		
 		// activate edit layer
-		paper.project.layers[settings.editLayer].activate();
+		paper.project.layers[this.options.editLayer].activate();
 	};
 	tessObject.removePath = function() {
 		// TODO anything?

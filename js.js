@@ -20,7 +20,7 @@ var app = ( function() {
 	
 	var paths = [];
 	var stockTool, editTool;
-
+	var app = {};
 
 	editTool = (function() {
 
@@ -72,8 +72,12 @@ var app = ( function() {
 						// if we don't hit a stroke, append a point to the end
 						console.log("shift held, adding point");
 						
-						// add to last symbol
-						lastSymbol.definition.lineTo(event.point);
+						// add to selected
+						//lastSymbol.definition.lineTo(event.point);
+						// TODO assumes we have only one selected item
+						if(paper.project.selectedItems.length > 0) {
+							paper.project.selectedItems[0].lineTo(event.point);
+						}
 					}
 				} else {
 					// check for hit on stroke
@@ -196,7 +200,7 @@ var app = ( function() {
 		// mouse down handler
 		function mouseDown(event) {
 			//console.log(event.item);
-			console.log(paper.tess44.getTileAt(event.point).toString());
+			console.log(app.tess44.getTileAt(event.point).toString());
 			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -226,62 +230,8 @@ var app = ( function() {
 				// name it
 				newPath.name = "path" + settings.newPathNumber;
 				
-				// select it
-				newPath.selected = true;
-				
-				// store offset from zero
-				var originalPosition = newPath.position.clone();
-				// store offset from 0 to tile
-				var tileOffset = tessellationToPaper(getTileAt(newPath.position));
-				// store tile of new path
-				var originalTile = getTileAt(newPath.position);
-				
-				// make symbol
-				var newPathSymbol = new paper.Symbol(newPath);
-				
-				// TODO I think a paper.js bug: hittest tolerance grows when something is at (0,0)
-				// move back to original position
-				newPathSymbol.definition.position = newPathSymbol.definition.position.add(originalPosition);
-				
-				// select definition again
-				newPath.selected = true;
-				
-				// put original back in the layer
-				paper.project.layers[settings.editLayer].addChild(newPath);
-				
-				// activate copy layer to put symbols in
-				paper.project.layers[settings.copyLayer].activate();
-				
-				// make group for layers
-				var copyGroup = new paper.Group();
-				copyGroup.name = "path" + settings.newPathNumber;
-				
-				// increment new path number
-				settings.newPathNumber++;
-				
-				// place symbols
-				var zero = new paper.Point();
-				overGrid(function(tile) {
-					// if the original path isn't in this tile, place a symbol
-					if(!tile.equals(originalTile)) {
-						// get position of tile
-						//var pos = tileToPaper(zero, tile);
-						var pos = tessellationToPaper(tile).subtract(tessellationToPaper(originalTile));
-						//var pos = tessellationToPaper(tile.subtract(originalTile));
-						var placedSymbol = newPathSymbol.place(pos);
-						// place symbol and put in group
-						copyGroup.addChild(placedSymbol);
-					}
-				});
-				
-				// offset placed symbols by tile offset
-				//copyGroup.translate(tileOffset.negate());
-				
-				lastSymbol = newPathSymbol;
-				lastSymbolPoint = event.point;
-				
-				// activate edit layer
-				paper.project.layers[settings.editLayer].activate();
+				// add to tessellation
+				app.tess44.addPath(newPath);
 				
 				// activate edit tool
 				editTool.activate();
@@ -402,57 +352,7 @@ var app = ( function() {
 		paper.project.deselectAll();
 	};
 	
-	var init = function() {	
-		/*paper.view.onFrame = function(event) {
-				//paper.view.zoom = 1*Math.sin(event.time/10)+0.1;
-				//console.log(Math.sin(event.time/10));
-				//console.log(paper.view.zoom);
-				//paper.view.zoom = 2;
-				//paper.view.zoom = 0.4;
-				//paper.view.draw();
-		};*/
-		
-		//paper.view.zoom = 2;
-		// draw gridlines
-		// TODO make app a jquery plugin
-		/*var width = $("#testcanvas").width();
-		var height = $("#testcanvas").height();
-		
-		// create layer for grid
-		var gridLayer = new paper.Layer();
-		
-		// create layer for copies
-		var copyLayer = new paper.Layer();
-		
-		// activate grid layer
-		gridLayer.activate();
-		
-		// create grid lines 
-		var gridPath = new paper.Path([new paper.Point(0,grid.scale), new paper.Point(0,0), new paper.Point(grid.scale, 0)]);
-		gridPath.strokeColor = settings.gridColor;
-		var gridSymbol = new paper.Symbol(gridPath);
-		
-		// draw grid over canvas
-		var centerOfTile = new paper.Point(0.505, 0.505);
-		overGrid(function(tile) {
-			//gridSymbol.place(new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
-			//gridSymbol.place(center);
-			gridSymbol.place(tileToPaper(centerOfTile, tile));
-		});
-		
-		// activate original layer
-		gridLayer.previousSibling.activate();*/
-		
-		// intialize with new tessellation stuff
-		// set zoom
-		//var circ = new paper.Path.Circle([0,0], 10);
-		//circ.strokeColor = 'red';
-		
-		//paper.view.center.x = 0;
-		//paper.view.center.y = 0;
-		//paper.view.center = [0,0];
-		//paper.view.zoom = 1;
-
+	var init = function() {
 		
 		// create layers in order
 		var gridLayer = new paper.Layer();
@@ -467,7 +367,8 @@ var app = ( function() {
 										copyLayer: settings.copyLayer});
 										
 		// TODO testing
-		paper.tess44 = tess44;
+		//paper.tess44 = tess44;
+		app.tess44 = tess44;
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
@@ -641,7 +542,7 @@ var app = ( function() {
 		}
 	 };
 	
-	return {
+	return $.extend(app, {
 		stockTool : stockTool,
 		editTool : editTool,
 		deselectAll : deselectAll,
@@ -654,6 +555,6 @@ var app = ( function() {
 			console.log("view.bounds.center: " + paper.view.bounds.center.toString());
 			console.log("view bounds: ", paper.view.bounds);
 		}
-	};
+	});
 
 }());
