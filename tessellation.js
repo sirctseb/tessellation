@@ -61,8 +61,6 @@ var tessellation = (function() {
 		
 		// store offset from zero
 		var originalPosition = path.position.clone();
-		// store offset from 0 to tile
-		var tileOffset = this.tessellationToPaper(this.getTileAt(path.position));
 		// store tile of new path
 		var originalTile = this.getTileAt(path.position);
 		
@@ -108,26 +106,7 @@ var tessellation = (function() {
 					copyGroup.addChild(placedSymbol);
 				}
 			}
-		}/*
-		overGrid(function(tile) {
-			// if the original path isn't in this tile, place a symbol
-			if(!tile.equals(originalTile)) {
-				// get position of tile
-				//var pos = tileToPaper(zero, tile);
-				var pos = tessellationToPaper(tile).subtract(tessellationToPaper(originalTile));
-				//var pos = tessellationToPaper(tile.subtract(originalTile));
-				var placedSymbol = newPathSymbol.place(pos);
-				// place symbol and put in group
-				copyGroup.addChild(placedSymbol);
-			}
-		});*/
-		
-		// offset placed symbols by tile offset
-		//copyGroup.translate(tileOffset.negate());
-		
-		//lastSymbol = newPathSymbol;
-		//lastSymbolPoint = event.point;
-		
+		}
 		// activate edit layer
 		paper.project.layers[this.options.editLayer].activate();
 	};
