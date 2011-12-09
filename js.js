@@ -195,7 +195,8 @@ var app = ( function() {
 
 		// mouse down handler
 		function mouseDown(event) {
-			console.log(event.item);
+			//console.log(event.item);
+			console.log(paper.tess44.getTileAt(event.point).toString());
 			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -219,15 +220,14 @@ var app = ( function() {
 				// create new path
 				var newPath = new paper.Path([event.point]);
 				newPath.strokeColor = 'black';
-				newPath.strokeWidth = 0.01;
 				// store in path list
 				paths.push(newPath);
 				
-				// select it
-				newPath.selected = true;
-				
 				// name it
 				newPath.name = "path" + settings.newPathNumber;
+				
+				// select it
+				newPath.selected = true;
 				
 				// store offset from zero
 				var originalPosition = newPath.position.clone();
@@ -347,7 +347,7 @@ var app = ( function() {
 					paper.view.draw();*/
 				}
 			} else {
-				var newWay = false;
+				var newWay = true;
 				if(!newWay) {
 					// translate only the layer with the original paths and the layer with the grid
 					// if you translate the symbol layer, the symbols get translated twice because you're
@@ -445,10 +445,29 @@ var app = ( function() {
 		
 		// intialize with new tessellation stuff
 		// set zoom
-		paper.view.center.x = 0;
-		paper.view.center.y = 0;
-		paper.view.zoom = 1;
-		var tess44 = tessellation.setup({type: "{4,4}", gridColor: settings.gridColor});
+		//var circ = new paper.Path.Circle([0,0], 10);
+		//circ.strokeColor = 'red';
+		
+		//paper.view.center.x = 0;
+		//paper.view.center.y = 0;
+		//paper.view.center = [0,0];
+		//paper.view.zoom = 1;
+
+		
+		// create layers in order
+		var gridLayer = new paper.Layer();
+		var copyLayer = new paper.Layer();
+		// activate original layer
+		paper.project.layers[0].activate();
+		
+		var tess44 = tessellation.setup({type: "{4,4}",
+										gridColor: settings.gridColor,
+										editLayer: settings.editLayer,
+										gridLayer: settings.gridLayer,
+										copyLayer: settings.copyLayer});
+										
+		// TODO testing
+		paper.tess44 = tess44;
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
@@ -627,7 +646,14 @@ var app = ( function() {
 		editTool : editTool,
 		deselectAll : deselectAll,
 		init: init,
-		testHit: testHit
+		testHit: testHit,
+		viewInfo: function() {
+			console.log("view.size: ", paper.view.size.toString());
+			console.log("view.bounds: ", paper.view.bounds.toString());
+			console.log("view.center: ", paper.view.center.toString());
+			console.log("view.bounds.center: " + paper.view.bounds.center.toString());
+			console.log("view bounds: ", paper.view.bounds);
+		}
 	};
 
 }());

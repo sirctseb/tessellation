@@ -2,3 +2,6 @@ header,footer {
 	text-align:center;
 }
 
+#testcanvas {
+	border:solid black 1px;
+}
