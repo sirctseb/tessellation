@@ -31,6 +31,10 @@ var initTessDef = (function() {
 	//SquarePoly.polygon.strokeColor = 'black';
 	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
 	SquarePoly.strokeColor = 'black';
+	SquarePoly.remove();
+	var TrianglePoly = new paper.Path.RegularPolygon([50,50], 3, 50);
+	TrianglePoly.strokeColor = 'black';
+	TrianglePoly.remove();
 	
 	// PolyGroup represents a set of polygons or a PolyGroup with transformations applied
 	var PolyGroup = {
@@ -47,10 +51,14 @@ var initTessDef = (function() {
 		addPolygon: function(polygon) {
 			// add to list
 			this.polygons.push(polygon);
-			// TODO make symbol on add?
+			// create symbol from polygon
+			// store original position of the polygon because it will be set to zero when we symbolize it
 			var origPosition = polygon.position;
+			// create the symbol
 			var symbol = new paper.Symbol(polygon);
+			// restore position of polygon
 			polygon.position = origPosition;
+			// add symbol to list
 			this.symbols.push(symbol);
 		},
 		addTransform: function(transform) {
@@ -63,32 +71,21 @@ var initTessDef = (function() {
 		},
 		// render in a view
 		render: function(view) {
-			// make sure symbols and groups arrays are empty
-			//var symbols = this.symbols = [];
+			// make groups array empty
 			var groups = this.groups = [];
 			
-			// create symbols from each polygon (TODO and put into group?)
-			// TODO create group?
-			var symbolGroup = new paper.Group();
-			//$.each(this.polygons, function(index, polygon) {
-			$.each(this.symbols, function(index, symbol) {
-				// store position of polygon
-				//var origPosition = polygon.position;
-				// make symbol from polygon
-				//var symbol = new paper.Symbol(polygon);
-				// add it to symbol array
-				//symbols.push(symbol);
-				// making symbol positions polygon at (0,0), so restore it to it's original position
-				//polygon.position = origPosition;
-				// add the polygon back to the layer
-				// TODO this?
-				//paper.project.activeLayer.addChild(polygon);
-				
-				// TODO put into group?
-				symbolGroup.addChild(symbol.place());
-			});
-			// TODO add group to groups
-			groups.push(symbolGroup);
+			if(this.symbols.length > 0) {
+				// create group for local symbols and place symbols in group
+				var symbolGroup = new paper.Group();
+				$.each(this.symbols, function(index, symbol) {
+					// put symbol into group
+					symbolGroup.addChild(symbol.place());
+				});
+				// add group to groups
+				groups.push(symbolGroup);
+			}
+			
+			var that = this;
 			
 			// if PG has transforms, apply them
 			if(this.transforms.length > 0) {
@@ -96,7 +93,7 @@ var initTessDef = (function() {
 				$.each(this.transforms, function(index, transform) {
 					
 					// create group for the transform and add innerGroups and local symbol placements
-					var group = new paper.Group(this.getInnerGroups(view));
+					var group = new paper.Group(that.getInnerGroups(view));
 					transform.applyTransform(group);
 					
 					// add to the array of the groups from this PG
@@ -106,8 +103,8 @@ var initTessDef = (function() {
 				// if no transforms, but there is a lattice, do lattice
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = 0; i < 2; i++) {
-					for(var j = 0; j < 2; j++) {
+				for(var i = -2; i < 2; i++) {
+					for(var j = -2; j < 2; j++) {
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
 						// create group for the transform and add innerGroups and local symbol placements
 						// TODO had to special case for when there are no inner groups.
@@ -130,6 +127,13 @@ var initTessDef = (function() {
 				// if no transforms and no lattice, just place symbols into group
 				groups.push()
 			}
+			
+			// TODO debugging: draw outlines of groups
+			/*
+			$.each(groups, function(index, group) {
+				var rect = new paper.Path.Rectangle(group.bounds);
+				rect.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
+			});*/
 			
 			return groups;
 		},
@@ -157,10 +161,6 @@ var initTessDef = (function() {
 		return newPolyGroup;
 	};
 	
-	// Copy represents an operator which copies a polygon or polygroup
-	var Copy = {
-		toString: function() { return ":"; }
-	};
 	
 	// common transform stuff
 	var Transform = {
@@ -173,13 +173,27 @@ var initTessDef = (function() {
 		nextTransform: null
 	};
 	
+	// Copy represents an operator which copies a polygon or polygroup
+	var Copy = $.extend(Transform, {
+		toString: function() { return ":"; },
+		applyMyTransform: function(item) {
+		}
+	});
+	
 	// Rotation represents an operator which rotates a polygon or group by a number of degrees
 	var Rotation = $.extend(Object.create(Transform),
 	{
 		rotation: 0,
 		center: null,
 		toString: function() { return "R(" + this.rotation + ")"; },
-		rotBy: function(rot) { var R = Object.create(Rotation); R.rotation = rot; return R; },
+		rotBy: function(rot, center) {
+			var R = Object.create(Rotation);
+			R.rotation = rot;
+			if(center) {
+				R.center = center;
+			}
+			return R;
+		},
 		applyMyTransform: function(item) {
 			item.rotate(this.rotation, this.center);
 		}
@@ -209,6 +223,17 @@ var initTessDef = (function() {
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
 	PolyGroup44.polygroup = innerGroup44;
 	
+	var innerGroupHex = CreatePolyGroup();
+	innerGroupHex.addPolygon(TrianglePoly);
+	var rotGroupHex = CreatePolyGroup();
+	rotGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
+	rotGroupHex.addTransform(Object.create(Copy));
+	rotGroupHex.polygroup = innerGroupHex;
+	var latGroupHex = CreatePolyGroup();
+	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
+											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
+	latGroupHex.polygroup = rotGroupHex;
+	
 	$.extend(tessDef, {
 		//Poly: Poly,
 		PolyGroup: PolyGroup,
@@ -216,7 +241,9 @@ var initTessDef = (function() {
 		Rotation: Rotation,
 		Translation: Translation,
 		Lattice: Lattice,
-		PolyGroup44: PolyGroup44
+		PolyGroup44: PolyGroup44,
+		//GroupHex: rotGroupHex
+		GroupHex: latGroupHex
 	});
 	
 	return tessDef;

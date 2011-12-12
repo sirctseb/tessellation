@@ -388,11 +388,15 @@ var app = ( function() {
 		$.each(latPoint, function(index, point) {
 			new paper.Group(PG.stamp()).translate(point);
 		});*/
+		
 		paper.view.scrollBy([-0.5,-0.5]);
+		//var triangle = new paper.Path.RegularPolygon([50,50], 3, 50);
+		//triangle.strokeColor = 'black';
 		
 		var tessDef = initTessDef();
 		
-		tessDef.PolyGroup44.render(paper.view);
+		//tessDef.PolyGroup44.render(paper.view);
+		tessDef.GroupHex.render(paper.view);
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
