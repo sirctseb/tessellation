@@ -29,6 +29,15 @@
 				
 				var circle = new paper.Path.Circle([50,50], 50);
 				circle.strokeColor = 'black';
+				console.log(circle.position.toString());
+				var origPosition = circle.position;
+				var sym = new paper.Symbol(circle);
+				console.log(circle.position.toString());
+				sym.definition.position = origPosition;
+				console.log(circle.position.toString());
+				var anothersym = new paper.Symbol(circle);
+				console.log(circle.position.toString());
+				console.log("end");
 				
 				var subcircle = new paper.Path.Circle([50,50], 20);
 				subcircle.strokeColor = 'red';
