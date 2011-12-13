@@ -62,6 +62,9 @@ var initTessDef = (function() {
 			// add symbol to list
 			this.symbols.push(symbol);
 		},
+		addSubgroup: function(group) {
+			this.subgroups.push(group);
+		},
 		addTransform: function(transform) {
 			// TODO remove lattice to enforce mutual exclusivity?
 			this.transforms.push(transform);
@@ -72,70 +75,60 @@ var initTessDef = (function() {
 		},
 		// render in a view
 		render: function(view) {
-			// make groups array empty
-			var groups = this.groups = [];
 			
-			// TODO this assumes no tranforms and polygons in the same group
-			if(this.symbols.length > 0) {
-				// create group for local symbols and place symbols in group
-				var symbolGroup = new paper.Group();
-				$.each(this.symbols, function(index, symbol) {
-					// put symbol into group
-					symbolGroup.addChild(symbol.place());
-				});
-				// add group to groups
-				groups.push(symbolGroup);
-			}
+			// get the group with the subgroups and local symbol placements
+			var innerGroup = this.getInnerGroup(view);
+			
+			// set it as the outer group
+			var outerGroup = innerGroup;
 			
 			var that = this;
 			
-			// if PG has transforms, apply them
+			// if PG has transforms, make a copy of inner group for each and apply transform
 			if(this.transforms.length > 0) {
+				
+				// if there are any transforms, update outer group to be the transform group
+				// and add the inner group to it
+				outerGroup = new paper.Group([innerGroup]);
+				
 				// parse transforms and apply operations
 				$.each(this.transforms, function(index, transform) {
 					
 					// create group for the transform and add innerGroups and local symbol placements
-					var group = new paper.Group(that.getInnerGroups(view));
+					// TODO would Group.clone() work and be better or faster?
+					var group = that.getInnerGroup(view);
 					transform.applyTransform(group);
 					
-					// add to the array of the groups from this PG
-					groups.push(group);
+					// put transformed groups in outer group
+					outerGroup.addChild(group);
 				});
-			} else if(this.lattice) {
-				// if no transforms, but there is a lattice, do lattice
+			}
+			
+			// if there is a lattice defined, copy this group to each point
+			if(this.lattice) {
+				
+				// create a group for the lattice which will become the outer group
+				var latticeGroup = new paper.Group();
+				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
 				for(var i = -2; i < 2; i++) {
 					for(var j = -2; j < 2; j++) {
+						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
-						// create group for the transform and add innerGroups and local symbol placements
-						// TODO had to special case for when there are no inner groups.
-						// TODO but should that ever be the case?
-						var innerGroups = this.getInnerGroups(view);
-						var group;
-						if(innerGroups.length > 0) {
-							group = new paper.Group(innerGroups);
-						} else {
-							group = new paper.Group();
-						}
-						//var group = new paper.Group(this.getInnerGroups(view));
-						group.translate(location);
-						
-						// add to the array of the groups from this PG
-						groups.push(group);
+						// create copy of outer group and add it to the lattice group
+						outerGroup.copyTo(latticeGroup);
+						// translate copy of outer group to lattice point
+						latticeGroup.lastChild.translate(location);
 					}
-				}	
+				}
+				
+				// update the outer group to be the lattice group
+				outerGroup = latticeGroup;	
 			}
-			
-			// TODO debugging: draw outlines of groups
-			/*
-			$.each(groups, function(index, group) {
-				var rect = new paper.Path.Rectangle(group.bounds);
-				rect.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
-			});*/
-			
-			// TODO return one groups encapsulating all
-			return groups;
+
+			this.group = outerGroup;
+			return outerGroup;
 		},
 		getInnerGroup: function(view) {
 			// get inner groups from subgroups
@@ -223,18 +216,17 @@ var initTessDef = (function() {
 	innerGroup44.addPolygon(SquarePoly);
 	var PolyGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
-	PolyGroup44.polygroup = innerGroup44;
+	PolyGroup44.addSubgroup(innerGroup44);
 	
 	var innerGroupHex = CreatePolyGroup();
 	innerGroupHex.addPolygon(TrianglePoly);
 	var rotGroupHex = CreatePolyGroup();
 	rotGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
-	rotGroupHex.addTransform(Object.create(Copy));
-	rotGroupHex.polygroup = innerGroupHex;
+	rotGroupHex.addSubgroup(innerGroupHex);
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
 											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
-	latGroupHex.polygroup = rotGroupHex;
+	latGroupHex.addSubgroup(rotGroupHex);
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
