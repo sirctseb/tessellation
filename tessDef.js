@@ -13,6 +13,11 @@
  */
 var $, paper; // declarations for jslint
 
+// TODO I have nowhere else to put this note:
+// if we have a compound path as a symbol definition, we can have
+// new paths added to the compound path and not even have to go through
+// to add individual path symbols to each symmetry group
+
 var initTessDef = (function() {
 	var tessDef = {};
 	
