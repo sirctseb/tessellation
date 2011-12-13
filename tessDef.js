@@ -40,14 +40,15 @@ var initTessDef = (function() {
 	var PolyGroup = {
 		polygons: null,
 		// a nested polygon group that will be transformed by this PG's transforms or lattice
-		polygroup: null,
+		subgroups: null,
 		transforms: null,
 		lattice: null,
 		symbols: null,
+		group: null,
 		//symbols: [], // one per polygon
 		//groups: [], // one per copy of the inner polygroup
 		// TODO ?
-		toString: function() { return this.polygons.toString() + this.polygroup.toString() + this.transforms.toString(); },
+		toString: function() { return this.polygons.toString() + /*this.polygroup.toString() + */this.transforms.toString(); },
 		addPolygon: function(polygon) {
 			// add to list
 			this.polygons.push(polygon);
@@ -74,6 +75,7 @@ var initTessDef = (function() {
 			// make groups array empty
 			var groups = this.groups = [];
 			
+			// TODO this assumes no tranforms and polygons in the same group
 			if(this.symbols.length > 0) {
 				// create group for local symbols and place symbols in group
 				var symbolGroup = new paper.Group();
@@ -123,9 +125,6 @@ var initTessDef = (function() {
 						groups.push(group);
 					}
 				}	
-			} else {
-				// if no transforms and no lattice, just place symbols into group
-				groups.push()
 			}
 			
 			// TODO debugging: draw outlines of groups
@@ -135,14 +134,15 @@ var initTessDef = (function() {
 				rect.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
 			});*/
 			
+			// TODO return one groups encapsulating all
 			return groups;
 		},
-		getInnerGroups: function(view) {
-			// get inner groups from inner polygroup
+		getInnerGroup: function(view) {
+			// get inner groups from subgroups
 			var innerGroups = [];
-			if(this.polygroup) {
-				innerGroups = this.polygroup.render(view);
-			}
+			$.each(this.subgroups, function(index, group) {
+				innerGroups.push(group.render(view));
+			});
 			
 			// place local symbols
 			var placedSymbols = [];
@@ -150,7 +150,8 @@ var initTessDef = (function() {
 				placedSymbols.push(symbol.place());
 			});
 			
-			return innerGroups.concat(placedSymbols);
+			//return innerGroups.concat(placedSymbols);
+			return new paper.Group(innerGroups.concat(placedSymbols));
 		}
 	};
 	var CreatePolyGroup = function() {
@@ -158,6 +159,7 @@ var initTessDef = (function() {
 		newPolyGroup.polygons = [];
 		newPolyGroup.transforms = [];
 		newPolyGroup.symbols = [];
+		newPolyGroup.subgroups = [];
 		return newPolyGroup;
 	};
 	
