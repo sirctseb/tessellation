@@ -95,12 +95,17 @@ var initTessDef = (function() {
 				$.each(this.transforms, function(index, transform) {
 					
 					// create group for the transform and add innerGroups and local symbol placements
-					// TODO would Group.clone() work and be better or faster?
+					// TODO would Group.clone() be better or faster?
 					var group = that.getInnerGroup(view);
+					//var group = innerGroup.clone();
 					transform.applyTransform(group);
 					
 					// put transformed groups in outer group
 					outerGroup.addChild(group);
+					
+					// TODO alternatively
+					//innerGroup.copyTo(outerGroup);
+					//transform.applyTransform(outerGroup.lastChild);
 				});
 			}
 			
@@ -109,11 +114,13 @@ var initTessDef = (function() {
 				
 				// create a group for the lattice which will become the outer group
 				var latticeGroup = new paper.Group();
+				// remove singular instance of outer group from project
+				outerGroup.remove();
 				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = -2; i < 2; i++) {
-					for(var j = -2; j < 2; j++) {
+				for(var i = 0; i < 3; i++) {
+					for(var j = 0; j < 3; j++) {
 						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
 						// create copy of outer group and add it to the lattice group
@@ -218,7 +225,7 @@ var initTessDef = (function() {
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
 	PolyGroup44.addSubgroup(innerGroup44);
 	
-	var innerGroupHex = CreatePolyGroup();
+	/*var innerGroupHex = CreatePolyGroup();
 	innerGroupHex.addPolygon(TrianglePoly);
 	var rotGroupHex = CreatePolyGroup();
 	rotGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
@@ -226,7 +233,14 @@ var initTessDef = (function() {
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
 											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
-	latGroupHex.addSubgroup(rotGroupHex);
+	latGroupHex.addSubgroup(rotGroupHex);*/
+	
+	// new formulation in a single group
+	var latGroupHex = CreatePolyGroup();
+	latGroupHex.addPolygon(TrianglePoly);
+	latGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
+	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
+											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
