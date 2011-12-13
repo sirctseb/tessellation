@@ -119,8 +119,8 @@ var initTessDef = (function() {
 				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = 0; i < 3; i++) {
-					for(var j = 0; j < 3; j++) {
+				for(var i = 0; i < 1; i++) {
+					for(var j = 0; j < 1; j++) {
 						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
 						// create copy of outer group and add it to the lattice group
@@ -239,6 +239,10 @@ var initTessDef = (function() {
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addPolygon(TrianglePoly);
 	latGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
+	// TODO testing
+	/*for(var i = 10; i < 90; i+=10) {
+		latGroupHex.addTransform(Rotation.rotBy(i));
+	}*/
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
 											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
 	
