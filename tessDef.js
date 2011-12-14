@@ -113,8 +113,8 @@ var initTessDef = (function() {
 				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = 0; i < 1; i++) {
-					for(var j = 0; j < 1; j++) {
+				for(var i = 2; i < 4; i++) {
+					for(var j = 2; j < 4; j++) {
 						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
 						// create copy of outer group and add it to the lattice group
@@ -149,6 +149,9 @@ var initTessDef = (function() {
 			return new paper.Group(innerGroups.concat(placedSymbols));
 		},
 		addPath: function(path) {
+			this.polygons[0].addChild(path);
+			return;
+			
 			// find polygon the new path hits
 			//var item = this.findPolygonAt(path.firstSegment.point);
 			var item = this.symbols[0].definition;
