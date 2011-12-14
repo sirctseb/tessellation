@@ -21,19 +21,6 @@ var $, paper; // declarations for jslint
 var initTessDef = (function() {
 	var tessDef = {};
 	
-	// TODO constructors for the types?
-	
-	// Poly represents a single polygon
-	/*var Poly = {
-		polygon: {},
-		toString: function() { return this.polygon.toString(); }
-	};*/
-	// TODO convenience polygon defs
-	//var SquarePoly = Object.create(Poly);
-	// TODO do something about these 0.5s everywhere
-	//SquarePoly.polygon = new paper.Path.Rectangle([0.5,0.5], [100.5, 100.5]);
-	//SquarePoly.polygon = new paper.Path.Rectangle([0,0], [100,100]);
-	//SquarePoly.polygon.strokeColor = 'black';
 	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
 	SquarePoly.strokeColor = 'black';
 	SquarePoly.remove();
@@ -136,13 +123,14 @@ var initTessDef = (function() {
 				}
 				
 				// update the outer group to be the lattice group
-				outerGroup = latticeGroup;	
+				outerGroup = latticeGroup;
 			}
 
 			this.group = outerGroup;
 			return outerGroup;
 		},
 		getInnerGroup: function(view) {
+			
 			// get inner groups from subgroups
 			var innerGroups = [];
 			$.each(this.subgroups, function(index, group) {
@@ -152,11 +140,55 @@ var initTessDef = (function() {
 			// place local symbols
 			var placedSymbols = [];
 			$.each(this.symbols, function(index, symbol) {
-				placedSymbols.push(symbol.place());
+				// TODO testing keeping track of symbol placements in the definition
+				var placedSymbol = symbol.place();
+				placedSymbol.symbol.definition.placements = placedSymbol.symbol.definition.placements || [];
+				placedSymbol.symbol.definition.placements.push(placedSymbol);
+				placedSymbols.push(placedSymbol);
+				
+				//placedSymbols.push(symbol.place());
 			});
 			
 			//return innerGroups.concat(placedSymbols);
 			return new paper.Group(innerGroups.concat(placedSymbols));
+		},
+		addPath: function(path) {
+			// find polygon the new path hits
+			//var item = this.findPolygonAt(path.firstSegment.point);
+			var item = this.symbols[0].definition;
+			
+			// if there is one, find its parent group
+			if(item) {
+				var group = item.parent;
+				
+				// make the path a symbol and put it in each group which contains a placement
+				// of the hit polygon
+				var origPosition = path.position;
+				var symbol = new paper.Symbol(path);
+				path.position = origPosition;
+				$.each(item.placements, function(index, placement) {
+					placement.parent.addChild(symbol.place());
+				});
+			}
+		},
+		findPolygonAt: function(point) {
+			// TODO there has got to be a better way of doing this
+			// 1) it assumes nothing has fill, because it will clobber any existing fill
+			// 2) whatever, it's stupid
+			
+			// set fill color so we can hit test against fill
+			this.group.fillColor = 'black';
+			
+			// perform hit test
+			var hitResult = this.group.hitTest(point);
+			
+			// set fill color back to null
+			//this.group.fillColor = null;
+			
+			if(hitResult) {
+				return hitResult.item;
+			}
+			return null;
 		}
 	};
 	var CreatePolyGroup = function() {
@@ -165,6 +197,7 @@ var initTessDef = (function() {
 		newPolyGroup.transforms = [];
 		newPolyGroup.symbols = [];
 		newPolyGroup.subgroups = [];
+		newPolyGroup.group = new paper.Group();
 		return newPolyGroup;
 	};
 	
