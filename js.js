@@ -397,6 +397,12 @@ var app = ( function() {
 		
 		//tessDef.PolyGroup44.render(paper.view);
 		tessDef.GroupHex.render(paper.view);
+		// testing:
+		// create new path and add to the tessellation
+		var square = new paper.Path.Rectangle([50,50], 20);
+		square.strokeColor = 'green';
+		tessDef.GroupHex.addPath(square);
+		//tessDef.GroupHex.group.fillColor = 'red';
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
