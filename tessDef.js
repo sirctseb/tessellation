@@ -42,15 +42,17 @@ var initTessDef = (function() {
 		// TODO ?
 		toString: function() { return this.polygons.toString() + /*this.polygroup.toString() + */this.transforms.toString(); },
 		addPolygon: function(polygon) {
+			// create a compound path from the polygon
+			var compound = new paper.CompoundPath([polygon]);
 			// add to list
-			this.polygons.push(polygon);
+			this.polygons.push(compound);
 			// create symbol from polygon
 			// store original position of the polygon because it will be set to zero when we symbolize it
-			var origPosition = polygon.position;
+			var origPosition = compound.position;
 			// create the symbol
-			var symbol = new paper.Symbol(polygon);
+			var symbol = new paper.Symbol(compound);
 			// restore position of polygon
-			polygon.position = origPosition;
+			compound.position = origPosition;
 			// add symbol to list
 			this.symbols.push(symbol);
 		},
@@ -140,13 +142,7 @@ var initTessDef = (function() {
 			// place local symbols
 			var placedSymbols = [];
 			$.each(this.symbols, function(index, symbol) {
-				// TODO testing keeping track of symbol placements in the definition
-				var placedSymbol = symbol.place();
-				placedSymbol.symbol.definition.placements = placedSymbol.symbol.definition.placements || [];
-				placedSymbol.symbol.definition.placements.push(placedSymbol);
-				placedSymbols.push(placedSymbol);
-				
-				//placedSymbols.push(symbol.place());
+				placedSymbols.push(symbol.place());
 			});
 			
 			//return innerGroups.concat(placedSymbols);
