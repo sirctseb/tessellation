@@ -29,6 +29,54 @@
 				
 				var circle = new paper.Path.Circle([50,50], 50);
 				circle.strokeColor = 'black';
+				
+				// can you hit fill if it has no fill?
+				// answer: no you cannot hit fill if it has not fill
+				/*console.log('hit test: ' + circle.hitTest([50,50]));
+				circle.fillColor = 'red';
+				console.log('hit test: ' + circle.hitTest([50,50]));
+				circle.fillColor = null;*/
+				
+				// testing:
+				// can you hit test against placed symbols?
+				/*var triangle = new paper.Path.RegularPolygon([50,50], 3, 50);
+				triangle.strokeColor = 'black';
+				//triangle.fillColor = 'red';
+				var hitResult = paper.project.activeLayer.hitTest([50,50]);
+				console.log(hitResult);
+				var pos = triangle.position;
+				var triSymbol = new paper.Symbol(triangle);
+				triangle.position = pos;
+				var placed = triSymbol.place([10,10]);
+				var hitResult = paper.project.activeLayer.hitTest([50,50]);
+				console.log(hitResult);
+				placed.selected = true;
+				console.log(triangle.hitTest([50,50]));
+				//triangle.visible = false;
+				var group = new paper.Group([new paper.Group([triangle])]);
+				group.fillColor = 'yellow';
+				console.log(group.hitTest([50,50]));
+				//group.fillColor = null;
+				*/
+				
+				// testing:
+				// do transforms applied to a group apply to children that are added after
+				// the transform was applied?
+				// answer: NOPE! this is a problem
+				var square = new paper.Path.Rectangle([50,50], 10);
+				square.strokeColor = 'blue';
+				var triangle = new paper.Path.RegularPolygon([50,50],3,  10);
+				triangle.strokeColor = 'red';
+				var group = new paper.Group([square]);
+				group.translate([10,10]);
+				group.addChild(triangle);
+				group.translate([10,10]);
+				// same as above holds for layers
+				/*triangle.remove();
+				paper.project.activeLayer.translate([10,10]);
+				paper.project.activeLayer.addChild(triangle);*/ 
+				
+				/*
 				console.log(circle.position.toString());
 				var origPosition = circle.position;
 				var sym = new paper.Symbol(circle);
@@ -55,7 +103,7 @@
 				console.log(circle.position.toString());
 				//paper.project.activeLayer.addChild(circle);
 				var circSymbol = new paper.Symbol(circle);
-				console.log(circle.position.toString());
+				console.log(circle.position.toString());*/
 				
 				
 				// draw the view
