@@ -116,14 +116,14 @@ var initTessDef = (function() {
 					// TODO would Group.clone() be better or faster?
 					var group = that.getInnerGroup(view);
 					//var group = innerGroup.clone();
-					transform.applyTransform(group);
+					group.transform(transform);
 					
 					// put transformed groups in outer group
 					outerGroup.addChild(group);
 					
 					// TODO alternatively
 					//innerGroup.copyTo(outerGroup);
-					//transform.applyTransform(outerGroup.lastChild);
+					//outerGroup.lastChild.transform(transform);
 				});
 			}
 			
@@ -233,54 +233,6 @@ var initTessDef = (function() {
 		return newPolyGroup;
 	};
 	
-	
-	// common transform stuff
-	var Transform = {
-		applyTransform: function(item) {
-			this.applyMyTransform(item);
-			if(this.nextTransform) {
-				this.nextTransform.applyTransform(item);
-			}
-		},
-		nextTransform: null
-	};
-	
-	// Copy represents an operator which copies a polygon or polygroup
-	var Copy = $.extend(Transform, {
-		toString: function() { return ":"; },
-		applyMyTransform: function(item) {
-		}
-	});
-	
-	// Rotation represents an operator which rotates a polygon or group by a number of degrees
-	var Rotation = $.extend(Object.create(Transform),
-	{
-		rotation: 0,
-		center: null,
-		toString: function() { return "R(" + this.rotation + ")"; },
-		rotBy: function(rot, center) {
-			var R = Object.create(Rotation);
-			R.rotation = rot;
-			if(center) {
-				R.center = center;
-			}
-			return R;
-		},
-		applyMyTransform: function(item) {
-			item.rotate(this.rotation, this.center);
-		}
-	});
-	
-	// Translation represents an operator which translates a polygon or group by a vector
-	var Translation = $.extend(Object.create(Transform),
-	{
-		translation: new paper.Point(),
-		toString: function() { return "T(" + this.translation.toString() + ")"; },
-		applyMyTransform: function(item) {
-			item.translate(this.translation);
-		}
-	});
-	
 	// Lattice represents an operator which places a polygon or group at every point in a lattice defined by two vectors
 	var Lattice = {
 		v1: new paper.Point(),
@@ -308,7 +260,7 @@ var initTessDef = (function() {
 	// new formulation in a single group
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addPolygon(TrianglePoly);
-	latGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
+	latGroupHex.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	// TODO testing
 	/*for(var i = 10; i < 90; i+=10) {
 		latGroupHex.addTransform(Rotation.rotBy(i));
@@ -319,9 +271,6 @@ var initTessDef = (function() {
 	$.extend(tessDef, {
 		//Poly: Poly,
 		PolyGroup: PolyGroup,
-		Copy: Copy,
-		Rotation: Rotation,
-		Translation: Translation,
 		Lattice: Lattice,
 		PolyGroup44: PolyGroup44,
 		//GroupHex: rotGroupHex
