@@ -224,88 +224,68 @@ var initTessDef = (function() {
 			// is there a better way? exceptions?
 			
 			// TODO what if no lattice points?
-			$.each(this.latticePoints, function(index, latticePoint) {
-				var curPoint = point.subtract(latticePoint);
-			
-				// check polygon with no transform
-				$.each(that.polygons, function(index,polygon) {
-					if(isInterior(curPoint, polygon)) {
+			if(this.latticePoints.length > 0) {
+				$.each(this.latticePoints, function(index, latticePoint) {
+					var curPoint = point.subtract(latticePoint);
+					
+					// check this groups for hits at the lattice point adjusted point
+					hitPolygon = that.hitPolygonGlobal(curPoint);
+					// if hit, return from latticePoint loop
+					if(hitPolygon) {
 						hit = true;
-						hitPolygon = polygon;
 						return false;
 					}
 				});
-				// if we hit a polygon, return from latticePoints loop
-				if(hit) {
-					return false;
-				}
-				// check subgroups without transforms
-				$.each(that.subgroups, function(index, subgroup) {
-					var subHit = subgroup.hitPolygons(curPoint);
-					if(subHit) {
-						hit = true;
-						hitPolygon = subHit;
-						return false;
-					}
-				});
-				// if we hit in a subgroup, return from latticePoints loop
-				if(hit) {
-					return false;
-				}
-				
-				// perform reverse transforms to check local polygons and subgroups
-				// TODO what if no transforms?
-				$.each(that.transforms, function(index, transform) {
-					var localPoint = transform.inverseTransform(curPoint);
-					
-					// check against local polygons
-					$.each(that.polygons, function(index, polygon) {
-						if(isInterior(localPoint, polygon)) {
-							hit = true;
-							hitPolygon = polygon;
-							return false;
-						}
-					});
-					
-					// if we hit a local polygon, return
-					if(hit) {
-						return false;
-					}
-					
-					// if no local polygon hits, recurse into subgroups
-					$.each(that.subgroups, function(index, subgroup) {
-						var subHit = subgroup.hitPolygons(localPoint);
-						if(subHit) {
-							hit = true;
-							hitPolygon = subHit;
-							return false;
-						}
-					});
-					
-					// if we found a hit in a subgroup, return
-					if(hit) {
-						return false;
-					}
-				});
-				
-				// if we found a hit, return from latticePoints loop
-				if(hit) {
-					return false;
-				}
-			
-			});
+			} else {
+				// if no lattice, just do test at given point
+				hitPolygon = that.hitPolygonGlobal(point);
+			}
 			
 			return hitPolygon;
 		},
 		// hitPolygon helper function:
+		// check for hits in this group at a supplied global point
+		hitPolygonGlobal: function(point) {
+			var that = this;
+			
+			// check local polygons and subgroups with no transforms applied
+			var hitPolygon = that.hitPolygonLocal(point);
+			// if hit, return
+			if(hitPolygon) {
+				return hitPolygon;
+			}
+			
+			var hit = false;
+			// perform reverse transforms to check local polygons and subgroups
+			// TODO what if no transforms? answer: that is taken care of above
+			$.each(this.transforms, function(index, transform) {
+				var localPoint = transform.inverseTransform(point);
+				
+				// do local checks
+				hitPolygon = that.hitPolygonLocal(localPoint);
+				// if hit, return
+				if(hitPolygon) {
+					hit = true;
+					return false;
+				}
+			});
+			
+			// if we found a hit, return the hit polygon
+			if(hit) {
+				return hitPolygon;
+			}
+		},
+		// hitPolygon helper function:
 		// check local polygons and subgroups for hits at a point in local coords
+		// TODO local is actually sublocal because a transformation (maybe identity) has been applied
+		// TODO the solution is to not have transforms in a group applied to polygons in the group
 		hitPolygonLocal: function(point) {
 			var hit = false;
 			var hitPolygon = null;
 			
 			// check against local polygons
-			$.each(that.polygons, function(index, polygon) {
-				if(isInterior(localPoint, polygon)) {
+			$.each(this.polygons, function(index, polygon) {
+				if(isInterior(point, polygon)) {
 					hit = true;
 					hitPolygon = polygon;
 					return false;
@@ -318,8 +298,8 @@ var initTessDef = (function() {
 			}
 			
 			// if no local polygon hits, recurse into subgroups
-			$.each(that.subgroups, function(index, subgroup) {
-				var subHit = subgroup.hitPolygons(localPoint);
+			$.each(this.subgroups, function(index, subgroup) {
+				var subHit = subgroup.hitPolygons(point);
 				if(subHit) {
 					hit = true;
 					hitPolygon = subHit;
