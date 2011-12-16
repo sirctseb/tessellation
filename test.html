@@ -30,6 +30,44 @@
 				
 				var tessDef = initTessDef();
 				
+				// test if you can make symbols of groups
+				var tri = new paper.Path.RegularPolygon([50,50],3,20);
+				tri.strokeColor = 'red';
+				var sq = new paper.Path.RegularPolygon([40,40],4,10);
+				sq.strokeColor = 'blue';
+				var group = new paper.Group([tri,sq]);
+				var gSym = new paper.Symbol(group);
+				var placed00 = gSym.place();
+				var placed5050 = gSym.place([50,50]);
+				placed5050.rotate(30);
+				// answer: yes! you can
+				// continue testing if you can add stuff to the group and it shows up in the
+				// group symbol placements
+				var pent = new paper.Path.RegularPolygon([30,30],5,15);
+				pent.strokeColor = 'green';
+				//pent.remove();
+				group.addChild(pent);
+				console.log(placed00.parent.toString());
+				// answer: yes! you can
+				// continue testing if you can create groups of placed symbols
+				var supergroup = new paper.Group([placed00,placed5050]);
+				var origPosition = supergroup.position;
+				// answer: yes! you can
+				// continue testing if you can create symbols from a group containing placed symbols
+				var supersym = new paper.Symbol(supergroup);
+				supergroup.position = origPosition;
+				supersym.place();
+				supersym.place([40, -10]);
+				// answer: yes! you can
+				// continue testing if you can add stuff to the very original group, and it shows up
+				// in the placement of the symbol of the group of the placed symbols of the original group
+				var circ = new paper.Path.Circle([10,10],10);
+				circ.strokeColor = 'black';
+				group.addChild(circ);
+				// answer: yes! you can
+				
+				
+				
 				// test isInterior method of paper.Path defined in tessDef.js
 				/*var poly = new paper.Path.Rectangle([10,10], 10);
 				poly.strokeColor = 'red';
@@ -62,8 +100,8 @@
 				/*var mat = new paper.Matrix();
 				console.log(mat.toString());*/
 				
-				var circle = new paper.Path.Circle([50,50], 50);
-				circle.strokeColor = 'black';
+				//var circle = new paper.Path.Circle([50,50], 50);
+				//circle.strokeColor = 'black';
 				
 				// can you hit fill if it has no fill?
 				// answer: no you cannot hit fill if it has not fill
@@ -98,14 +136,14 @@
 				// do transforms applied to a group apply to children that are added after
 				// the transform was applied?
 				// answer: NOPE! this is a problem
-				var square = new paper.Path.Rectangle([50,50], 10);
+				/*var square = new paper.Path.Rectangle([50,50], 10);
 				square.strokeColor = 'blue';
 				var triangle = new paper.Path.RegularPolygon([50,50],3,  10);
 				triangle.strokeColor = 'red';
 				var group = new paper.Group([square]);
 				group.translate([10,10]);
 				group.addChild(triangle);
-				group.translate([10,10]);
+				group.translate([10,10]);*/
 				// same as above holds for layers
 				/*triangle.remove();
 				paper.project.activeLayer.translate([10,10]);
