@@ -18,7 +18,31 @@ var $, paper; // declarations for jslint
 // new paths added to the compound path and not even have to go through
 // to add individual path symbols to each symmetry group
 
+// check if a point is in the interior of an assumed convex polygon
+// TODO put this somewhere better
+var isInterior = function(point, path) {
+	if(!path.closed) {
+		return false;
+	}
+
+	var interior = true;
+	var that = path;
+	$.each(path.curves, function(index, curve) {
+		var p1 = that.clockwise ? curve.point1 : curve.point2;
+		var p2 = that.clockwise ? curve.point2 : curve.point1;
+		var vec = p2.subtract(p1);
+		var orthogonal = new paper.Point(vec.y, -vec.x);
+		if(orthogonal.dot(p1.negate().add(point)) > 0) {
+			interior = false;
+			return false;
+		}
+	});
+	
+	return interior;
+};
+
 var initTessDef = (function() {
+	
 	var tessDef = {};
 	
 	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
@@ -188,6 +212,15 @@ var initTessDef = (function() {
 				return hitResult.item;
 			}
 			return null;
+		},
+		hitPolygons: function(point) {
+			// TODO lattice points
+			
+			// perform reverse transforms to check local polygons and subgroups
+			// TODO what if no transforms?
+			$.each(this.transforms, function(index, transform) {
+				
+			});
 		}
 	};
 	var CreatePolyGroup = function() {
