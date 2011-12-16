@@ -196,23 +196,7 @@ var initTessDef = (function() {
 			}
 		},
 		findPolygonAt: function(point) {
-			// TODO there has got to be a better way of doing this
-			// 1) it assumes nothing has fill, because it will clobber any existing fill
-			// 2) whatever, it's stupid
-			
-			// set fill color so we can hit test against fill
-			this.group.fillColor = 'black';
-			
-			// perform hit test
-			var hitResult = this.group.hitTest(point);
-			
-			// set fill color back to null
-			//this.group.fillColor = null;
-			
-			if(hitResult) {
-				return hitResult.item;
-			}
-			return null;
+			return hitPolygons(point);
 		},
 		hitPolygons: function(point) {
 			var that = this;
