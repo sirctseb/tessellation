@@ -42,15 +42,17 @@ var initTessDef = (function() {
 		// TODO ?
 		toString: function() { return this.polygons.toString() + /*this.polygroup.toString() + */this.transforms.toString(); },
 		addPolygon: function(polygon) {
+			// create a compound path from the polygon
+			var compound = new paper.CompoundPath([polygon]);
 			// add to list
-			this.polygons.push(polygon);
+			this.polygons.push(compound);
 			// create symbol from polygon
 			// store original position of the polygon because it will be set to zero when we symbolize it
-			var origPosition = polygon.position;
+			var origPosition = compound.position;
 			// create the symbol
-			var symbol = new paper.Symbol(polygon);
+			var symbol = new paper.Symbol(compound);
 			// restore position of polygon
-			polygon.position = origPosition;
+			compound.position = origPosition;
 			// add symbol to list
 			this.symbols.push(symbol);
 		},
@@ -111,8 +113,8 @@ var initTessDef = (function() {
 				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = 0; i < 1; i++) {
-					for(var j = 0; j < 1; j++) {
+				for(var i = 2; i < 4; i++) {
+					for(var j = 2; j < 4; j++) {
 						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
 						// create copy of outer group and add it to the lattice group
@@ -140,19 +142,16 @@ var initTessDef = (function() {
 			// place local symbols
 			var placedSymbols = [];
 			$.each(this.symbols, function(index, symbol) {
-				// TODO testing keeping track of symbol placements in the definition
-				var placedSymbol = symbol.place();
-				placedSymbol.symbol.definition.placements = placedSymbol.symbol.definition.placements || [];
-				placedSymbol.symbol.definition.placements.push(placedSymbol);
-				placedSymbols.push(placedSymbol);
-				
-				//placedSymbols.push(symbol.place());
+				placedSymbols.push(symbol.place());
 			});
 			
 			//return innerGroups.concat(placedSymbols);
 			return new paper.Group(innerGroups.concat(placedSymbols));
 		},
 		addPath: function(path) {
+			this.polygons[0].addChild(path);
+			return;
+			
 			// find polygon the new path hits
 			//var item = this.findPolygonAt(path.firstSegment.point);
 			var item = this.symbols[0].definition;
