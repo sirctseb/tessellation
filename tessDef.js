@@ -59,6 +59,7 @@ var initTessDef = (function() {
 		subgroups: null,
 		transforms: null,
 		lattice: null,
+		latticePoints: null,
 		symbols: null,
 		group: null,
 		//symbols: [], // one per polygon
@@ -66,17 +67,15 @@ var initTessDef = (function() {
 		// TODO ?
 		toString: function() { return this.polygons.toString() + /*this.polygroup.toString() + */this.transforms.toString(); },
 		addPolygon: function(polygon) {
-			// create a compound path from the polygon
-			var compound = new paper.CompoundPath([polygon]);
 			// add to list
-			this.polygons.push(compound);
+			this.polygons.push(polygon);
 			// create symbol from polygon
 			// store original position of the polygon because it will be set to zero when we symbolize it
-			var origPosition = compound.position;
+			var origPosition = polygon.position;
 			// create the symbol
-			var symbol = new paper.Symbol(compound);
+			var symbol = new paper.Symbol(polygon);
 			// restore position of polygon
-			compound.position = origPosition;
+			polygon.position = origPosition;
 			// add symbol to list
 			this.symbols.push(symbol);
 		},
@@ -137,10 +136,12 @@ var initTessDef = (function() {
 				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = 2; i < 4; i++) {
-					for(var j = 2; j < 4; j++) {
+				for(var i = 0; i < 4; i++) {
+					for(var j = 0; j < 4; j++) {
 						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
+						// add lattice point to list of lattice points
+						this.latticePoints.push(location);
 						// create copy of outer group and add it to the lattice group
 						outerGroup.copyTo(latticeGroup);
 						// translate copy of outer group to lattice point
@@ -214,13 +215,119 @@ var initTessDef = (function() {
 			return null;
 		},
 		hitPolygons: function(point) {
-			// TODO lattice points
+			var that = this;
 			
-			// perform reverse transforms to check local polygons and subgroups
-			// TODO what if no transforms?
-			$.each(this.transforms, function(index, transform) {
+			var hit = false;
+			var hitPolygon = null;
+			
+			// TODO It's kind of gross to have to return false out of all of these.
+			// is there a better way? exceptions?
+			
+			// TODO what if no lattice points?
+			$.each(this.latticePoints, function(index, latticePoint) {
+				var curPoint = point.subtract(latticePoint);
+			
+				// check polygon with no transform
+				$.each(that.polygons, function(index,polygon) {
+					if(isInterior(curPoint, polygon)) {
+						hit = true;
+						hitPolygon = polygon;
+						return false;
+					}
+				});
+				// if we hit a polygon, return from latticePoints loop
+				if(hit) {
+					return false;
+				}
+				// check subgroups without transforms
+				$.each(that.subgroups, function(index, subgroup) {
+					var subHit = subgroup.hitPolygons(curPoint);
+					if(subHit) {
+						hit = true;
+						hitPolygon = subHit;
+						return false;
+					}
+				});
+				// if we hit in a subgroup, return from latticePoints loop
+				if(hit) {
+					return false;
+				}
 				
+				// perform reverse transforms to check local polygons and subgroups
+				// TODO what if no transforms?
+				$.each(that.transforms, function(index, transform) {
+					var localPoint = transform.inverseTransform(curPoint);
+					
+					// check against local polygons
+					$.each(that.polygons, function(index, polygon) {
+						if(isInterior(localPoint, polygon)) {
+							hit = true;
+							hitPolygon = polygon;
+							return false;
+						}
+					});
+					
+					// if we hit a local polygon, return
+					if(hit) {
+						return false;
+					}
+					
+					// if no local polygon hits, recurse into subgroups
+					$.each(that.subgroups, function(index, subgroup) {
+						var subHit = subgroup.hitPolygons(localPoint);
+						if(subHit) {
+							hit = true;
+							hitPolygon = subHit;
+							return false;
+						}
+					});
+					
+					// if we found a hit in a subgroup, return
+					if(hit) {
+						return false;
+					}
+				});
+				
+				// if we found a hit, return from latticePoints loop
+				if(hit) {
+					return false;
+				}
+			
 			});
+			
+			return hitPolygon;
+		},
+		// hitPolygon helper function:
+		// check local polygons and subgroups for hits at a point in local coords
+		hitPolygonLocal: function(point) {
+			var hit = false;
+			var hitPolygon = null;
+			
+			// check against local polygons
+			$.each(that.polygons, function(index, polygon) {
+				if(isInterior(localPoint, polygon)) {
+					hit = true;
+					hitPolygon = polygon;
+					return false;
+				}
+			});
+			
+			// if we hit a local polygon, return
+			if(hit) {
+				return hitPolygon;
+			}
+			
+			// if no local polygon hits, recurse into subgroups
+			$.each(that.subgroups, function(index, subgroup) {
+				var subHit = subgroup.hitPolygons(localPoint);
+				if(subHit) {
+					hit = true;
+					hitPolygon = subHit;
+					return false;
+				}
+			});
+			
+			return hitPolygon;
 		}
 	};
 	var CreatePolyGroup = function() {
@@ -230,6 +337,7 @@ var initTessDef = (function() {
 		newPolyGroup.symbols = [];
 		newPolyGroup.subgroups = [];
 		newPolyGroup.group = new paper.Group();
+		newPolyGroup.latticePoints = [];
 		return newPolyGroup;
 	};
 	
@@ -247,26 +355,34 @@ var initTessDef = (function() {
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
 	PolyGroup44.addSubgroup(innerGroup44);
 	
-	/*var innerGroupHex = CreatePolyGroup();
-	innerGroupHex.addPolygon(TrianglePoly);
+	var innerGroupHex = CreatePolyGroup();
+	innerGroupHex.addPolygon(TrianglePoly.clone());
 	var rotGroupHex = CreatePolyGroup();
-	rotGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
+	//rotGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
+	rotGroupHex.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	rotGroupHex.addSubgroup(innerGroupHex);
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
 											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
-	latGroupHex.addSubgroup(rotGroupHex);*/
+	latGroupHex.addSubgroup(rotGroupHex);
 	
 	// new formulation in a single group
-	var latGroupHex = CreatePolyGroup();
+	/*var latGroupHex = CreatePolyGroup();
 	latGroupHex.addPolygon(TrianglePoly);
 	latGroupHex.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	// TODO testing
-	/*for(var i = 10; i < 90; i+=10) {
-		latGroupHex.addTransform(Rotation.rotBy(i));
-	}*/
+	//for(var i = 10; i < 90; i+=10) {
+	//	latGroupHex.addTransform(Rotation.rotBy(i));
+	//}
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
-											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
+											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));*/
+											
+	var hitTestGroup = CreatePolyGroup();
+	hitTestGroup.addPolygon(TrianglePoly.clone());
+	// TODO write group with transforms so we can test hitPolygons
+	hitTestGroup.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
+	hitTestGroup.addTransform(new paper.Matrix().rotate(120, TrianglePoly.firstSegment.point));
+	hitTestGroup.addTransform(new paper.Matrix().rotate(180, TrianglePoly.firstSegment.point));
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
@@ -274,7 +390,8 @@ var initTessDef = (function() {
 		Lattice: Lattice,
 		PolyGroup44: PolyGroup44,
 		//GroupHex: rotGroupHex
-		GroupHex: latGroupHex
+		GroupHex: latGroupHex,
+		HitGroup: hitTestGroup
 	});
 	
 	return tessDef;

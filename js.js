@@ -19,8 +19,20 @@ var app = ( function() {
 	};
 	
 	var paths = [];
-	var stockTool, editTool;
+	var stockTool, editTool, testHitTool;
 	var app = {};
+	
+	testHitTool = (function() {
+		var testTool = new paper.Tool();
+		
+		testTool.onMouseDown = function(event) {
+			var poly = app.tess.hitPolygons(event.point);
+			// print result of click
+			console.log(poly.toString());
+		};
+		
+		return testTool; 
+	})();
 
 	editTool = (function() {
 
@@ -397,12 +409,18 @@ var app = ( function() {
 		
 		//tessDef.PolyGroup44.render(paper.view);
 		tessDef.GroupHex.render(paper.view);
+		//tessDef.HitGroup.render(paper.view);
 		// testing:
 		// create new path and add to the tessellation
 		var square = new paper.Path.Rectangle([50,50], 20);
 		square.strokeColor = 'green';
-		tessDef.GroupHex.addPath(square);
+		//tessDef.GroupHex.addPath(square);
+		this.tess = tessDef.GroupHex;
+		//this.tess = tessDef.HitGroup;
 		//tessDef.GroupHex.group.fillColor = 'red';
+		
+		//stockTool.activate();
+		testHitTool.activate();
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
