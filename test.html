@@ -6,6 +6,7 @@
 		<link rel="stylesheet" href="style.css" />
 		<script type="text/javascript" src="jquery-1.6.1.js"></script>
 		<script type="text/javascript" src="paper.js"></script>
+		<script type="text/javascript" src="tessDef.js"></script>
 		<script type="text/javascript" src="tessellation.js"></script>
 		<script type="text/javascript" src="js.js"></script>
 		<script type="text/javascript">
@@ -26,6 +27,40 @@
 				paper.view.zoom = 0.5;
 				console.log('view.zoom: ' + paper.view.zoom);
 				console.log('view.size: ' + paper.view.size);*/
+				
+				var tessDef = initTessDef();
+				
+				// test isInterior method of paper.Path defined in tessDef.js
+				/*var poly = new paper.Path.Rectangle([10,10], 10);
+				poly.strokeColor = 'red';
+				console.log('false: ' + isInterior([9,9], poly));
+				console.log('true: ' + isInterior([11,11], poly));
+				console.log('true: ' + isInterior([19,16], poly));
+				console.log('false: ' + isInterior([21,13], poly));
+				
+				var tri = new paper.Path.RegularPolygon([50,50], 3, 40);
+				//tri.reverse();
+				console.log("triangle is clockwise: " + tri.clockwise);
+				tri.strokeColor = 'green';
+				var hit = new paper.Path.Circle([0,0],2);
+				hit.fillColor = 'green';
+				var miss = hit.clone();
+				miss.fillColor = 'red';
+				var hitSym = new paper.Symbol(hit);
+				var missSym = new paper.Symbol(miss);
+				for(var i = 0; i < 1000; i++) {
+					var point = new paper.Point(Math.random()*100, Math.random()*100);
+					if(isInterior(point, tri)) {
+						hitSym.place(point);
+					} else {
+						missSym.place(point);
+					}
+				}*/
+				
+				// what do matrices look like by default?
+				// answer: it's an identity matrix
+				/*var mat = new paper.Matrix();
+				console.log(mat.toString());*/
 				
 				var circle = new paper.Path.Circle([50,50], 50);
 				circle.strokeColor = 'black';
