@@ -62,6 +62,7 @@ var initTessDef = (function() {
 		latticePoints: null,
 		symbols: null,
 		group: null,
+		symbol: null,
 		//symbols: [], // one per polygon
 		//groups: [], // one per copy of the inner polygroup
 		// TODO ?
@@ -69,6 +70,9 @@ var initTessDef = (function() {
 		addPolygon: function(polygon) {
 			// add to list
 			this.polygons.push(polygon);
+			
+			// TODO trying to use symbol placements instead of groups at a higher level, so keep polygons as paths
+			/*
 			// create symbol from polygon
 			// store original position of the polygon because it will be set to zero when we symbolize it
 			var origPosition = polygon.position;
@@ -78,6 +82,7 @@ var initTessDef = (function() {
 			polygon.position = origPosition;
 			// add symbol to list
 			this.symbols.push(symbol);
+			*/
 		},
 		addSubgroup: function(group) {
 			this.subgroups.push(group);
@@ -92,47 +97,41 @@ var initTessDef = (function() {
 		},
 		// render in a view
 		render: function(view) {
+			// if the symbol for this group is already defined, return it
+			if(this.symbol) {
+				return this.symbol;
+			}
 			
 			// get the group with the subgroups and local symbol placements
-			var innerGroup = this.getInnerGroup(view);
+			var innerSymbol = this.getInnerGroup(view);
 			
-			// set it as the outer group
-			var outerGroup = innerGroup;
-			
+			// place inner symbol into main polygroup group
+			var outerGroup = new paper.Group([innerSymbol.place()]);
+
 			var that = this;
 			
 			// if PG has transforms, make a copy of inner group for each and apply transform
 			if(this.transforms.length > 0) {
 				
-				// if there are any transforms, update outer group to be the transform group
-				// and add the inner group to it
-				outerGroup = new paper.Group([innerGroup]);
-				
 				// parse transforms and apply operations
 				$.each(this.transforms, function(index, transform) {
 					
-					// create group for the transform and add innerGroups and local symbol placements
-					// TODO would Group.clone() be better or faster?
-					var group = that.getInnerGroup(view);
-					//var group = innerGroup.clone();
-					group.transform(transform);
-					
-					// put transformed groups in outer group
-					outerGroup.addChild(group);
-					
-					// TODO alternatively
-					//innerGroup.copyTo(outerGroup);
-					//outerGroup.lastChild.transform(transform);
+					// add transformed placed inner symbol into group 
+					outerGroup.addChild(innerSymbol.place().transform(transform));
 				});
 			}
+			// store position of outer group before making symbol
+			var origPosition = outerGroup.position;
+			// make symbol from outer group
+			var outerSymbol = new paper.Symbol(outerGroup);
+			// restore position of group
+			outerGroup.position = origPosition;
 			
 			// if there is a lattice defined, copy this group to each point
 			if(this.lattice) {
 				
 				// create a group for the lattice which will become the outer group
 				var latticeGroup = new paper.Group();
-				// remove singular instance of outer group from project
-				outerGroup.remove();
 				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
@@ -142,54 +141,77 @@ var initTessDef = (function() {
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
 						// add lattice point to list of lattice points
 						this.latticePoints.push(location);
-						// create copy of outer group and add it to the lattice group
-						outerGroup.copyTo(latticeGroup);
-						// translate copy of outer group to lattice point
-						latticeGroup.lastChild.translate(location);
+						// add placed outer symbol to lattice group
+						latticeGroup.addChild(outerSymbol.place(location));
 					}
 				}
 				
 				// update the outer group to be the lattice group
 				outerGroup = latticeGroup;
+				// create symbol for entire thing
+				// save position before creating symbol
+				origPosition = outerGroup.position;
+				// create symbol
+				var latticeSymbol = new paper.Symbol(outerGroup);
+				// restore position
+				outerGroup.position = origPosition;
+				// store group and symbol on this
+				this.group = outerGroup;
+				this.symbol = latticeSymbol;
+				// finally, place entire symbol
+				this.symbol.place();
+			} else {
+				// if there is no lattice, place one instance of the symbol for this group
+				outerSymbol.place();
+				// and store group and symbol on this
+				this.group = outerGroup;
+				this.symbol = outerSymbol;
 			}
 
-			this.group = outerGroup;
-			return outerGroup;
+			return this.symbol;
 		},
 		getInnerGroup: function(view) {
 			
 			// get inner groups from subgroups
 			var innerGroups = [];
 			$.each(this.subgroups, function(index, group) {
-				innerGroups.push(group.render(view));
+				// get subgroup symbol
+				var symbol = group.render(view);
+				// place symbol and put into group
+				innerGroups.push(symbol.place());
 			});
-			
-			// place local symbols
-			var placedSymbols = [];
-			$.each(this.symbols, function(index, symbol) {
-				placedSymbols.push(symbol.place());
-			});
-			
-			//return innerGroups.concat(placedSymbols);
-			return new paper.Group(innerGroups.concat(placedSymbols));
+
+			// create inner group
+			var group = new paper.Group(innerGroups.concat(this.polygons));
+			// TODO make function for creating a symbol without changing the definition item's position
+			// store position before making symbol
+			var origPosition = group.position;
+			// make symbol
+			var symbol = new paper.Symbol(group);
+			// restore position
+			group.position = origPosition;
+			// return symbol
+			return symbol;
 		},
 		addPath: function(path) {
 			
 			// find polygon the new path hits
-			var item = this.findPolygonAt(path.firstSegment.point);
+			var hitInfo = this.findPolygonAt(path.firstSegment.point);
 			
-			// if there is one, find its parent group
-			if(item) {
-				var group = item.parent;
-				
-				// make the path a symbol and put it in each group which contains a placement
-				// of the hit polygon
+			if(hitInfo) {
+				// create a symbol of the path
+				// save original position before creating symbol
 				var origPosition = path.position;
+				// create symbol
 				var symbol = new paper.Symbol(path);
+				// restore position
 				path.position = origPosition;
-				$.each(item.placements, function(index, placement) {
-					placement.parent.addChild(symbol.place());
-				});
+				// add the path back to active layer
+				paper.project.activeLayer.addChild(path);
+				// add path to the group where the matching polygon is
+				hitInfo.polygon.parent.addChild(symbol.place().transform(hitInfo.transform.createInverse()));
+				// make path selected
+				path.selected = true;
 			}
 		},
 		findPolygonAt: function(point) {
@@ -199,30 +221,31 @@ var initTessDef = (function() {
 			var that = this;
 			
 			var hit = false;
-			var hitPolygon = null;
+			var hitInfo = null;
 			
-			// TODO It's kind of gross to have to return false out of all of these.
-			// is there a better way? exceptions?
-			
-			// TODO what if no lattice points?
 			if(this.latticePoints.length > 0) {
 				$.each(this.latticePoints, function(index, latticePoint) {
+					// translate by -latticePoint to search within this portion of the lattice
 					var curPoint = point.subtract(latticePoint);
 					
 					// check this groups for hits at the lattice point adjusted point
-					hitPolygon = that.hitPolygonGlobal(curPoint);
-					// if hit, return from latticePoint loop
-					if(hitPolygon) {
+					hitInfo = that.hitPolygonGlobal(curPoint);
+					
+					// if hit, return from latticePoint loop after
+					// updating transform with the lattice translation
+					if(hitInfo) {
 						hit = true;
+						// pre translate by lattice point
+						hitInfo.transform.preConcatenate(paper.Matrix.getTranslateInstance(latticePoint.x, latticePoint.y));
 						return false;
 					}
 				});
 			} else {
 				// if no lattice, just do test at given point
-				hitPolygon = that.hitPolygonGlobal(point);
+				hitInfo = that.hitPolygonGlobal(point);
 			}
 			
-			return hitPolygon;
+			return hitInfo;
 		},
 		// hitPolygon helper function:
 		// check for hits in this group at a supplied global point
@@ -230,30 +253,31 @@ var initTessDef = (function() {
 			var that = this;
 			
 			// check local polygons and subgroups with no transforms applied
-			var hitPolygon = that.hitPolygonLocal(point);
-			// if hit, return
-			if(hitPolygon) {
-				return hitPolygon;
+			var hitInfo = that.hitPolygonLocal(point);
+			// if hit, return. don't need to update transform because none was applied here
+			if(hitInfo) {
+				return hitInfo;
 			}
 			
 			var hit = false;
+			
 			// perform reverse transforms to check local polygons and subgroups
-			// TODO what if no transforms? answer: that is taken care of above
 			$.each(this.transforms, function(index, transform) {
 				var localPoint = transform.inverseTransform(point);
 				
 				// do local checks
-				hitPolygon = that.hitPolygonLocal(localPoint);
-				// if hit, return
-				if(hitPolygon) {
+				hitInfo = that.hitPolygonLocal(localPoint);
+				// if hit, update transformation with local transform and return
+				if(hitInfo) {
 					hit = true;
+					hitInfo.transform.preConcatenate(transform);
 					return false;
 				}
 			});
 			
 			// if we found a hit, return the hit polygon
 			if(hit) {
-				return hitPolygon;
+				return hitInfo;
 			}
 		},
 		// hitPolygon helper function:
@@ -262,33 +286,36 @@ var initTessDef = (function() {
 		// TODO the solution is to not have transforms in a group applied to polygons in the group
 		hitPolygonLocal: function(point) {
 			var hit = false;
-			var hitPolygon = null;
+			var hitInfo = null;
 			
 			// check against local polygons
 			$.each(this.polygons, function(index, polygon) {
 				if(isInterior(point, polygon)) {
 					hit = true;
-					hitPolygon = polygon;
+					hitInfo = {
+						polygon: polygon,
+						transform: new paper.Matrix()
+					};
 					return false;
 				}
 			});
 			
 			// if we hit a local polygon, return
 			if(hit) {
-				return hitPolygon;
+				return hitInfo;
 			}
 			
 			// if no local polygon hits, recurse into subgroups
 			$.each(this.subgroups, function(index, subgroup) {
-				var subHit = subgroup.hitPolygons(point);
-				if(subHit) {
+				var subHitInfo = subgroup.hitPolygons(point);
+				if(subHitInfo) {
 					hit = true;
-					hitPolygon = subHit;
+					hitInfo = subHitInfo;
 					return false;
 				}
 			});
 			
-			return hitPolygon;
+			return hitInfo;
 		}
 	};
 	var CreatePolyGroup = function() {
@@ -316,7 +343,7 @@ var initTessDef = (function() {
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
 	PolyGroup44.addSubgroup(innerGroup44);
 	
-	var innerGroupHex = CreatePolyGroup();
+	/*var innerGroupHex = CreatePolyGroup();
 	innerGroupHex.addPolygon(TrianglePoly.clone());
 	var rotGroupHex = CreatePolyGroup();
 	//rotGroupHex.addTransform(Rotation.rotBy(60, TrianglePoly.firstSegment.point));
@@ -325,10 +352,10 @@ var initTessDef = (function() {
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
 											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
-	latGroupHex.addSubgroup(rotGroupHex);
+	latGroupHex.addSubgroup(rotGroupHex);*/
 	
 	// new formulation in a single group
-	/*var latGroupHex = CreatePolyGroup();
+	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addPolygon(TrianglePoly);
 	latGroupHex.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	// TODO testing
@@ -336,7 +363,7 @@ var initTessDef = (function() {
 	//	latGroupHex.addTransform(Rotation.rotBy(i));
 	//}
 	latGroupHex.addLattice(Lattice.LatticeBy(TrianglePoly.segments[1].point.subtract(TrianglePoly.segments[0].point),
-											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));*/
+											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
 											
 	var hitTestGroup = CreatePolyGroup();
 	hitTestGroup.addPolygon(TrianglePoly.clone());

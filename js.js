@@ -209,7 +209,7 @@ var app = ( function() {
 		// mouse down handler
 		function mouseDown(event) {
 			//console.log(event.item);
-			console.log(app.tess44.getTileAt(event.point).toString());
+			//console.log(app.tess44.getTileAt(event.point).toString());
 			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -240,7 +240,8 @@ var app = ( function() {
 				newPath.name = "path" + settings.newPathNumber;
 				
 				// add to tessellation
-				app.tess44.addPath(newPath);
+				//app.tess44.addPath(newPath);
+				app.tess.addPath(newPath);
 				
 				// activate edit tool
 				editTool.activate();
@@ -414,13 +415,13 @@ var app = ( function() {
 		// create new path and add to the tessellation
 		var square = new paper.Path.Rectangle([50,50], 20);
 		square.strokeColor = 'green';
-		//tessDef.GroupHex.addPath(square);
+		tessDef.GroupHex.addPath(square);
 		this.tess = tessDef.GroupHex;
 		//this.tess = tessDef.HitGroup;
 		//tessDef.GroupHex.group.fillColor = 'red';
 		
-		//stockTool.activate();
-		testHitTool.activate();
+		stockTool.activate();
+		//testHitTool.activate();
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
