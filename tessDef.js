@@ -334,7 +334,57 @@ var initTessDef = (function() {
 		v1: new paper.Point(),
 		v2: new paper.Point(),
 		toString: function() { return "L(" + this.v1.toString() + "," + this.v2.toString() + ")"; },
-		LatticeBy: function(vec1, vec2) { var lattice = Object.create(Lattice); lattice.v1 = vec1; lattice.v2 = vec2; return lattice; }
+		LatticeBy: function(vec1, vec2) { var lattice = Object.create(Lattice); lattice.v1 = vec1; lattice.v2 = vec2; return lattice; },
+		reduceBasis: function() {
+			// basically Euclid's GCD algorithm for vectors
+			// from mit open courseware stuff
+			// http://ocw.mit.edu/courses/mathematics/18-409-topics-in-theoretical-computer-science-an-algorithmists-toolkit-fall-2009/lecture-notes/MIT18_409F09_scribe19.pdf
+			var v1length = this.v1.length;
+			var v2length = this.v2.length;
+			var v;
+			
+			if(v2length < v1length) {
+				v = this.v2;
+				this.v2 = this.v1;
+				this.v1 = v;
+				v = v2length;
+				v2length = v1length;
+				v1length = v;
+			}
+			
+			while(!this.isReduced()) {
+				// find m to minimize v2 - m*v1
+				var m = Math.floor(v2length / v1length);
+				// set v2 = v2 - m*v1
+				this.v2 = this.v2.subtract(this.v1.multiply(m));
+				// update length
+				v2length = this.v2.length;
+				// if |v2| <= |v1|, then done
+				if(v1length < v2length) {
+					break;
+				}
+				// swap v1 and v2
+				v = this.v2;
+				this.v2 = this.v1;
+				this.v1 = v;
+				v = v2length;
+				v2length = v1length;
+				v1length = v;
+			}
+		},
+		isReduced: function() {
+			return 2 * Math.abs(this.v1.dot(this.v2)) <= this.v1.getDistance(new paper.Point(), true);
+		},
+		draw: function(range, color) {
+			var circle = new paper.Path.Circle([0,0], 2);
+			circle.fillColor = color || 'green';
+			var symbol = new paper.Symbol(circle);
+			for(var i = range.i[0]; i < range.i[1]; i++) {
+				for(var j = range.j[0]; j < range.j[1]; j++) {
+					symbol.place(this.v1.multiply(i).add(this.v2.multiply(j)));
+				}
+			}
+		}
 	};
 	
 	var innerGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
