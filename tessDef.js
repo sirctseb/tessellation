@@ -174,12 +174,9 @@ var initTessDef = (function() {
 			return new paper.Group(innerGroups.concat(placedSymbols));
 		},
 		addPath: function(path) {
-			this.polygons[0].addChild(path);
-			return;
 			
 			// find polygon the new path hits
-			//var item = this.findPolygonAt(path.firstSegment.point);
-			var item = this.symbols[0].definition;
+			var item = this.findPolygonAt(path.firstSegment.point);
 			
 			// if there is one, find its parent group
 			if(item) {
