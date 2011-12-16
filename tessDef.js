@@ -193,7 +193,7 @@ var initTessDef = (function() {
 			}
 		},
 		findPolygonAt: function(point) {
-			return hitPolygons(point);
+			return this.hitPolygons(point);
 		},
 		hitPolygons: function(point) {
 			var that = this;
