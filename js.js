@@ -413,10 +413,11 @@ var app = ( function() {
 		//tessDef.HitGroup.render(paper.view);
 		// testing:
 		// create new path and add to the tessellation
-		var square = new paper.Path.Rectangle([50,50], 20);
-		square.strokeColor = 'green';
-		tessDef.GroupHex.addPath(square);
+		//var square = new paper.Path.Rectangle([50,50], 20);
+		//square.strokeColor = 'green';
+		//tessDef.GroupHex.addPath(square);
 		this.tess = tessDef.GroupHex;
+		//this.tess = tessDef.PolyGroup44;
 		//this.tess = tessDef.HitGroup;
 		//tessDef.GroupHex.group.fillColor = 'red';
 		

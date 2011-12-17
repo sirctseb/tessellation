@@ -20,26 +20,43 @@ var $, paper; // declarations for jslint
 
 // check if a point is in the interior of an assumed convex polygon
 // TODO put this somewhere better
-var isInterior = function(point, path) {
-	if(!path.closed) {
-		return false;
-	}
-
-	var interior = true;
-	var that = path;
-	$.each(path.curves, function(index, curve) {
-		var p1 = that.clockwise ? curve.point1 : curve.point2;
-		var p2 = that.clockwise ? curve.point2 : curve.point1;
-		var vec = p2.subtract(p1);
-		var orthogonal = new paper.Point(vec.y, -vec.x);
-		if(orthogonal.dot(p1.negate().add(point)) > 0) {
-			interior = false;
+//var isInterior = function(point, path) {
+paper.Path.inject({
+	isInterior: function(point) {
+		if(!this.closed) {
 			return false;
 		}
-	});
 	
-	return interior;
-};
+		var interior = true;
+		var that = this;
+		$.each(this.curves, function(index, curve) {
+			var p1 = that.clockwise ? curve.point1 : curve.point2;
+			var p2 = that.clockwise ? curve.point2 : curve.point1;
+			var vec = p2.subtract(p1);
+			var orthogonal = new paper.Point(vec.y, -vec.x);
+			if(orthogonal.dot(p1.negate().add(point)) > 0) {
+				interior = false;
+				return false;
+			}
+		});
+		
+		return interior;
+	}
+});
+
+// make a symbol of an ditem without changing the position of the original item
+paper.Item.inject({
+	symbolize: function() {
+		// store position before making symbol
+		var origPosition = this.position;
+		// make symbol
+		var symbol = new paper.Symbol(this);
+		// restore position
+		this.position = origPosition;
+		// return symbol
+		return symbol;
+	}
+});
 
 var initTessDef = (function() {
 	
@@ -120,12 +137,9 @@ var initTessDef = (function() {
 					outerGroup.addChild(innerSymbol.place().transform(transform));
 				});
 			}
-			// store position of outer group before making symbol
-			var origPosition = outerGroup.position;
+			
 			// make symbol from outer group
-			var outerSymbol = new paper.Symbol(outerGroup);
-			// restore position of group
-			outerGroup.position = origPosition;
+			var outerSymbol = outerGroup.symbolize();
 			
 			// if there is a lattice defined, copy this group to each point
 			if(this.lattice) {
@@ -149,12 +163,7 @@ var initTessDef = (function() {
 				// update the outer group to be the lattice group
 				outerGroup = latticeGroup;
 				// create symbol for entire thing
-				// save position before creating symbol
-				origPosition = outerGroup.position;
-				// create symbol
-				var latticeSymbol = new paper.Symbol(outerGroup);
-				// restore position
-				outerGroup.position = origPosition;
+				var latticeSymbol = outerGroup.symbolize();
 				// store group and symbol on this
 				this.group = outerGroup;
 				this.symbol = latticeSymbol;
@@ -183,13 +192,8 @@ var initTessDef = (function() {
 
 			// create inner group
 			var group = new paper.Group(innerGroups.concat(this.polygons));
-			// TODO make function for creating a symbol without changing the definition item's position
-			// store position before making symbol
-			var origPosition = group.position;
-			// make symbol
-			var symbol = new paper.Symbol(group);
-			// restore position
-			group.position = origPosition;
+			// make symbol from group
+			var symbol = group.symbolize();
 			// return symbol
 			return symbol;
 		},
@@ -201,11 +205,7 @@ var initTessDef = (function() {
 			if(hitInfo) {
 				// create a symbol of the path
 				// save original position before creating symbol
-				var origPosition = path.position;
-				// create symbol
-				var symbol = new paper.Symbol(path);
-				// restore position
-				path.position = origPosition;
+				var symbol = path.symbolize();
 				// add the path back to active layer
 				paper.project.activeLayer.addChild(path);
 				// add path to the group where the matching polygon is
@@ -290,7 +290,7 @@ var initTessDef = (function() {
 			
 			// check against local polygons
 			$.each(this.polygons, function(index, polygon) {
-				if(isInterior(point, polygon)) {
+				if(polygon.isInterior(point)) {
 					hit = true;
 					hitInfo = {
 						polygon: polygon,
@@ -354,6 +354,7 @@ var initTessDef = (function() {
 			
 			while(!this.isReduced()) {
 				// find m to minimize v2 - m*v1
+				// TODO i think this is probably not correct
 				var m = Math.floor(v2length / v1length);
 				// set v2 = v2 - m*v1
 				this.v2 = this.v2.subtract(this.v1.multiply(m));
@@ -416,7 +417,7 @@ var initTessDef = (function() {
 											TrianglePoly.segments[2].point.subtract(TrianglePoly.segments[1].point)));
 											
 	var hitTestGroup = CreatePolyGroup();
-	hitTestGroup.addPolygon(TrianglePoly.clone());
+	hitTestGroup.addPolygon(TrianglePoly);
 	// TODO write group with transforms so we can test hitPolygons
 	hitTestGroup.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(120, TrianglePoly.firstSegment.point));
