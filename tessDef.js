@@ -360,7 +360,15 @@ var initTessDef = (function() {
 			while(!this.isReduced()) {
 				// find m to minimize v2 - m*v1
 				// TODO i think this is probably not correct
-				var m = Math.floor(v2length / v1length);
+				//var m = Math.floor(v2length / v1length);
+				// TODO this is right, but probably really slow
+				var m = 0;
+				var lastLength = this.v2.length;
+				var newlength
+				while((newlength = this.v2.subtract(this.v1.multiply(m+1)).length) < lastLength) {
+					m = m + 1;
+					lastLength = newlength;
+				}
 				// set v2 = v2 - m*v1
 				this.v2 = this.v2.subtract(this.v1.multiply(m));
 				// update length
@@ -390,6 +398,34 @@ var initTessDef = (function() {
 					symbol.place(this.v1.multiply(i).add(this.v2.multiply(j)));
 				}
 			}
+		},
+		// find the closest lattice point to a given point
+		closestPointTo: function(point) {
+			// TODO I don't know if this algorithm is correct
+			var latPoint = new paper.Point();
+			var newPoint;
+			while(1) {
+				if(Math.abs(v1.dot(point)) > Math.abs(v2.dot(point))) {
+					if(v1.dot(point) > 0) {
+						newPoint = latPoint.add(v1);
+					} else {
+						newPoint = latPoint.subtract(v1);
+					}
+				} else {
+					if(v2.dot(point) > 0) {
+						newPoint = latPoint.add(v2);
+					} else {
+						newPoint = latPoint.subtract(v2);
+					}
+				}
+				
+				if(newPoint.getDistance(point,true) < latPoint.getDistance(point, true)) {
+					latPoint = newPoint;
+				} else {
+					break;
+				}
+			}
+			return latPoint;
 		}
 	};
 	
