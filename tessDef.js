@@ -119,6 +119,11 @@ var initTessDef = (function() {
 				return this.symbol;
 			}
 			
+			// reduce the lattice basis if there is a lattice
+			if(this.lattice && !this.lattice.isReduced()) {
+				this.lattice.reduce();
+			}
+			
 			// get the group with the subgroups and local symbol placements
 			var innerSymbol = this.getInnerGroup(view);
 			
