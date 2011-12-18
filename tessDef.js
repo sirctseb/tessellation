@@ -192,19 +192,6 @@ var initTessDef = (function() {
 				var visible = [];
 				this.latticePoints = this.searchVisibleLattice(toCheck, checked, visible, outerSymbol, rect, latticeGroup);
 				
-				// TODO figure out what lattice points are in view
-				// TODO for testing, just do four points or so
-				/*for(var i = 0; i < 4; i++) {
-					for(var j = 0; j < 4; j++) {
-						// compute lattice point
-						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
-						// add lattice point to list of lattice points
-						this.latticePoints.push(location);
-						// add placed outer symbol to lattice group
-						latticeGroup.addChild(outerSymbol.place(location));
-					}
-				}*/
-				
 				// update the outer group to be the lattice group
 				outerGroup = latticeGroup;
 				// create symbol for entire thing
