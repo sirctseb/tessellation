@@ -180,10 +180,10 @@ var initTessDef = (function() {
 				var latticeGroup = new paper.Group();
 				
 				// get lattice points in rectangle
-				var rect = view.bounds.scale(0.4);
-				// make visible rectangle
-				var rectPath = new paper.Path.Rectangle(rect);
-				rectPath.strokeColor = 'blue';
+				var rect = view.bounds;
+				// TODO testing: make visible rectangle
+				/*var rectPath = new paper.Path.Rectangle(rect);
+				rectPath.strokeColor = 'blue';*/
 				// get lattice point closest to middle of rectangle
 				var closest = this.lattice.closestTo(rect.center);
 				// search for lattice points where symbol placement would be visible
