@@ -13,14 +13,8 @@
  */
 var $, paper; // declarations for jslint
 
-// TODO I have nowhere else to put this note:
-// if we have a compound path as a symbol definition, we can have
-// new paths added to the compound path and not even have to go through
-// to add individual path symbols to each symmetry group
-
 // check if a point is in the interior of an assumed convex polygon
 // TODO put this somewhere better
-//var isInterior = function(point, path) {
 paper.Path.inject({
 	isInterior: function(point) {
 		if(!this.closed) {
