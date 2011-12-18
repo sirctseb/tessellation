@@ -112,6 +112,46 @@ var initTessDef = (function() {
 			// TODO remove transforms to enforce mutual exclusivity?
 			this.lattice = lattice;
 		},
+		searchVisibleLattice: function(toCheck, checked, visible, symbol, rectangle, group) {
+			while(toCheck.length > 0) {
+				// search at the first point in toCheck
+				var coefs = toCheck.shift();
+				// mark point as checked
+				checked[coefs.toString()] = true;
+				// get lattice point
+				var location = this.lattice.getPoint(coefs);
+				// place a symbol at the lattice point
+				// TODO this wastes a lot if we don't end up creating the symbol
+				var placement = symbol.place(location);
+				// test if placement intersects rectangle
+				if(placement.bounds.intersects(rectangle)) {
+					// if so, mark as visible
+					visible.push(location);
+					// add placment to group
+					group.addChild(placement);
+					// add neighbors to search queue
+					var neighbors = [
+						new paper.Point(-1,-1), new paper.Point(0,-1), new paper.Point(1,-1),
+						new paper.Point(-1, 0), 						new paper.Point(1, 0),
+						new paper.Point(-1, 1), new paper.Point(0, 1), new paper.Point(1, 1)
+					];
+					$.each(neighbors, function(index, neighbor) {
+						var newPoint = neighbor.add(coefs);
+						if(!checked[newPoint.toString()]) {
+							// if not yet checked, add to search queue
+							toCheck.push(newPoint);
+							// marked as checked
+							checked[newPoint.toString()] = true;
+						}
+					});
+				} else {
+					// if not, remove symbol
+					placement.remove();
+				}
+			}
+			return visible;
+			
+		},
 		// render in a view
 		render: function(view) {
 			// if the symbol for this group is already defined, return it
@@ -152,9 +192,22 @@ var initTessDef = (function() {
 				// create a group for the lattice which will become the outer group
 				var latticeGroup = new paper.Group();
 				
+				// get lattice points in rectangle
+				var rect = view.bounds.scale(0.4);
+				// make visible rectangle
+				var rectPath = new paper.Path.Rectangle(rect);
+				rectPath.strokeColor = 'blue';
+				// get lattice point closest to middle of rectangle
+				var closest = this.lattice.closestTo(rect.center);
+				// search for lattice points where symbol placement would be visible
+				var toCheck = [closest.coefs];
+				var checked = {};
+				var visible = [];
+				this.latticePoints = this.searchVisibleLattice(toCheck, checked, visible, outerSymbol, rect, latticeGroup);
+				
 				// TODO figure out what lattice points are in view
 				// TODO for testing, just do four points or so
-				for(var i = 0; i < 4; i++) {
+				/*for(var i = 0; i < 4; i++) {
 					for(var j = 0; j < 4; j++) {
 						// compute lattice point
 						var location = this.lattice.v1.multiply(i).add(this.lattice.v2.multiply(j));
@@ -163,7 +216,7 @@ var initTessDef = (function() {
 						// add placed outer symbol to lattice group
 						latticeGroup.addChild(outerSymbol.place(location));
 					}
-				}
+				}*/
 				
 				// update the outer group to be the lattice group
 				outerGroup = latticeGroup;
@@ -399,33 +452,70 @@ var initTessDef = (function() {
 				}
 			}
 		},
-		// find the closest lattice point to a given point
-		closestPointTo: function(point) {
+		getPoint: function(coefs) {
+			return this.v1.multiply(coefs.x).add(this.v2.multiply(coefs.y));
+		},
+		closestTo: function(point) {
+			var dirs = [
+				new paper.Point(0,1), new paper.Point(1,0),
+				new paper.Point(0,-1), new paper.Point(-1,0)
+			];
+			var current = new paper.Point(0,0);
+			var curLocation = this.getPoint(current);
+			var closer = true;
+			var curDist = curLocation.getDistance(point, true);
+			var that = this;
+			var newDist;
+			while(closer) {
+				closer = false;
+				$.each(dirs, function(index, dir) {
+					var cur = current.add(dir);
+					var loc = that.getPoint(cur);
+					if((newDist = loc.getDistance(point, true)) < curDist) {
+						current = cur;
+						curLocation = loc;
+						curDist = newDist;
+						closer = true;
+					}
+				});
+			}
+			return {point: curLocation, coefs: current};
+			
+			
 			// TODO I don't know if this algorithm is correct
+			// TODO I'm pretty sure this algorithms is not correct
 			var latPoint = new paper.Point();
 			var newPoint;
+			var coefs = new paper.Point();
+			var newCoefs = new paper.Point();
 			while(1) {
-				if(Math.abs(v1.dot(point)) > Math.abs(v2.dot(point))) {
-					if(v1.dot(point) > 0) {
-						newPoint = latPoint.add(v1);
+				if(Math.abs(this.v1.dot(point)) > Math.abs(this.v2.dot(point))) {
+					if(this.v1.dot(point) > 0) {
+						newPoint = latPoint.add(this.v1);
+						newCoefs.x += 1;
 					} else {
-						newPoint = latPoint.subtract(v1);
+						newPoint = latPoint.subtract(this.v1);
+						newCoefs.x -= 1;
 					}
 				} else {
-					if(v2.dot(point) > 0) {
-						newPoint = latPoint.add(v2);
+					if(this.v2.dot(point) > 0) {
+						newPoint = latPoint.add(this.v2);
+						newCoefs.y += 1;
 					} else {
-						newPoint = latPoint.subtract(v2);
+						newPoint = latPoint.subtract(this.v2);
+						newCoefs.y -= 1;
 					}
 				}
 				
 				if(newPoint.getDistance(point,true) < latPoint.getDistance(point, true)) {
 					latPoint = newPoint;
+					coefs.x = newCoefs.x;
+					coefs.y = newCoefs.y;
 				} else {
 					break;
 				}
 			}
-			return latPoint;
+			return {point:latPoint, coefs:coefs};
 		}
 	};
 	
