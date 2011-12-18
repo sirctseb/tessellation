@@ -87,19 +87,6 @@ var initTessDef = (function() {
 		addPolygon: function(polygon) {
 			// add to list
 			this.polygons.push(polygon);
-			
-			// TODO trying to use symbol placements instead of groups at a higher level, so keep polygons as paths
-			/*
-			// create symbol from polygon
-			// store original position of the polygon because it will be set to zero when we symbolize it
-			var origPosition = polygon.position;
-			// create the symbol
-			var symbol = new paper.Symbol(polygon);
-			// restore position of polygon
-			polygon.position = origPosition;
-			// add symbol to list
-			this.symbols.push(symbol);
-			*/
 		},
 		addSubgroup: function(group) {
 			this.subgroups.push(group);
