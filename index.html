@@ -17,7 +17,7 @@
 		var app;
 			$(function() {
 				// Get a reference to the canvas object
-				var canvas = $("#testcanvas").get(0);
+				var canvas = $("#tessellation").get(0);
 
 				// Create an empty project and view for the canvas
 				paper.setup(canvas);
@@ -32,13 +32,127 @@
 		</script>
 	</head>
 	<body>
-		<header>
-			<h1>Paper.js stuff</h1>
-		</header>
-		<canvas id="testcanvas" width="401px" height="401px"></canvas>
-		<a href="javascript:app.viewInfo();">View Info</a>
-		<footer>
-			&copy; sirctseb
-		</footer>
+		
+		 <header ><h1>Tessellation<span class="visibleWhenLoaded"> - <span id="titlename"></span></span></h1></header>
+	<!--
+	<div id="delete">
+		<input type="button" onclick="del($('#deletename').val());" value="Delete">
+		<input type="text" placeholder="model name" id="deletename">
+	</div>-->
+	<div class="outercontainer">
+		
+		<div id="settings" class="rightmenu">
+			Settings
+			<div id="gridsettingcontainer" class="settinggroup">
+				<div>Grid lines</div>
+				<input type="radio" name="showgrid" value="show" onclick="$('#tessellation').tessellation('showGrid', true);" checked> Show<br>
+				<input type="radio" name="showgrid" value="hide" onclick="$('#tessellation').tessellation('showGrid', false);"> Hide <br>
+			</div>
+			<div id="pointcontainer" class="settinggroup">
+				<div>Selected point location</div>
+				<form action="javascript:setpoint();">
+				<input id="pointlocation" type="text" placeholder="(x,y)" pattern="\(\s*[-+]?[0-9]*\.?[0-9]+\s*,\s*[-+]?[0-9]*\.?[0-9]+\s*\)">
+				<input type="submit" value="Set">
+				</form>
+			</div>
+			<div id="keypathcontainer" class="settinggroup">
+				<div>Key path emphasis</div>
+				<input type="radio" name="emphasis" value="emphasize" onclick="$('#tessellation').tessellation('setEmphasis',true);" checked> Emphasize<br>
+				<input type="radio" name="emphasis" value="noemphasize" onclick="$('#tessellation').tessellation('setEmphasis',false);"> Do not emphasize<br>
+			</div>
+			<div id="scalecontainer" class="settinggroup">
+				<div>Scale</div>
+				<!-- TOOD no reason for label unless there's something else here -->
+				<!--<span>Scale:</span>-->
+				<input type="range" min="1" max="100" step="1" value="10" id="scaleslider" onchange="sliderUpdate();">
+				<span id="scale">1.0</span>
+			</div>
+			<div id="paramterizationcontainer" class="settinggroup">
+				<div>Parameterization</div>
+				<input type="radio" name="parameterization" value="Point-wise" onclick="Path.setParameterization('uniform'); $('#tessellation').tessellation('draw');" checked> Point-wise<br>
+				<input type="radio" name="parameterization" value="Length-wise" onclick="Path.setParameterization('length-wise'); $('#tessellation').tessellation('draw');"> Length-wise
+			</div>
+			<!--<div id="genurlcontainer" class="settinggroup">
+				<div><a href="javascript:$('#urltext').val(controller.generateURL());">Generate Link</a></div>
+				<input type="text" id="urltext" class="urltext" onchange="updateCount();">
+			</div>-->
+		</div>
+		<!--<div onclick="$('.error-wrap').toggle();">blah</div>-->
+		<div id="centralui" class="centralui">
+			<!-- TODO menu and command and stuff don't seem to be working -->
+			<div id="toolbar" class="toolbar">
+				
+				<span class="visibleWhenLoaded">
+					<span class="menucommand" onclick="clicksave();">
+						Save
+					</span>
+					<span class="commanddivider">|</span>
+				</span>
+				
+				<span class="menucommand" onclick="$('.savecommand').toggle(); $('.commandinfo').not('.savecommand').hide();">Save As...</span>
+				<div class="commandinfo savecommand">
+					<form action="javascript:clicksaveas();">
+						<input type="text" placeholder="name" id="savecommandname" onkeydown="$('#saveasnameerror').hide();">
+						<!-- TODO display:inline-block solves the floating problem of the icon, but i don't understand why -->
+						<span class="error-wrap" id="saveasnameerror">
+							<span class="ui-state-error" style="display:inline-block;">
+								<span class="ui-icon ui-icon-alert" style="float:left;"></span>
+								<!-- TODO any whitespace after the text and before </span> makes the element jump up for some reason -->
+								Name already taken</span>
+						</span>
+						<input type="submit" value="Go" id="savebutton">
+					</form>
+				</div>
+				
+				<span class="commanddivider">|</span>
+				
+				<span class="menucommand" onclick="$('.loadcommand').toggle(); $('.commandinfo').not('.loadcommand').hide();">Load...</span>
+				<div class="commandinfo loadcommand">
+					<form action="javascript:clickload();">
+						<input type="text" placeholder="name" id="loadcommandname" onkeydown="$('#loadnameerror').hide();">
+						<!-- TODO display:inline-block solves the floating problem of the icon, but i don't understand why -->
+						<span class="error-wrap" id="loadnameerror">
+							<span class="ui-state-error" style="display:inline-block;">
+								<span class="ui-icon ui-icon-alert" style="float:left;"></span>
+								<!-- TODO any whitespace after the text and before </span> makes the element jump up for some reason -->
+								No such tessellation</span>
+						</span>
+						<input type="submit" value="Go" id="loadbutton">
+					</form>
+				</div>
+				
+				<span class="visibleWhenLoaded" id="likeToolbarCommands">
+				
+					<span class="commanddivider">|</span>
+					
+					<span class="menucommand" onclick="like(true);">
+						Like
+					</span><span class="likes">(<span  id="likes"></span>)</span>
+					
+					<span class="commanddivider">|</span>
+					
+					<span class="menucommand" onclick="like(false);">
+						Dislike
+					</span><span class="dislikes">(<span  id="dislikes"></span>)</span>
+					
+					<span class="commanddivider">|</span>
+					
+					<span class="menucommand">
+						<a id="modellink" href="./" >Link to here</a>
+					</span>
+				</span>
+			</div>
+			<canvas width=801px height=601 id="tessellation" class="tesselation"></canvas>
+		</div>
+		<!--<div class="gallery-wrapper">-->
+		<div id="gallery" class="gallery">
+			Popular<br>
+			<!--<a href="javascript:loadGallery();">Load Gallery</a>-->
+			<!--- gallery of existing tessellations --->
+		</div>
+		
+		<div id="output"></div>
+	</div>
+	<footer>&copy; sirctseb</footer>
 	</body>
 </html>
