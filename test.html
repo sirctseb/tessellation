@@ -6,6 +6,7 @@
 		<link rel="stylesheet" href="style.css" />
 		<script type="text/javascript" src="jquery-1.6.1.js"></script>
 		<script type="text/javascript" src="paper.js"></script>
+		<script type="text/javascript" src="tessDef.js"></script>
 		<script type="text/javascript" src="tessellation.js"></script>
 		<script type="text/javascript" src="js.js"></script>
 		<script type="text/javascript">
@@ -27,8 +28,158 @@
 				console.log('view.zoom: ' + paper.view.zoom);
 				console.log('view.size: ' + paper.view.size);*/
 				
-				var circle = new paper.Path.Circle([50,50], 50);
-				circle.strokeColor = 'black';
+				var tessDef = initTessDef();
+				
+				// test lattice reduction
+				// seems to be working, should test better
+				/*var lattice = tessDef.Lattice.LatticeBy(new paper.Point(0,1), new paper.Point(1,10));
+				//var lattice = tessDef.Lattice.LatticeBy(new paper.Point(2.4, 5.3).multiply(1), new paper.Point(9.7, 4.2).multiply(1));
+				console.log(lattice.isReduced());
+				lattice.draw({i:[0,4],j:[0,4]});
+				lattice.reduceBasis();
+				lattice.draw({i:[0,4],j:[0,4]}, 'red');
+				console.log("u: " + lattice.v1.toString() + ", v: " + lattice.v2.toString());
+				console.log("|u|: " + lattice.v1.length + ", |v|: " + lattice.v2.length);
+				console.log(lattice.isReduced());*/
+				
+				// testing: does paper.Point have equals?
+				var p1 = new paper.Point(0.1,0.5);
+				var p2 = new paper.Point(0.1,0,5);
+				console.log('p1.equals(p1): ' + p1.equals(p1));
+				console.log('p1.equals(p2): ' + p1.equals(p2));
+				console.log('p1 == p1: ' + (p1 == p1));
+				console.log('p1 == p2: ' + (p1 == p2));
+				
+				// test if you can make symbols of groups
+				/*var tri = new paper.Path.RegularPolygon([50,50],3,20);
+				tri.strokeColor = 'red';
+				var sq = new paper.Path.RegularPolygon([40,40],4,10);
+				sq.strokeColor = 'blue';
+				var group = new paper.Group([tri,sq]);
+				var gSym = new paper.Symbol(group);
+				var placed00 = gSym.place();
+				var placed5050 = gSym.place([50,50]);
+				placed5050.rotate(30);
+				// answer: yes! you can
+				// continue testing if you can add stuff to the group and it shows up in the
+				// group symbol placements
+				var pent = new paper.Path.RegularPolygon([30,30],5,15);
+				pent.strokeColor = 'green';
+				//pent.remove();
+				group.addChild(pent);
+				console.log(placed00.parent.toString());
+				// answer: yes! you can
+				// continue testing if you can create groups of placed symbols
+				var supergroup = new paper.Group([placed00,placed5050]);
+				var origPosition = supergroup.position;
+				// answer: yes! you can
+				// continue testing if you can create symbols from a group containing placed symbols
+				var supersym = new paper.Symbol(supergroup);
+				supergroup.position = origPosition;
+				supersym.place();
+				supersym.place([40, -10]);
+				// answer: yes! you can
+				// continue testing if you can add stuff to the very original group, and it shows up
+				// in the placement of the symbol of the group of the placed symbols of the original group
+				var circ = new paper.Path.Circle([10,10],10);
+				circ.strokeColor = 'black';
+				group.addChild(circ);
+				// answer: yes! you can
+				*/
+				
+				
+				
+				// test isInterior method of paper.Path defined in tessDef.js
+				/*var poly = new paper.Path.Rectangle([10,10], 10);
+				poly.strokeColor = 'red';
+				console.log('false: ' + isInterior([9,9], poly));
+				console.log('true: ' + isInterior([11,11], poly));
+				console.log('true: ' + isInterior([19,16], poly));
+				console.log('false: ' + isInterior([21,13], poly));
+				
+				var tri = new paper.Path.RegularPolygon([50,50], 3, 40);
+				//tri.reverse();
+				console.log("triangle is clockwise: " + tri.clockwise);
+				tri.strokeColor = 'green';
+				var hit = new paper.Path.Circle([0,0],2);
+				hit.fillColor = 'green';
+				var miss = hit.clone();
+				miss.fillColor = 'red';
+				var hitSym = new paper.Symbol(hit);
+				var missSym = new paper.Symbol(miss);
+				for(var i = 0; i < 1000; i++) {
+					var point = new paper.Point(Math.random()*100, Math.random()*100);
+					if(isInterior(point, tri)) {
+						hitSym.place(point);
+					} else {
+						missSym.place(point);
+					}
+				}*/
+				
+				// what do matrices look like by default?
+				// answer: it's an identity matrix
+				/*var mat = new paper.Matrix();
+				console.log(mat.toString());*/
+				
+				//var circle = new paper.Path.Circle([50,50], 50);
+				//circle.strokeColor = 'black';
+				
+				// can you hit fill if it has no fill?
+				// answer: no you cannot hit fill if it has not fill
+				/*console.log('hit test: ' + circle.hitTest([50,50]));
+				circle.fillColor = 'red';
+				console.log('hit test: ' + circle.hitTest([50,50]));
+				circle.fillColor = null;*/
+				
+				// testing:
+				// can you hit test against placed symbols?
+				/*var triangle = new paper.Path.RegularPolygon([50,50], 3, 50);
+				triangle.strokeColor = 'black';
+				//triangle.fillColor = 'red';
+				var hitResult = paper.project.activeLayer.hitTest([50,50]);
+				console.log(hitResult);
+				var pos = triangle.position;
+				var triSymbol = new paper.Symbol(triangle);
+				triangle.position = pos;
+				var placed = triSymbol.place([10,10]);
+				var hitResult = paper.project.activeLayer.hitTest([50,50]);
+				console.log(hitResult);
+				placed.selected = true;
+				console.log(triangle.hitTest([50,50]));
+				//triangle.visible = false;
+				var group = new paper.Group([new paper.Group([triangle])]);
+				group.fillColor = 'yellow';
+				console.log(group.hitTest([50,50]));
+				//group.fillColor = null;
+				*/
+				
+				// testing:
+				// do transforms applied to a group apply to children that are added after
+				// the transform was applied?
+				// answer: NOPE! this is a problem
+				/*var square = new paper.Path.Rectangle([50,50], 10);
+				square.strokeColor = 'blue';
+				var triangle = new paper.Path.RegularPolygon([50,50],3,  10);
+				triangle.strokeColor = 'red';
+				var group = new paper.Group([square]);
+				group.translate([10,10]);
+				group.addChild(triangle);
+				group.translate([10,10]);*/
+				// same as above holds for layers
+				/*triangle.remove();
+				paper.project.activeLayer.translate([10,10]);
+				paper.project.activeLayer.addChild(triangle);*/ 
+				
+				/*
+				console.log(circle.position.toString());
+				var origPosition = circle.position;
+				var sym = new paper.Symbol(circle);
+				console.log(circle.position.toString());
+				sym.definition.position = origPosition;
+				console.log(circle.position.toString());
+				var anothersym = new paper.Symbol(circle);
+				console.log(circle.position.toString());
+				console.log("end");
 				
 				var subcircle = new paper.Path.Circle([50,50], 20);
 				subcircle.strokeColor = 'red';
@@ -46,7 +197,7 @@
 				console.log(circle.position.toString());
 				//paper.project.activeLayer.addChild(circle);
 				var circSymbol = new paper.Symbol(circle);
-				console.log(circle.position.toString());
+				console.log(circle.position.toString());*/
 				
 				
 				// draw the view
