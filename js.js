@@ -252,72 +252,19 @@ var app = ( function() {
 		function mouseDrag(event) {
 			// scale if alt is held
 			if(event.modifiers.option) {
-				var newWay = true;
-				if(!newWay) {
-					// scale with respect to the upper-left corner of the current tile
-					// get upper left point
-					var ulPoint = tessellationToPaper(getTileAt(event.point));
-					// get last mouse point distance sq
-					var lastDistSq = event.lastPoint.getDistance(ulPoint, true);
-					// get current mouse point distance sq
-					var curDistSq = event.point.getDistance(ulPoint, true);
-					// get ratio
-					var scaleRatio = curDistSq / lastDistSq;
-					// modify scale
-					grid.scale *= scaleRatio;
-					// scale existing paths
-					paper.project.layers[settings.editLayer].scale(scaleRatio, ulPoint);
-					paper.project.layers[settings.gridLayer].scale(scaleRatio, ulPoint);
-					// TODO figure out how to keep this stuff in sync with the grid scale and translation
-					// one solution would be to make everything a symbol and then we can set the matrix directly
-					// we could write methods on PlacedItem to set parts of the matrix directly
-					// but then we lose the feature of only changing the symbol definitions
-					// can you make a symbol based on another symbol? if so, do both matrices get applied?
-				} else {
-					// get upper left point
-					var ulPoint = tessellationToPaper(getTileAt(event.point));
-					console.log('ulPoint: ' + ulPoint.toString());
-					var origDistSq = event.downPoint.getDistance(ulPoint,false);
-					console.log('orignDist: ' + origDistSq.toString());
-					var curDistSq = event.point.getDistance(ulPoint,false);
-					console.log('curDist: ' + curDistSq.toString());
-					paper.view.zoom = paper.view.zoom * curDistSq / origDistSq;
-					console.log('ratio: ' + origDistSq / curDistSq);
-					console.log('zoom: ' + paper.view.zoom);
-					paper.view.center = ulPoint.add(paper.view.center.subtract(ulPoint).multiply(
-						//1 / paper.view.center.getDistance(ulPoint) * origDistSq / curDistSq
-						origDistSq / curDistSq
-					));
-					console.log('center: ' + paper.view.center.toString());
-					paper.view.draw();
-					grid.origin = paper.view.center;
-					grid.scale = grid.scale * origDistSq / curDistSq;
-					
-					// scale from center
-					/*var dist1 = event.downPoint.getDistance(paper.view.center,true);
-					var dist2 = event.point.getDistance(paper.view.center,true);
-					paper.view.zoom = paper.view.zoom * dist2 / dist1;
-					paper.view.draw();*/
-				}
+				// get view center point
+				var center = paper.view.center;
+				
+				// get distance from mousedown point to center
+				var downDistance = event.downPoint.getDistance(center);
+				
+				// get distance from new point to center
+				var currentDistance = event.point.getDistance(center);
+				
+				// adjust scale by ratio
+				paper.view.zoom = paper.view.zoom * currentDistance / downDistance;
 			} else {
-				var newWay = true;
-				if(!newWay) {
-					// translate only the layer with the original paths and the layer with the grid
-					// if you translate the symbol layer, the symbols get translated twice because you're
-					// translating the definition also
-					paper.project.layers[settings.editLayer].translate(event.delta);
-					paper.project.layers[settings.gridLayer].translate(event.delta);
-					// update the origin
-					grid.origin = grid.origin.add(event.delta);
-				} else {					
-					// TODO try doing it in view
-					//paper.view.center = paper.view.center.subtract(event.delta);
-					// can't use delta because lastPoint is express in
-					// the project coordinates that existed before the move 
-					paper.view.center = paper.view.center.subtract(event.point.subtract(event.downPoint));
-					// TODO i can never tell when we'll have to call draw()
-					paper.view.draw();
-				}
+				paper.view.scrollBy(event.downPoint.subtract(event.point).multiply(paper.view.zoom));
 			}
 		}
 
