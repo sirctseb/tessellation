@@ -100,11 +100,21 @@ var initTessDef = (function() {
 			
 		},
 		searchVisibleLattice: function(toCheck, symbol, rectangle, group) {
-			visible = [];
-			checked = {};
+			var visible = [];
+			var checked = {};
+			var coefs;
+			var addNeighbors = function(index, neighbor) {
+				var newPoint = neighbor.add(coefs);
+				if(!checked[newPoint.toString()]) {
+					// if not yet checked, add to search queue
+					toCheck.push(newPoint);
+					// marked as checked
+					checked[newPoint.toString()] = true;
+				}
+			};
 			while(toCheck.length > 0) {
 				// search at the first point in toCheck
-				var coefs = toCheck.shift();
+				coefs = toCheck.shift();
 				// mark point as checked
 				checked[coefs.toString()] = true;
 				// get lattice point
@@ -121,18 +131,10 @@ var initTessDef = (function() {
 					// add neighbors to search queue
 					var neighbors = [
 						new paper.Point(-1,-1), new paper.Point(0,-1), new paper.Point(1,-1),
-						new paper.Point(-1, 0), 						new paper.Point(1, 0),
+						new paper.Point(-1, 0),						new paper.Point(1, 0),
 						new paper.Point(-1, 1), new paper.Point(0, 1), new paper.Point(1, 1)
 					];
-					$.each(neighbors, function(index, neighbor) {
-						var newPoint = neighbor.add(coefs);
-						if(!checked[newPoint.toString()]) {
-							// if not yet checked, add to search queue
-							toCheck.push(newPoint);
-							// marked as checked
-							checked[newPoint.toString()] = true;
-						}
-					});
+					$.each(neighbors, addNeighbors);
 				} else {
 					// if not, remove symbol
 					placement.remove();
