@@ -93,11 +93,37 @@ var initTessDef = (function() {
 			// TODO remove transforms to enforce mutual exclusivity?
 			this.lattice = lattice;
 		},
-		onResize: function() {
-			this.recomputeLattice();
+		onResize: function(view) {
+			// TODO if lattice exists
+			this.recomputeLattice(view);
 		},
-		recomputeLattice: function() {
+		recomputeLattice: function(view) {
+			// TODO if lattice exists
+		},
+		doInitialLatticePlacement: function(view, symbol) {
+			// create a group for the lattice which will become the outer group
+			var latticeGroup = new paper.Group();
 			
+			// get lattice points in rectangle
+			var rect = view.bounds;
+			// TODO testing: make visible rectangle
+			/*var rectPath = new paper.Path.Rectangle(rect);
+			rectPath.strokeColor = 'blue';*/
+			// get lattice point closest to middle of rectangle
+			var closest = this.lattice.closestTo(rect.center);
+			// search for lattice points where symbol placement would be visible
+			var toCheck = [closest.coefs];
+			this.latticePoints = this.searchVisibleLattice(toCheck, symbol, rect, latticeGroup).visible;
+			
+			// update the outer group to be the lattice group
+			var outerGroup = latticeGroup;
+			// create symbol for entire thing
+			var latticeSymbol = outerGroup.symbolize();
+			// store group and symbol on this
+			this.group = outerGroup;
+			this.symbol = latticeSymbol;
+			// finally, place entire symbol
+			this.symbol.place();
 		},
 		// return {'visible': the list of lattice locations where the placed symbol bounds intersect the supplied rectangle,
 		//			'checked': an object with an attribute for every coefficient pair that was checked. the value is true iff
@@ -190,13 +216,13 @@ var initTessDef = (function() {
 			if(this.lattice) {
 				
 				// create a group for the lattice which will become the outer group
-				var latticeGroup = new paper.Group();
+				/*var latticeGroup = new paper.Group();
 				
 				// get lattice points in rectangle
 				var rect = view.bounds;
 				// TODO testing: make visible rectangle
-				/*var rectPath = new paper.Path.Rectangle(rect);
-				rectPath.strokeColor = 'blue';*/
+				//var rectPath = new paper.Path.Rectangle(rect);
+				//rectPath.strokeColor = 'blue';
 				// get lattice point closest to middle of rectangle
 				var closest = this.lattice.closestTo(rect.center);
 				// search for lattice points where symbol placement would be visible
@@ -211,7 +237,8 @@ var initTessDef = (function() {
 				this.group = outerGroup;
 				this.symbol = latticeSymbol;
 				// finally, place entire symbol
-				this.symbol.place();
+				this.symbol.place();*/
+				this.doInitialLatticePlacement(view, outerSymbol);
 			} else {
 				// if there is no lattice, place one instance of the symbol for this group
 				outerSymbol.place();
