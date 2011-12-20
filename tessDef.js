@@ -112,7 +112,6 @@ var initTessDef = (function() {
 			var addNeighbors = function(index, neighbor) {
 				// produce the actual coefficients
 				var newPoint = neighbor.add(coefs);
-				//if(!checked[newPoint.toString()]) {
 				if(!checked.hasOwnProperty(newPoint.toString())) {
 					// if not yet checked, add to search queue
 					toCheck.push(newPoint);
