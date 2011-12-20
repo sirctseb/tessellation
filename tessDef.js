@@ -99,17 +99,23 @@ var initTessDef = (function() {
 		recomputeLattice: function() {
 			
 		},
+		// return {'visible': the list of lattice locations where the placed symbol bounds intersect the supplied rectangle,
+		//			'checked': an object with an attribute for every coefficient pair that was checked. the value is true iff
+		//						the symbol placement at the corresponding location is visible }
 		searchVisibleLattice: function(toCheck, symbol, rectangle, group) {
+			// visible is the master list of actual project coordinate locations of visible lattice points
 			var visible = [];
+			// checked has an attribute for every lattice coefficient pair that has been searched
 			var checked = {};
 			var coefs;
+			// addNeighbors is a function for adding neighbors to the search queue
 			var addNeighbors = function(index, neighbor) {
+				// produce the actual coefficients
 				var newPoint = neighbor.add(coefs);
-				if(!checked[newPoint.toString()]) {
+				//if(!checked[newPoint.toString()]) {
+				if(!checked.hasOwnProperty(newPoint.toString())) {
 					// if not yet checked, add to search queue
 					toCheck.push(newPoint);
-					// marked as checked
-					checked[newPoint.toString()] = true;
 				}
 			};
 			while(toCheck.length > 0) {
@@ -126,6 +132,8 @@ var initTessDef = (function() {
 				if(placement.bounds.intersects(rectangle)) {
 					// if so, mark as visible
 					visible.push(location);
+					// put in checked object
+					checked[coefs.toString()] = true;
 					// add placment to group
 					group.addChild(placement);
 					// add neighbors to search queue
@@ -138,6 +146,8 @@ var initTessDef = (function() {
 				} else {
 					// if not, remove symbol
 					placement.remove();
+					// set value in checked object
+					checked[coefs.toString()] = false;
 				}
 			}
 			return visible;
