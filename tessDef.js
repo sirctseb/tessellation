@@ -149,7 +149,7 @@ var initTessDef = (function() {
 					checked[coefs.toString()] = false;
 				}
 			}
-			return visible;
+			return {'visible': visible, 'checked': checked};
 			
 		},
 		// render in a view
@@ -201,7 +201,7 @@ var initTessDef = (function() {
 				var closest = this.lattice.closestTo(rect.center);
 				// search for lattice points where symbol placement would be visible
 				var toCheck = [closest.coefs];
-				this.latticePoints = this.searchVisibleLattice(toCheck, outerSymbol, rect, latticeGroup);
+				this.latticePoints = this.searchVisibleLattice(toCheck, outerSymbol, rect, latticeGroup).visible;
 				
 				// update the outer group to be the lattice group
 				outerGroup = latticeGroup;
