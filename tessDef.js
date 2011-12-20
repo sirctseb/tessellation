@@ -99,7 +99,9 @@ var initTessDef = (function() {
 		recomputeLattice: function() {
 			
 		},
-		searchVisibleLattice: function(toCheck, checked, visible, symbol, rectangle, group) {
+		searchVisibleLattice: function(toCheck, symbol, rectangle, group) {
+			visible = [];
+			checked = {};
 			while(toCheck.length > 0) {
 				// search at the first point in toCheck
 				var coefs = toCheck.shift();
@@ -188,9 +190,7 @@ var initTessDef = (function() {
 				var closest = this.lattice.closestTo(rect.center);
 				// search for lattice points where symbol placement would be visible
 				var toCheck = [closest.coefs];
-				var checked = {};
-				var visible = [];
-				this.latticePoints = this.searchVisibleLattice(toCheck, checked, visible, outerSymbol, rect, latticeGroup);
+				this.latticePoints = this.searchVisibleLattice(toCheck, outerSymbol, rect, latticeGroup);
 				
 				// update the outer group to be the lattice group
 				outerGroup = latticeGroup;
