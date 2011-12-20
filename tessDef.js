@@ -83,6 +83,7 @@ var initTessDef = (function() {
 			this.polygons.push(polygon);
 		},
 		addSubgroup: function(group) {
+			group.parent = this;
 			this.subgroups.push(group);
 		},
 		addTransform: function(transform) {
@@ -185,6 +186,10 @@ var initTessDef = (function() {
 				// undo placement translation
 				placement.translate(location.negate());
 			}
+			
+			// remove test placement
+			placement.remove();
+			
 			return {'visible': visible, 'checked': checked};
 			
 		},
@@ -229,7 +234,9 @@ var initTessDef = (function() {
 				
 			} else {
 				// if there is no lattice, place one instance of the symbol for this group
-				outerSymbol.place();
+				if(!this.parent) {
+					outerSymbol.place();
+				}
 				// and store group and symbol on this
 				this.group = outerGroup;
 				this.symbol = outerSymbol;
