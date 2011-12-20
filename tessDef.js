@@ -93,6 +93,12 @@ var initTessDef = (function() {
 			// TODO remove transforms to enforce mutual exclusivity?
 			this.lattice = lattice;
 		},
+		onResize: function() {
+			this.recomputeLattice();
+		},
+		recomputeLattice: function() {
+			
+		},
 		searchVisibleLattice: function(toCheck, checked, visible, symbol, rectangle, group) {
 			while(toCheck.length > 0) {
 				// search at the first point in toCheck
