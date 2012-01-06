@@ -100,16 +100,62 @@ var initTessDef = (function() {
 		},
 		recomputeLattice: function(view) {
 			// TODO if lattice exists
+			var lastPlacement = this.placement;
+			
+			// get lattice points in rectangle
+			// TODO debugging
+			var rect;
+			if(this.rect) {
+				rect = this.rect.bounds;
+			}
+			//var rect = view.bounds;
+			// get lattice point closest to middle of rect
+			var closest = this.lattice.closestTo(rect.center);
+			// search for lattice poitns where symbol placement would be visible
+			var toCheck = [closest.coefs];
+			// TODO need to get symbol from group without lattice
+			var newPlacement = this.searchVisibleLattice(toCheck, this.symbol, rect, null);
+			// TODO compare new placment and old placement
+			// draw at locations in new placement but not in old
+			// remove locations in old but not in new
+			var that = this;
+			$.each(newPlacement.checked, function(coef, visible) {
+				if(visible) {
+					if(false === lastPlacement.checked[coef]) {
+						// new point visible, place and add to lattice group
+						that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
+						// name child
+						that.latticeGroup.lastChild.name = coef;
+						//console.log('placing new symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
+					}
+				}
+			});
+			$.each(lastPlacement.checked, function(coef, visible) {
+				if(visible) {
+					//console.log('visible: ' + visible);
+					//console.log('!newPlacement[coef]: ' + !newPlacement.checked[coef]);
+					//console.log('newPlacement[coef]: ' + newPlacement.checked[coef]);
+					if(!newPlacement.checked[coef]) {
+						// newly not-visible point: remove
+						console.log('removing symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
+						console.log(that.latticeGroup.children[coef]);
+						that.latticeGroup.children[coef].remove();
+					}
+				}
+			});
+			this.placement = newPlacement;
 		},
 		doInitialLatticePlacement: function(view, symbol) {
 			// create a group for the lattice which will become the outer group
 			var latticeGroup = new paper.Group();
 			
 			// get lattice points in rectangle
-			var rect = view.bounds;
+			//var rect = view.bounds;
+			var rect = new paper.Rectangle(50, 50, 100, 100);
 			// TODO testing: make visible rectangle
-			/*var rectPath = new paper.Path.Rectangle(rect);
-			rectPath.strokeColor = 'blue';*/
+			var rectPath = new paper.Path.Rectangle(rect);
+			this.rect = rectPath;
+			rectPath.strokeColor = 'blue';
 			// get lattice point closest to middle of rectangle
 			var closest = this.lattice.closestTo(rect.center);
 			// search for lattice points where symbol placement would be visible
@@ -118,8 +164,17 @@ var initTessDef = (function() {
 			this.latticePoints = placement.visible;
 			
 			// place symbols at the visible points
-			$.each(this.latticePoints, function(index, point) {
-				latticeGroup.addChild(symbol.place(point));
+			//$.each(this.latticePoints, function(index, point) {
+				// TODO set child's name based on the coef values so that we can remove it later
+				//latticeGroup.addChild(symbol.place(point));
+			//});
+			// TODO replacing above loop with loop over coefs so that we can store name
+			var that = this;
+			$.each(placement.checked, function(coef, visible) {
+				if(visible) {
+					latticeGroup.addChild(symbol.place(that.lattice.getPoint(visible)));
+					latticeGroup.lastChild.name = coef;
+				}
 			});
 			
 			// update the outer group to be the lattice group
@@ -127,13 +182,14 @@ var initTessDef = (function() {
 			// create symbol for entire thing
 			var latticeSymbol = outerGroup.symbolize();
 			// store group and symbol on this
-			this.group = outerGroup;
-			this.symbol = latticeSymbol;
+			// TODO this is clobbered in render
+			this.latticeGroup = outerGroup;
+			this.latticeSymbol = latticeSymbol;
 			// finally, place entire symbol
-			this.symbol.place();
+			this.latticeSymbol.place();
 			
 			// store placement info for resizing
-			this.checked = placement.checked;
+			this.placement = placement;
 		},
 		// return {'visible': the list of lattice locations where the placed symbol bounds intersect the supplied rectangle,
 		//			'checked': an object with an attribute for every coefficient pair that was checked. the value is true iff
@@ -171,7 +227,7 @@ var initTessDef = (function() {
 					// if so, mark as visible
 					visible.push(location);
 					// put in checked object
-					checked[coefs.toString()] = true;
+					checked[coefs.toString()] = coefs;
 					// add neighbors to search queue
 					var neighbors = [
 						new paper.Point(-1,-1), new paper.Point(0,-1), new paper.Point(1,-1),
@@ -237,10 +293,11 @@ var initTessDef = (function() {
 				if(!this.parent) {
 					outerSymbol.place();
 				}
-				// and store group and symbol on this
-				this.group = outerGroup;
-				this.symbol = outerSymbol;
 			}
+			
+			// store group and symbol on this
+			this.group = outerGroup;
+			this.symbol = outerSymbol;
 
 			return this.symbol;
 		},
