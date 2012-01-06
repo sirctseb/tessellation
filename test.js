@@ -6,6 +6,22 @@ Object.create = function(o) {
 	return new F();
 };
 
+var o1 = {'a': true, 'b': false, 'c': true };
+var o2 = {'a': false, 'c': true };
+if(o1['a'] === o2['a']) {
+	console.log('a matches');
+} else {
+	console.log('a no match');
+}
+if(false === o2['b']) {
+	console.log('b matches');
+} else {
+	console.log('b no match');
+}
+if(o1['c'] === o2['c']) {
+	console.log('c matches');
+}
+
 var newobj = Object.create(obj);
 console.log(newobj.field1);
 newobj.field1 = "val2";
