@@ -99,6 +99,8 @@ var initTessDef = (function() {
 			this.recomputeLattice(view);
 		},
 		recomputeLattice: function(view) {
+			// TODO there is probably a better way to do this
+
 			// TODO if lattice exists
 			var lastPlacement = this.placement;
 			
@@ -129,25 +131,14 @@ var initTessDef = (function() {
 					if(false === lastPlacement.checked[coef]) {
 						// new point visible, place and add to lattice group
 						that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
-						var label = new paper.PointText(that.latticeGroup.lastChild.position);
-						//var label = new paper.Path.Circle(that.lattice.getPoint(visible), 20);
-						label.strokeColor = 'blue';
-						label.content = coef;
-						label.justification = 'center';
-						that.latticeGroup.lastChild.label = label;
-						console.log('label: ' + that.latticeGroup.lastChild.label);
 						// name child
 						that.latticeGroup.lastChild.name = coef;
 						console.log('name label: ' + that.latticeGroup.children[coef].label);
-						//console.log('placing new symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
 					}
 				}
 			});
 			$.each(lastPlacement.checked, function(coef, visible) {
 				if(visible) {
-					//console.log('visible: ' + visible);
-					//console.log('!newPlacement[coef]: ' + !newPlacement.checked[coef]);
-					//console.log('newPlacement[coef]: ' + newPlacement.checked[coef]);
 					if(!newPlacement.checked[coef]) {
 						// newly not-visible point: remove
 						console.log('removing symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
@@ -173,19 +164,6 @@ var initTessDef = (function() {
 			var rectPath = new paper.Path.Rectangle(rect);
 			this.rect = rectPath;
 			rectPath.strokeColor = 'blue';
-			/*rectPath.onMouseDown = function(event) {
-				this.drag = true;
-			};
-			rectPath.onMouseUp = function(event) {
-				this.drag = false;
-			};
-			var that = this;
-			rectPath.onMouseMove = function(event) {
-				if(this.drag) {
-					this.translate(event.delta);
-					that.onResize(paper.view);
-				}
-			};*/
 			// get lattice point closest to middle of rectangle
 			var closest = this.lattice.closestTo(rect.center);
 			// search for lattice points where symbol placement would be visible
@@ -204,15 +182,6 @@ var initTessDef = (function() {
 				if(visible) {
 					latticeGroup.addChild(symbol.place(that.lattice.getPoint(visible)));
 					latticeGroup.lastChild.name = coef;
-					
-					// TODO debugging
-					var label = new paper.PointText(latticeGroup.lastChild.position);
-					//var label = new paper.Path.Circle(that.lattice.getPoint(visible), 20);
-					label.strokeColor = 'blue';
-					label.content = coef;
-					label.justification = 'center';
-					latticeGroup.lastChild.label = label;
-					console.log('label: ' + latticeGroup.lastChild.label);
 					// name child
 					latticeGroup.lastChild.name = coef;
 					console.log('name label: ' + latticeGroup.children[coef].label);
@@ -566,10 +535,6 @@ var initTessDef = (function() {
 				new paper.Point(-1, -1), new paper.Point(0,-1), new paper.Point(1,-1),
 				new paper.Point(-1, 0),							, new paper.Point(1,0),
 				new paper.Point(-1, 1), new paper.Point(0,1), new paper.Point(1,1)
-				// TODO doing only these directions produced bugs where the closest point would
-				// not be found correctly
-				/*new paper.Point(0,1), new paper.Point(1,0),
-				new paper.Point(0,-1), new paper.Point(-1,0)*/
 			];
 			var current = new paper.Point(0,0);
 			var curLocation = this.getPoint(current);
