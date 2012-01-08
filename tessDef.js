@@ -115,6 +115,11 @@ var initTessDef = (function() {
 			var toCheck = [closest.coefs];
 			// TODO need to get symbol from group without lattice
 			var newPlacement = this.searchVisibleLattice(toCheck, this.symbol, rect, null);
+			// TODO debugging empty placement problem
+			if(newPlacement.visible.length === 0) {
+				console.log("something went very wrong");
+				closest = this.lattice.closestTo(rect.center);
+			}
 			// TODO compare new placment and old placement
 			// draw at locations in new placement but not in old
 			// remove locations in old but not in new
@@ -124,8 +129,16 @@ var initTessDef = (function() {
 					if(false === lastPlacement.checked[coef]) {
 						// new point visible, place and add to lattice group
 						that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
+						var label = new paper.PointText(that.latticeGroup.lastChild.position);
+						//var label = new paper.Path.Circle(that.lattice.getPoint(visible), 20);
+						label.strokeColor = 'blue';
+						label.content = coef;
+						label.justification = 'center';
+						that.latticeGroup.lastChild.label = label;
+						console.log('label: ' + that.latticeGroup.lastChild.label);
 						// name child
 						that.latticeGroup.lastChild.name = coef;
+						console.log('name label: ' + that.latticeGroup.children[coef].label);
 						//console.log('placing new symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
 					}
 				}
@@ -138,7 +151,11 @@ var initTessDef = (function() {
 					if(!newPlacement.checked[coef]) {
 						// newly not-visible point: remove
 						console.log('removing symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
-						console.log(that.latticeGroup.children[coef]);
+						console.log('child: ' + that.latticeGroup.children[coef]);
+						if(that.latticeGroup.children[coef] && that.latticeGroup.children[coef].label) {
+							that.latticeGroup.children[coef].label.remove();
+							console.log('removing label');
+						}
 						that.latticeGroup.children[coef].remove();
 					}
 				}
@@ -156,6 +173,19 @@ var initTessDef = (function() {
 			var rectPath = new paper.Path.Rectangle(rect);
 			this.rect = rectPath;
 			rectPath.strokeColor = 'blue';
+			/*rectPath.onMouseDown = function(event) {
+				this.drag = true;
+			};
+			rectPath.onMouseUp = function(event) {
+				this.drag = false;
+			};
+			var that = this;
+			rectPath.onMouseMove = function(event) {
+				if(this.drag) {
+					this.translate(event.delta);
+					that.onResize(paper.view);
+				}
+			};*/
 			// get lattice point closest to middle of rectangle
 			var closest = this.lattice.closestTo(rect.center);
 			// search for lattice points where symbol placement would be visible
@@ -174,6 +204,18 @@ var initTessDef = (function() {
 				if(visible) {
 					latticeGroup.addChild(symbol.place(that.lattice.getPoint(visible)));
 					latticeGroup.lastChild.name = coef;
+					
+					// TODO debugging
+					var label = new paper.PointText(latticeGroup.lastChild.position);
+					//var label = new paper.Path.Circle(that.lattice.getPoint(visible), 20);
+					label.strokeColor = 'blue';
+					label.content = coef;
+					label.justification = 'center';
+					latticeGroup.lastChild.label = label;
+					console.log('label: ' + latticeGroup.lastChild.label);
+					// name child
+					latticeGroup.lastChild.name = coef;
+					console.log('name label: ' + latticeGroup.children[coef].label);
 				}
 			});
 			
@@ -521,8 +563,13 @@ var initTessDef = (function() {
 		},
 		closestTo: function(point) {
 			var dirs = [
-				new paper.Point(0,1), new paper.Point(1,0),
-				new paper.Point(0,-1), new paper.Point(-1,0)
+				new paper.Point(-1, -1), new paper.Point(0,-1), new paper.Point(1,-1),
+				new paper.Point(-1, 0),							, new paper.Point(1,0),
+				new paper.Point(-1, 1), new paper.Point(0,1), new paper.Point(1,1)
+				// TODO doing only these directions produced bugs where the closest point would
+				// not be found correctly
+				/*new paper.Point(0,1), new paper.Point(1,0),
+				new paper.Point(0,-1), new paper.Point(-1,0)*/
 			];
 			var current = new paper.Point(0,0);
 			var curLocation = this.getPoint(current);

@@ -265,8 +265,8 @@ var app = ( function() {
 				paper.view.zoom = paper.view.zoom * currentDistance / downDistance;
 			} else {
 				// TODO debugging
-				if(app.tess.rect) {
-					console.log('moving rect');
+				if(app.tess.rect && app.tess.rect.bounds.contains(event.point)) {
+					//console.log('moving rect');
 					//app.tess.rect.point = app.tess.rect.point.add(event.delta);
 					app.tess.rect.translate(event.delta);
 				} else {
@@ -362,6 +362,12 @@ var app = ( function() {
 		//triangle.strokeColor = 'black';
 		
 		var tessDef = initTessDef();
+		
+		// TODO for debugging: draw coordinate axes
+		var xaxis = new paper.Path([[0,-100], [0,100]]);
+		xaxis.strokeColor = 'red';
+		var yaxis = new paper.Path([[-100,0], [100,0]]);
+		yaxis.strokeColor = 'red';
 		
 		//tessDef.PolyGroup44.render(paper.view);
 		tessDef.GroupHex.render(paper.view);
