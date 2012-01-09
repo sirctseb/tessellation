@@ -1,8 +1,8 @@
 var paper, console, $, tessellation;
 // for jslint
 
-var app = ( function() {
-	
+var app = (function () {
+
 	var settings = {
 		gridColor: '#bbbbbb',
 		editLayer: 0,
@@ -208,14 +208,6 @@ var app = ( function() {
 
 		// mouse down handler
 		function mouseDown(event) {
-			// TODO debugging
-			//if(app.tess.rect && app.tess.rect.bounds.contains(event.point)) {
-			if(app.tess.rect) {
-				app.tess.rect.position = event.point;
-
-				app.tess.onResize(paper.view);
-				return;
-			}
 
 			//console.log(event.item);
 			//console.log(app.tess44.getTileAt(event.point).toString());
