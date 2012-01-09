@@ -98,60 +98,108 @@ var initTessDef = (function() {
 			// TODO if lattice exists
 			this.recomputeLattice(view);
 		},
+		// TODO debugging method to add label on a lattice placement
+		addLabel: function(point, content) {
+			var label = new paper.PointText(point);
+			label.content = content;
+			label.paragraphStyle.justification = 'center';
+			label.strokeColor = 'blue';
+			return label;
+		},
 		recomputeLattice: function(view) {
 			// TODO there is probably a better way to do this
 
-			// TODO if lattice exists
-			var lastPlacement = this.placement;
-			
-			// get lattice points in rectangle
-			// TODO debugging
-			var rect;
-			if(this.rect) {
-				rect = this.rect.bounds;
-			}
-			//var rect = view.bounds;
-			// get lattice point closest to middle of rect
-			var closest = this.lattice.closestTo(rect.center);
-			// search for lattice poitns where symbol placement would be visible
-			var toCheck = [closest.coefs];
-			// TODO need to get symbol from group without lattice
-			var newPlacement = this.searchVisibleLattice(toCheck, this.symbol, rect, null);
-			// TODO debugging empty placement problem
-			if(newPlacement.visible.length === 0) {
-				console.log("something went very wrong");
-				closest = this.lattice.closestTo(rect.center);
-			}
-			// TODO compare new placment and old placement
-			// draw at locations in new placement but not in old
-			// remove locations in old but not in new
-			var that = this;
-			$.each(newPlacement.checked, function(coef, visible) {
-				if(visible) {
-					if(false === lastPlacement.checked[coef]) {
-						// new point visible, place and add to lattice group
-						that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
-						// name child
-						that.latticeGroup.lastChild.name = coef;
-						console.log('name label: ' + that.latticeGroup.children[coef].label);
-					}
+			if(this.lattice) {
+
+				var that = this;
+				var lastPlacement = this.placement;
+				
+				// get lattice points in rectangle
+				// TODO debugging
+				var rect;
+				if(this.rect) {
+					rect = this.rect.bounds;
+				} else {
+					rect = view.bounds;
 				}
-			});
-			$.each(lastPlacement.checked, function(coef, visible) {
-				if(visible) {
-					if(!newPlacement.checked[coef]) {
-						// newly not-visible point: remove
-						console.log('removing symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
-						console.log('child: ' + that.latticeGroup.children[coef]);
-						if(that.latticeGroup.children[coef] && that.latticeGroup.children[coef].label) {
-							that.latticeGroup.children[coef].label.remove();
-							console.log('removing label');
+				// get lattice point closest to middle of rect
+				var closest = this.lattice.closestTo(rect.center);
+				// search for lattice poitns where symbol placement would be visible
+				var toCheck = [closest.coefs];
+				// TODO need to get symbol from group without lattice
+				var newPlacement = this.searchVisibleLattice(toCheck, this.symbol, rect, null);
+				// TODO debugging empty placement problem
+				if(newPlacement.visible.length === 0) {
+					console.log("something went very wrong");
+					closest = this.lattice.closestTo(rect.center);
+				}
+
+				// TODO show results of search
+				/*var color = new paper.RgbColor(Math.random(), Math.random(), Math.random());
+				$.each(newPlacement.checked, function(coef, visible) {
+					//if(newPlacement.checked[coef]) {
+					if(visible) {
+						// draw green rect
+						//var rect = new paper.Path.Rectangle(newPlacement.checked[coef]);
+						var rect = new paper.Path.Rectangle(that.lattice.getPoint(visible),
+															that.lattice.getPoint(visible).add(40,80));
+						rect.strokeColor = color;
+						rect.removeOn({move:false, drag:false, down: true});
+					}
+				});
+				color = new paper.RgbColor(Math.random(), Math.random(), Math.random());
+				$.each(lastPlacement.checked, function(coef, visible) {
+					//if(lastPlacement.checked[coef]) {
+					//if(visible) {
+					if(false) {
+						// draw red rect
+						//var rect = new paper.Path.Rectangle(lastPlacement.checked[coef].bounds.expand(-4));
+						var rect = new paper.Path.Rectangle(that.lattice.getPoint(visible),
+															that.lattice.getPoint(visible).add(35,75));
+						rect.strokeColor = color;
+						rect.removeOn({move:false, drag:false, down:true});
+					}
+				});*/
+
+				// compare new placment and old placement
+				// draw at locations in new placement but not in old
+				// remove locations in old but not in new
+				$.each(newPlacement.checked, function(coef, visible) {
+					if(visible) {
+						if(!lastPlacement.checked[coef]) {
+							// new point visible, place and add to lattice group
+							that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
+							// name child
+							that.latticeGroup.lastChild.name = coef;
+							// label new placement
+							that.latticeGroup.lastChild.label =
+								that.addLabel(that.latticeGroup.lastChild.position, coef);
+							//console.log('name label: ' + that.latticeGroup.children[coef].label);
 						}
-						that.latticeGroup.children[coef].remove();
 					}
-				}
-			});
-			this.placement = newPlacement;
+				});
+				$.each(lastPlacement.checked, function(coef, visible) {
+					if(visible) {
+						if(!newPlacement.checked[coef]) {
+							// newly not-visible point: remove
+							console.log('removing symbol at ' + visible.toString() + ' == ' + that.lattice.getPoint(visible).toString());
+							console.log('child: ' + that.latticeGroup.children[coef]);
+							if(!that.latticeGroup.children[coef]) {
+								console.log("no such child even though there should be");
+							}
+							/*if(that.latticeGroup.children[coef] && that.latticeGroup.children[coef].label) {
+								that.latticeGroup.children[coef].label.remove();
+								console.log('removing label');
+							}*/
+							if(that.latticeGroup.children[coef] && that.latticeGroup.children[coef].label) {
+								that.latticeGroup.children[coef].label.remove();
+							}
+							that.latticeGroup.children[coef].remove();
+						}
+					}
+				});
+				this.placement = newPlacement;
+			}
 		},
 		doInitialLatticePlacement: function(view, symbol) {
 			// create a group for the lattice which will become the outer group
@@ -159,7 +207,7 @@ var initTessDef = (function() {
 			
 			// get lattice points in rectangle
 			//var rect = view.bounds;
-			var rect = new paper.Rectangle(50, 50, 100, 100);
+			var rect = new paper.Rectangle(50, 50, 150, 150);
 			// TODO testing: make visible rectangle
 			var rectPath = new paper.Path.Rectangle(rect);
 			this.rect = rectPath;
@@ -181,10 +229,9 @@ var initTessDef = (function() {
 			$.each(placement.checked, function(coef, visible) {
 				if(visible) {
 					latticeGroup.addChild(symbol.place(that.lattice.getPoint(visible)));
-					latticeGroup.lastChild.name = coef;
 					// name child
 					latticeGroup.lastChild.name = coef;
-					console.log('name label: ' + latticeGroup.children[coef].label);
+					//console.log('name label: ' + latticeGroup.children[coef].label);
 				}
 			});
 			
