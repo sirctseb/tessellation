@@ -1,8 +1,8 @@
 var paper, console, $, tessellation;
 // for jslint
 
-var app = ( function() {
-	
+var app = (function () {
+
 	var settings = {
 		gridColor: '#bbbbbb',
 		editLayer: 0,
@@ -208,6 +208,7 @@ var app = ( function() {
 
 		// mouse down handler
 		function mouseDown(event) {
+
 			//console.log(event.item);
 			//console.log(app.tess44.getTileAt(event.point).toString());
 			
@@ -264,7 +265,15 @@ var app = ( function() {
 				// adjust scale by ratio
 				paper.view.zoom = paper.view.zoom * currentDistance / downDistance;
 			} else {
-				paper.view.scrollBy(event.downPoint.subtract(event.point).multiply(paper.view.zoom));
+				// TODO debugging
+				if(app.tess.rect && app.tess.rect.bounds.contains(event.point)) {
+					//console.log('moving rect');
+					//app.tess.rect.point = app.tess.rect.point.add(event.delta);
+					app.tess.rect.translate(event.delta);
+				} else {
+					paper.view.scrollBy(event.downPoint.subtract(event.point).multiply(paper.view.zoom));
+				}
+				app.tess.onResize(paper.view);
 			}
 		}
 
@@ -355,16 +364,22 @@ var app = ( function() {
 		
 		var tessDef = initTessDef();
 		
-		tessDef.PolyGroup44.render(paper.view);
-		//tessDef.GroupHex.render(paper.view);
+		// TODO for debugging: draw coordinate axes
+		var xaxis = new paper.Path([[0,-100], [0,100]]);
+		xaxis.strokeColor = 'red';
+		var yaxis = new paper.Path([[-100,0], [100,0]]);
+		yaxis.strokeColor = 'red';
+		
+		//tessDef.PolyGroup44.render(paper.view);
+		tessDef.GroupHex.render(paper.view);
 		//tessDef.HitGroup.render(paper.view);
 		// testing:
 		// create new path and add to the tessellation
 		//var square = new paper.Path.Rectangle([50,50], 20);
 		//square.strokeColor = 'green';
 		//tessDef.GroupHex.addPath(square);
-		//this.tess = tessDef.GroupHex;
-		this.tess = tessDef.PolyGroup44;
+		this.tess = tessDef.GroupHex;
+		//this.tess = tessDef.PolyGroup44;
 		//this.tess = tessDef.HitGroup;
 		//tessDef.GroupHex.group.fillColor = 'red';
 		
