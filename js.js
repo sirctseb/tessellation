@@ -441,7 +441,7 @@ var app = (function () {
 
 		// TODO testing speeds of lattice decomposition functions
 		// results: fast is maybe twice as fast or so
-		var latt = tessDef.Lattice.LatticeBy(paper.Point.random(), paper.Point.random());
+		/*var latt = tessDef.Lattice.LatticeBy(paper.Point.random(), paper.Point.random());
 		var numTests = 10000;
 		var testPoints = [];
 		for(var i = 0; i < numTests; i++) {
@@ -460,12 +460,12 @@ var app = (function () {
 			latt.decompose(testPoints[i], true);
 		}
 		end = new Date().getTime();
-		console.log("slow: " + (end - start));
+		console.log("slow: " + (end - start));*/
 
 		
-		//stockTool.activate();
+		stockTool.activate();
 		//testHitTool.activate();
-		latticeDebugTool.activate();
+		//latticeDebugTool.activate();
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();
