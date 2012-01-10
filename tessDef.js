@@ -26,6 +26,7 @@ paper.Path.inject({
 		$.each(this.curves, function(index, curve) {
 			var p1 = that.clockwise ? curve.point1 : curve.point2;
 			var p2 = that.clockwise ? curve.point2 : curve.point1;
+			// TODO do this with paper.Line
 			var vec = p2.subtract(p1);
 			var orthogonal = new paper.Point(vec.y, -vec.x);
 			if(orthogonal.dot(p1.negate().add(point)) > 0) {

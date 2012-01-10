@@ -41,6 +41,7 @@ var app = (function () {
 
 		// mouse down handler
 		function mouseDown(event) {
+			console.debug("blah");
 			console.log("selectedEditTool.mousedown");
 
 			// define options for hit test
@@ -137,7 +138,7 @@ var app = (function () {
 
 		// mouse drag handler
 		function mouseDrag(event) {
-			//console.log("selectedEditTool.mousedrag");
+			console.log("selectedEditTool.mousedrag");
 
 			// if anything was hit
 			if(this.hitResult) {
@@ -176,6 +177,7 @@ var app = (function () {
 
 		// mouse up handler
 		function mouseUp(event) {
+			console.log('selected edit: mouse up');
 			// clear hit result on mouse up
 			// TODO this is not actually necessary after using mouseDrag instead of mouseMove
 			this.hitResult = null;
@@ -208,9 +210,7 @@ var app = (function () {
 
 		// mouse down handler
 		function mouseDown(event) {
-
-			//console.log(event.item);
-			//console.log(app.tess44.getTileAt(event.point).toString());
+			console.log('stock tool: mouse down');
 			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -220,11 +220,6 @@ var app = (function () {
 
 				// select path
 				hitResult.item.selected = true;
-
-				// select segments
-				/*$.each(hitResult.item.segments, function(index, segment) {
-					segment.selected = true;
-				});*/
 				
 				// activate edit tool
 				editTool.activate();
@@ -234,6 +229,7 @@ var app = (function () {
 				// create new path
 				var newPath = new paper.Path([event.point]);
 				newPath.strokeColor = 'black';
+
 				// store in path list
 				paths.push(newPath);
 				
@@ -241,7 +237,6 @@ var app = (function () {
 				newPath.name = "path" + settings.newPathNumber;
 				
 				// add to tessellation
-				//app.tess44.addPath(newPath);
 				app.tess.addPath(newPath);
 				
 				// activate edit tool
@@ -251,6 +246,8 @@ var app = (function () {
 		
 		// mouse drag handler
 		function mouseDrag(event) {
+			console.log('stock tool: mouse drag');
+
 			// scale if alt is held
 			if(event.modifiers.option) {
 				// get view center point
@@ -279,6 +276,7 @@ var app = (function () {
 
 		// mouse move handler
 		function mouseMove(event) {
+			console.log('stock tool: mouse move');
 			// check if hover over a path
 
 			// perform hit test
