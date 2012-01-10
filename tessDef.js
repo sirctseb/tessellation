@@ -571,68 +571,6 @@ var initTessDef = (function() {
 			var closestCoefs = coefs.round();
 			var location = this.getPoint(closestCoefs);
 			return {point: location, coefs: closestCoefs};
-
-			var dirs = [
-				new paper.Point(-1, -1), new paper.Point(0,-1), new paper.Point(1,-1),
-				new paper.Point(-1, 0),							, new paper.Point(1,0),
-				new paper.Point(-1, 1), new paper.Point(0,1), new paper.Point(1,1)
-			];
-			var current = new paper.Point(0,0);
-			var curLocation = this.getPoint(current);
-			var closer = true;
-			var curDist = curLocation.getDistance(point, true);
-			var that = this;
-			var newDist;
-			while(closer) {
-				closer = false;
-				$.each(dirs, function(index, dir) {
-					var cur = current.add(dir);
-					var loc = that.getPoint(cur);
-					if((newDist = loc.getDistance(point, true)) < curDist) {
-						current = cur;
-						curLocation = loc;
-						curDist = newDist;
-						closer = true;
-					}
-				});
-			}
-			return {point: curLocation, coefs: current};
-			
-			
-			// TODO I don't know if this algorithm is correct
-			// TODO I'm pretty sure this algorithms is not correct
-			var latPoint = new paper.Point();
-			var newPoint;
-			var coefs = new paper.Point();
-			var newCoefs = new paper.Point();
-			while(1) {
-				if(Math.abs(this.v1.dot(point)) > Math.abs(this.v2.dot(point))) {
-					if(this.v1.dot(point) > 0) {
-						newPoint = latPoint.add(this.v1);
-						newCoefs.x += 1;
-					} else {
-						newPoint = latPoint.subtract(this.v1);
-						newCoefs.x -= 1;
-					}
-				} else {
-					if(this.v2.dot(point) > 0) {
-						newPoint = latPoint.add(this.v2);
-						newCoefs.y += 1;
-					} else {
-						newPoint = latPoint.subtract(this.v2);
-						newCoefs.y -= 1;
-					}
-				}
-				
-				if(newPoint.getDistance(point,true) < latPoint.getDistance(point, true)) {
-					latPoint = newPoint;
-					coefs.x = newCoefs.x;
-					coefs.y = newCoefs.y;
-				} else {
-					break;
-				}
-			}
-			return {point:latPoint, coefs:coefs};
 		}
 	};
 	
