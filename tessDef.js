@@ -537,7 +537,8 @@ var initTessDef = (function() {
 			}
 		},
 		getPoint: function(coefs) {
-			return this.v1.multiply(coefs.x).add(this.v2.multiply(coefs.y));
+			//return this.v1.multiply(coefs.x).add(this.v2.multiply(coefs.y));
+			return this.m.transform(coefs);
 		},
 		decompose: function(point,slow) {
 			// good method with matrix
