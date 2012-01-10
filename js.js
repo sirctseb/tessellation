@@ -300,6 +300,42 @@ var app = (function () {
 		return stockTool;
 	}());
 
+	latticeDebugTool = ( function() {
+		var ldTool = new paper.Tool();
+		ldTool.target = new paper.Point();
+		ldTool.onMouseDown = function(event) {
+			// remove any previous ones
+			if(paper.project.activeLayer.children['ldGroup']) {
+				paper.project.activeLayer.children['ldGroup'].remove();
+			}
+
+			// make a new point
+			ldTool.target = event.point;
+			// show decomposition into lattice components
+			//var v1 = app.tess.lattice.v1;
+			//var v2 = app.tess.lattice.v2;
+			/*var v1 = new paper.Path.Line(new paper.Point(), app.tess.lattice.v1);
+			var v2 = new paper.Path.Line(new paper.Point(), app.tess.lattice.v2);
+			v1.strokeColor = 'red';
+			v2.strokeColor = 'green';*/
+
+			var coef = app.tess.lattice.decompose(event.point);
+			var c1 = app.tess.lattice.v1.multiply(coef.x);
+			var c2 = app.tess.lattice.v2.multiply(coef.y);
+			var c1Line = new paper.Path.Line(new paper.Point(), c1);
+			var c2Line = new paper.Path.Line(c1, c1.add(c2));
+			console.log('coef: ' + coef.toString());
+			var cursor = new paper.Path.Circle(event.point, 5);
+
+			var group = new paper.Group([c1Line, c2Line, cursor]);
+			group.strokeColor = 'blue';
+			group.name = 'ldGroup';
+		};
+		ldTool.onMouseDrag = function(event) {
+			paper.view.scrollBy(event.downPoint.subtract(event.point).multiply(paper.view.zoom));
+		}
+		return ldTool;
+	}());
 	var deselectAll = function() {
 		// deselect selected segments of selected paths
 		// TODO check that a selected item is a path at all
@@ -365,10 +401,10 @@ var app = (function () {
 		var tessDef = initTessDef();
 		
 		// TODO for debugging: draw coordinate axes
-		var xaxis = new paper.Path([[0,-100], [0,100]]);
+		/*var xaxis = new paper.Path([[0,-100], [0,100]]);
 		xaxis.strokeColor = 'red';
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
-		yaxis.strokeColor = 'red';
+		yaxis.strokeColor = 'red';*/
 		
 		//tessDef.PolyGroup44.render(paper.view);
 		tessDef.GroupHex.render(paper.view);
@@ -382,9 +418,54 @@ var app = (function () {
 		//this.tess = tessDef.PolyGroup44;
 		//this.tess = tessDef.HitGroup;
 		//tessDef.GroupHex.group.fillColor = 'red';
+
+		// TODO testing speeds of lattice math functions
+		// results: fast way is on the order of multFactor times faster than slow way
+		/*var latt = tessDef.Lattice.LatticeBy(paper.Point.random(), paper.Point.random());
+		var multFactor = 1000;
+		var testPoint = paper.Point.random().multiply(1000);
+		var numTests = 1000;
+		var start = new Date().getTime();
+		for(var i = 0; i < numTests; i++) {
+			latt.closestTo(testPoint);
+		}
+		var end = new Date().getTime();
+		console.log("fast: " + (end - start));
+
+		start = new Date().getTime();
+		for(var i = 0; i < numTests; i++) {
+			latt.closestTo(testPoint, true);
+		}
+		end = new Date().getTime();
+		console.log("slow: " + (end - start));*/
+
+		// TODO testing speeds of lattice decomposition functions
+		// results: fast is maybe twice as fast or so
+		var latt = tessDef.Lattice.LatticeBy(paper.Point.random(), paper.Point.random());
+		var numTests = 10000;
+		var testPoints = [];
+		for(var i = 0; i < numTests; i++) {
+			testPoints.push(paper.Point.random().multiply(1000));
+		}
+
+		var start = new Date().getTime();
+		for(var i = 0; i < numTests; i++) {
+			latt.decompose(testPoints[i]);
+		}
+		var end = new Date().getTime();
+		console.log("fast: " + (end - start));
+
+		start = new Date().getTime();
+		for(var i = 0; i < numTests; i++) {
+			latt.decompose(testPoints[i], true);
+		}
+		end = new Date().getTime();
+		console.log("slow: " + (end - start));
+
 		
-		stockTool.activate();
+		//stockTool.activate();
 		//testHitTool.activate();
+		latticeDebugTool.activate();
 		
 		/*var group1 = new paper.Group();
 		var group2 = new paper.Group();

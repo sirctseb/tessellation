@@ -454,13 +454,18 @@ var initTessDef = (function() {
 		newPolyGroup.latticePoints = [];
 		return newPolyGroup;
 	};
-	
+
 	// Lattice represents an operator which places a polygon or group at every point in a lattice defined by two vectors
 	var Lattice = {
 		v1: new paper.Point(),
 		v2: new paper.Point(),
 		toString: function() { return "L(" + this.v1.toString() + "," + this.v2.toString() + ")"; },
-		LatticeBy: function(vec1, vec2) { var lattice = Object.create(Lattice); lattice.v1 = vec1; lattice.v2 = vec2; return lattice; },
+		LatticeBy: function(vec1, vec2) {
+			var lattice = Object.create(Lattice);
+			lattice.v1 = vec1;
+			lattice.v2 = vec2;
+			return lattice;
+		},
 		reduceBasis: function() {
 			// basically Euclid's GCD algorithm for vectors
 			// from mit open courseware stuff
@@ -523,7 +528,38 @@ var initTessDef = (function() {
 		getPoint: function(coefs) {
 			return this.v1.multiply(coefs.x).add(this.v2.multiply(coefs.y));
 		},
-		closestTo: function(point) {
+		decompose: function(point,slow) {
+			// good method with matrix
+			var m = new paper.Matrix(this.v1.x, this.v1.y, this.v2.x, this.v2.y, 0,0);
+			var mcoef = m.inverseTransform(point);
+			return mcoef;
+
+			// old clunky method with intersections
+			var l1 = new paper.Line(point, this.v1);
+			var l2 = new paper.Line(new paper.Point(), this.v2);
+			var intersection = l1.intersect(l2);
+			if(!intersection) {
+				// TODO should actually throw exception or something
+				return new paper.Point();
+			} else {
+				var c2 = intersection.length / this.v2.length;
+				if(intersection.dot(this.v2) < 0) {
+					c2 = -c2;
+				}
+				var c1 = point.subtract(intersection).length / this.v1.length;
+				if(point.subtract(intersection).dot(this.v1) < 0) {
+					c1 = -c1;
+				}
+			}
+			var coefs = new paper.Point(c1, c2);
+			return coefs;
+		},
+		closestTo: function(point, slow) {
+			var coefs = this.decompose(point, slow);
+			var closestCoefs = coefs.round();
+			var location = this.getPoint(closestCoefs);
+			return {point: location, coefs: closestCoefs};
+
 			var dirs = [
 				new paper.Point(-1, -1), new paper.Point(0,-1), new paper.Point(1,-1),
 				new paper.Point(-1, 0),							, new paper.Point(1,0),
