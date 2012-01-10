@@ -521,7 +521,7 @@ var initTessDef = (function() {
 		},
 		computeMatrix: function() {
 			// generate transformation matrix between lattice space and project space
-			lattice.m = new paper.Matrix(this.v1.x, this.v1.y, this.v2.x, this.v2.y, 0,0);
+			this.m = new paper.Matrix(this.v1.x, this.v1.y, this.v2.x, this.v2.y, 0,0);
 		},
 		isReduced: function() {
 			return 2 * Math.abs(this.v1.dot(this.v2)) <= this.v1.getDistance(new paper.Point(), true);
