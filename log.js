@@ -18,16 +18,17 @@ var log = (function() {
 			} else {
 				// if level is not a number, print contents
 				// if debug group is enabled
-				if(groups[level]) {
+				if(this.groups[level]) {
 					console.log(content);
 				}
 			}
 		}, 
 		enable: function(level) {
-			groups[level] = true;
-		}
+			this.groups[level] = true;
+		},
 		disable: function(level) {
-			groups[level] = false;
+			this.groups[level] = false;
 		}
 	};
+	return log;
 }());
