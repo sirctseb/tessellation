@@ -545,26 +545,6 @@ var initTessDef = (function() {
 			// good method with matrix
 			var mcoef = this.m.inverseTransform(point);
 			return mcoef;
-
-			// old clunky method with intersections
-			var l1 = new paper.Line(point, this.v1);
-			var l2 = new paper.Line(new paper.Point(), this.v2);
-			var intersection = l1.intersect(l2);
-			if(!intersection) {
-				// TODO should actually throw exception or something
-				return new paper.Point();
-			} else {
-				var c2 = intersection.length / this.v2.length;
-				if(intersection.dot(this.v2) < 0) {
-					c2 = -c2;
-				}
-				var c1 = point.subtract(intersection).length / this.v1.length;
-				if(point.subtract(intersection).dot(this.v1) < 0) {
-					c1 = -c1;
-				}
-			}
-			var coefs = new paper.Point(c1, c2);
-			return coefs;
 		},
 		closestTo: function(point, slow) {
 			var coefs = this.decompose(point, slow);
