@@ -459,11 +459,15 @@ var initTessDef = (function() {
 	var Lattice = {
 		v1: new paper.Point(),
 		v2: new paper.Point(),
+		m: new paper.Matrix(),
 		toString: function() { return "L(" + this.v1.toString() + "," + this.v2.toString() + ")"; },
 		LatticeBy: function(vec1, vec2) {
 			var lattice = Object.create(Lattice);
 			lattice.v1 = vec1;
 			lattice.v2 = vec2;
+			// TODO reduce on construct?
+			// create matrix on construct
+			lattice.computeMatrix();
 			return lattice;
 		},
 		reduceBasis: function() {
@@ -511,6 +515,13 @@ var initTessDef = (function() {
 				v2length = v1length;
 				v1length = v;
 			}
+
+			// recompute trasnformation matrix
+			this.computeMatrix();
+		},
+		computeMatrix: function() {
+			// generate transformation matrix between lattice space and project space
+			lattice.m = new paper.Matrix(this.v1.x, this.v1.y, this.v2.x, this.v2.y, 0,0);
 		},
 		isReduced: function() {
 			return 2 * Math.abs(this.v1.dot(this.v2)) <= this.v1.getDistance(new paper.Point(), true);
@@ -530,8 +541,7 @@ var initTessDef = (function() {
 		},
 		decompose: function(point,slow) {
 			// good method with matrix
-			var m = new paper.Matrix(this.v1.x, this.v1.y, this.v2.x, this.v2.y, 0,0);
-			var mcoef = m.inverseTransform(point);
+			var mcoef = this.m.inverseTransform(point);
 			return mcoef;
 
 			// old clunky method with intersections
