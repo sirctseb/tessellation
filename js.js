@@ -41,8 +41,7 @@ var app = (function () {
 
 		// mouse down handler
 		function mouseDown(event) {
-			console.debug("blah");
-			console.log("selectedEditTool.mousedown");
+			log.log("selectedEditTool.mousedown", "tools");
 
 			// define options for hit test
 			var hitTestOptions = {
@@ -50,7 +49,6 @@ var app = (function () {
 				segments : true, // look for segment points
 				handles : true, // look for segment handles
 				selected : true, // look for selected paths
-				tolerance : 50 // this appears to be in pixels^2 or something // TODO magic number
 			};
 
 			// perform hit test
@@ -64,7 +62,6 @@ var app = (function () {
 			var strokeHitTestOptions = {
 				stroke: true, // look for strokes
 				selected : true, // look for selected paths
-				tolerance : 2 // this appears to be in pixels^2 or something // TODO magic number
 			};
 
 			// if we went down on nothing, check if we're holding shift to add a point somewhere
@@ -138,7 +135,7 @@ var app = (function () {
 
 		// mouse drag handler
 		function mouseDrag(event) {
-			console.log("selectedEditTool.mousedrag");
+			log.log("selectedEditTool.mousedrag", "tools");
 
 			// if anything was hit
 			if(this.hitResult) {
@@ -175,9 +172,14 @@ var app = (function () {
 			}
 		}
 
+		// mouse move handler
+		function mouseMove(event) {
+			log.log("edit Tool: mouse move", "tools");
+		}
+
 		// mouse up handler
 		function mouseUp(event) {
-			console.log('selected edit: mouse up');
+			log.log('selected edit: mouse up', 'tools');
 			// clear hit result on mouse up
 			// TODO this is not actually necessary after using mouseDrag instead of mouseMove
 			this.hitResult = null;
@@ -210,7 +212,7 @@ var app = (function () {
 
 		// mouse down handler
 		function mouseDown(event) {
-			console.log('stock tool: mouse down');
+			log.log('stock tool: mouse down', 'tools');
 			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -246,7 +248,7 @@ var app = (function () {
 		
 		// mouse drag handler
 		function mouseDrag(event) {
-			console.log('stock tool: mouse drag');
+			log.log('stock tool: mouse drag', 'tools');
 
 			// scale if alt is held
 			if(event.modifiers.option) {
@@ -276,7 +278,7 @@ var app = (function () {
 
 		// mouse move handler
 		function mouseMove(event) {
-			console.log('stock tool: mouse move');
+			log.log('stock tool: mouse move', 'tools');
 			// check if hover over a path
 
 			// perform hit test
@@ -290,10 +292,15 @@ var app = (function () {
 			}
 		}
 
+		function mouseUp(event) {
+			log.log("stock tool: mouse up", "tools");
+		}
+
 
 		stockTool.onMouseDown = mouseDown;
 		stockTool.onMouseMove = mouseMove;
 		stockTool.onMouseDrag = mouseDrag;
+		stockTool.onMouseUp = mouseUp;
 
 		return stockTool;
 	}());
@@ -397,6 +404,9 @@ var app = (function () {
 		//triangle.strokeColor = 'black';
 		
 		var tessDef = initTessDef();
+
+		// turn on tool debug output
+		log.enable('tools');
 		
 		// TODO for debugging: draw coordinate axes
 		/*var xaxis = new paper.Path([[0,-100], [0,100]]);
