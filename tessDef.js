@@ -59,9 +59,11 @@ var initTessDef = (function() {
 	
 	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
 	SquarePoly.strokeColor = '#ddd';
+	SquarePoly.strokeWidth = 3;
 	SquarePoly.remove();
 	var TrianglePoly = new paper.Path.RegularPolygon([50,50], 3, 50);
 	TrianglePoly.strokeColor = '#ddd';
+	TrianglePoly.strokeWidth = 3;
 	TrianglePoly.remove();
 	
 	// PolyGroup represents a set of polygons or a PolyGroup with transformations applied

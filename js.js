@@ -223,7 +223,8 @@ var app = (function () {
 				// select path
 				hitResult.item.selected = true;
 				
-				// activate edit tool
+				// activate edit tool and give it the hitResult
+				editTool.hitResult = hitResult;
 				editTool.activate();
 				
 			} else if(event.modifiers.shift) {
@@ -231,6 +232,7 @@ var app = (function () {
 				// create new path
 				var newPath = new paper.Path([event.point]);
 				newPath.strokeColor = 'black';
+				newPath.strokeWidth = 3;
 
 				// store in path list
 				paths.push(newPath);
