@@ -182,7 +182,7 @@ $._farbtastic = function (container, callback) {
     // Linked elements or callback
     if (typeof fb.callback == 'object') {
       // Set background/foreground color
-      $(fb.callback).css({
+      $(fb.callback).filter(":not(:input)").css({
         backgroundColor: fb.color,
         color: fb.hsl[2] > 0.5 ? '#000' : '#fff'
       });
