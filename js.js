@@ -353,6 +353,13 @@ var app = (function () {
 		});
 		paper.project.deselectAll();
 	};
+
+	app.applyStyle = function(style) {
+		$.each(paper.project.selectedItems, function(index, item) {
+			item.style = style;
+		});
+		paper.view.draw();
+	}
 	
 	var init = function() {
 		
