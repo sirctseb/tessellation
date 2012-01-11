@@ -58,6 +58,15 @@ header
 	/*padding-left:-10px;*/
 	margin-left:-10px;
 }
+.colorPickerContainer
+{
+	/*position:relative;*/
+}
+.colorpicker
+{
+	/*background-color:white;*/
+	/*border:10px ridge black;*/
+}
 .colorText
 {
 	width:50px;
@@ -75,7 +84,7 @@ header
 	/* TODO display:inline won't let this take space */
 	display:inline-block;
 	/*display:inline;*/
-	padding: 0px;
+	/*padding: 0px;*/
 	/*margin-top:2px;
 	margin-bottom:2px;*/
 }
