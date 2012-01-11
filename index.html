@@ -4,6 +4,8 @@
 		<meta charset="utf-8" />
 		<title>Paper.js stuff</title>
 		<link rel="stylesheet" href="style.css" />
+		<link rel="stylesheet" href="farbtastic/farbtastic.css" type="text/css" />
+		<link rel="stylesheet" href="jqueryui/css/ui-lightness/jquery-ui-1.8.17.custom.css" />
 		<script type="text/javascript" src="utility.js"></script>
 		<script type="text/javascript" src="jquery-1.6.1.js"></script>
 		<script type="text/javascript" src="log.js"></script>
@@ -11,6 +13,8 @@
 		<script type="text/javascript" src="tessDef.js"></script>
 		<script type="text/javascript" src="tessellation.js"></script>
 		<script type="text/javascript" src="js.js"></script>
+		<script type="text/javascript" src="farbtastic/farbtastic.js"></script>
+		<script type="text/javascript" src="jqueryui/js/jquery-ui-1.8.17.custom.min.js"></script>
 		<script type="text/javascript">
 		// declarations of library variables for jslint
 		var paper;
@@ -27,8 +31,38 @@
 				
 				// draw the view
 				paper.view.draw();
-				
+
+				// initialize color pickers
+				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
+				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
 			});
+		var applyStyle = function() {
+			// use jquery to serialize into array
+			var valuesInArray = $('#pathStyleForm').serializeArray();
+			// put values into a style object
+			var style = {};
+			$.each(valuesInArray, function(index, item) {
+				style[item.name] = item.value;
+			});
+			// TODO special case parsing
+			// TODO need something to parse dash array
+			style.dashArray = [];
+			// check for blank colors
+			if(style.fillColor === 'none') {
+				style.fillColor = null;
+			}
+			if(style.strokeColor === 'none') {
+				style.strokeColor = null;
+			}
+			// TODO leaving the numbers as strings works for now
+			log.log(style, 0);
+
+			// send style to app
+			app.applyStyle(style);
+		};
+		var strokePreviewClick = function() {
+			//$('#stroke-colorpicker')
+		}
 
 		</script>
 	</head>
@@ -43,6 +77,32 @@
 		
 		<div id="settings" class="rightmenu">
 			Settings
+			<div id="pathstylecontainer" class="settinggroup">
+				<div>Path Style</div>
+					<form id='pathStyleForm'>
+					<div class='colorPickerContainer'>
+						<input type='text' name='strokeColor' value='black' id='strokeColor' class="colorText strokeColorPickerLinks" />
+							<div class='colorPreview strokeColorPickerLinks' onclick='$("#stroke-colorpicker").dialog("open");'></div>
+							<div id='stroke-colorpicker' class='colorpicker'></div>
+							<label for='strokeColor'>Stroke Color</label><br />
+					</div>
+						<input type='text' name='strokeWidth' value='3' id='strokeWidth' />
+							<label for='strokeWidth'>Stroke Width</label><br />
+						<input type='text' name='strokeCap' value='butt' id='strokeCap' />
+							<label for='strokeCap'>Stroke Cap</label><br />
+						<input type='text' name='strokeJoin' value='miter' id='strokeJoin' />
+							<label for='strokeJoin'>Stroke Join</label><br />
+						<input type='text' name='dashOffset' value='0' id='dashOffset' />
+							<label for='dashOffset'>Dash Offset</label><br />
+						<input type='text' name='dashArray' value='' id='dashArray' />
+							<label for='dashArray'>Dash Array</label><br />
+						<input type='text' name='miterLimit' value='10' id='miterLimit' />
+							<label for='miterLimit'>Miter Limit</label><br />
+						<input type='text' name='fillColor' value='none' id='fillColor' />
+							<label for='fillColor'>Fill Color</label><br />
+						<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" />
+					</form>
+			</div>
 			<div id="gridsettingcontainer" class="settinggroup">
 				<div>Grid lines</div>
 				<input type="radio" name="showgrid" value="show" onclick="$('#tessellation').tessellation('showGrid', true);" checked> Show<br>
