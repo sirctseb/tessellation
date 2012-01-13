@@ -177,10 +177,14 @@ var initTessDef = (function() {
 			var that = this;
 			$.each(placement.checked, function(coef, visible) {
 				if(visible) {
+
 					latticeGroup.addChild(symbol.place(that.lattice.getPoint(visible)));
 					// name child
 					latticeGroup.lastChild.name = coef;
 					//console.log('name label: ' + latticeGroup.children[coef].label);
+
+					// also place an instance of the sister symbol
+					paper.project.layers[1].addChild(symbol.sister.place(that.lattice.getPoint(visible)));
 				}
 			});
 			
@@ -274,6 +278,9 @@ var initTessDef = (function() {
 			// place inner symbol into main polygroup group
 			var outerGroup = new paper.Group([innerSymbol.place()]);
 
+			// group for holding the placements of the sister symbol
+			var sisterGroup = new paper.Group([innerSymbol.sister.place()]);
+
 			var that = this;
 			
 			// if PG has transforms, make a copy of inner group for each and apply transform
@@ -284,11 +291,17 @@ var initTessDef = (function() {
 					
 					// add transformed placed inner symbol into group 
 					outerGroup.addChild(innerSymbol.place().transform(transform));
+
+					// add transformed placed inner symbol sister into sister group
+					sisterGroup.addChild(sisterGroup.place().transform(transform));
 				});
 			}
 			
 			// make symbol from outer group
 			var outerSymbol = outerGroup.symbolize();
+
+			// make symbol for sister group
+			outerSymbol.sister = sisterGroup.symbolize();
 			
 			// if there is a lattice defined, copy this group to each point
 			if(this.lattice) {
@@ -299,6 +312,8 @@ var initTessDef = (function() {
 				// if there is no lattice, place one instance of the symbol for this group
 				if(!this.parent) {
 					outerSymbol.place();
+					// also place one instance of the sister symbol
+					outerSymbol.sister.place();
 				}
 			}
 			
@@ -323,10 +338,15 @@ var initTessDef = (function() {
 			var group = new paper.Group(innerGroups.concat(this.polygons));
 			// make symbol from group
 			var symbol = group.symbolize();
+
+			// create a group & symbol for paths drawn into this group's polygons
+			var sisterGroup = new paper.Group(innerGroups.map(function(group) { return group.sister; }));
+			symbol.sister = sisterGroup.symbolize();
+
 			// return symbol
 			return symbol;
 		},
-		addPath: function(path) {
+		addPath: function(path,layer) {
 			
 			// find polygon the new path hits
 			var hitInfo = this.findPolygonAt(path.firstSegment.point);
@@ -338,7 +358,7 @@ var initTessDef = (function() {
 				// add the path back to active layer
 				paper.project.activeLayer.addChild(path);
 				// add path to the group where the matching polygon is
-				hitInfo.polygon.parent.addChild(symbol.place().transform(hitInfo.transform.createInverse()));
+				hitInfo.polygon.parent.sister.addChild(symbol.place().transform(hitInfo.transform.createInverse()));
 				// make path selected
 				path.selected = true;
 			}
