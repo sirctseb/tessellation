@@ -141,12 +141,16 @@ var initTessDef = (function() {
 							that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
 							// name child
 							that.latticeGroup.lastChild.name = coef;
+							// also place content symbol and set as sister of original
+							that.latticeGroup.lastChild.sister = that.symbol.sister.place(that.lattice.getPoint(visible));
 						}
 					}
 				});
 				$.each(lastPlacement.checked, function(coef, visible) {
 					if(visible) {
 						if(!newPlacement.checked[coef]) {
+							// also remove content symbol
+							that.latticeGroup.children[coef].sister.remove();
 							// newly not-visible point: remove
 							that.latticeGroup.children[coef].remove();
 						}
@@ -183,8 +187,9 @@ var initTessDef = (function() {
 					latticeGroup.lastChild.name = coef;
 					//console.log('name label: ' + latticeGroup.children[coef].label);
 
-					// also place an instance of the sister symbol
+					// also place an instance of the sister symbol and set as sister of original placement
 					paper.project.layers[1].addChild(symbol.sister.place(that.lattice.getPoint(visible)));
+					latticeGroup.lastChild.sister = paper.project.layers[1].lastChild;
 				}
 			});
 			
