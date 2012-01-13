@@ -293,7 +293,7 @@ var initTessDef = (function() {
 					outerGroup.addChild(innerSymbol.place().transform(transform));
 
 					// add transformed placed inner symbol sister into sister group
-					sisterGroup.addChild(sisterGroup.place().transform(transform));
+					sisterGroup.addChild(innerSymbol.sister.place().transform(transform));
 				});
 			}
 			
@@ -340,8 +340,9 @@ var initTessDef = (function() {
 			var symbol = group.symbolize();
 
 			// create a group & symbol for paths drawn into this group's polygons
-			var sisterGroup = new paper.Group(innerGroups.map(function(group) { return group.sister; }));
-			symbol.sister = sisterGroup.symbolize();
+			var sisterInner = innerGroups.map(function(group) { return group.sister; })
+			group.sister = (sisterInner.length > 0) ? new paper.Group(sisterInner) : new paper.Group();
+			symbol.sister = group.sister.symbolize();
 
 			// return symbol
 			return symbol;
