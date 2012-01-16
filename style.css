@@ -62,6 +62,14 @@ header
 {
 	margin-left:10px;
 }
+.collapsed
+{
+	background-color:#888888;
+}
+.collapsed>*
+{
+	display:none;
+}
 .colorPickerContainer
 {
 	/*position:relative;*/

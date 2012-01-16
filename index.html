@@ -35,6 +35,23 @@
 				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
 				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
 
+				$("#tessdefcontainer").on("click", ".tessUI.collapsable", function(event) {
+					$this = $(this);
+					/*if(!$this.data('hidden')) {
+						$this.children().hide();
+						$this.data('hidden', true);
+					} else {
+						$this.children().show();
+						$this.data('hidden', false);
+					}*/
+					if($this.hasClass('collapsed')) {
+						$this.removeClass('collapsed');
+					} else {
+						$this.addClass('collapsed');
+					}
+					return false;
+				});
+
 				$("#tessdefcontainer").append(app.tess.generateUI());
 			});
 		var applyStyle = function() {
