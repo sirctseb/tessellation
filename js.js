@@ -10,13 +10,6 @@ var app = (function () {
 		copyLayer: 2,
 		newPathNumber: 0
 	};
-
-	var grid = {
-		origin: new paper.Point(),
-		scale: 100,
-		topLeft: new paper.Point(),
-		topRight: new paper.Point()
-	};
 	
 	var paths = [];
 	var stockTool, editTool, testHitTool;
@@ -360,17 +353,6 @@ var app = (function () {
 			lattice.updateDisplay();
 		}
 	};
-	
-	var deselectAll = function() {
-		// deselect selected segments of selected paths
-		// TODO check that a selected item is a path at all
-		$.each(paper.project.selectedItems, function(index, selected) {
-			$.each(selected.segments, function(index, segment) {
-				segment.selected = false;
-			});
-		});
-		paper.project.deselectAll();
-	};
 
 	app.applyStyle = function(style) {
 		$.each(paper.project.selectedItems, function(index, item) {
@@ -446,233 +428,17 @@ var app = (function () {
 		//tessDef.HeartGroup.render(paper.view);
 		//tessDef.HitGroup.render(paper.view);
 		//tessDef.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
-		// testing:
-		// create new path and add to the tessellation
-		//var square = new paper.Path.Rectangle([50,50], 20);
-		//square.strokeColor = 'green';
-		//tessDef.GroupHex.addPath(square);
+		
 		//this.tess = tessDef.GroupHex;
 		this.tess = tessDef.PolyGroup44;
 		//this.tess = tessDef.HitGroup;
 		//this.tess = tessDef.HeartGroup;
-		//tessDef.GroupHex.group.fillColor = 'red';
-
-		// TODO testing speeds of lattice math functions
-		// results: fast way is on the order of multFactor times faster than slow way
-		/*var latt = tessDef.Lattice.LatticeBy(paper.Point.random(), paper.Point.random());
-		var multFactor = 1000;
-		var testPoint = paper.Point.random().multiply(1000);
-		var numTests = 1000;
-		var start = new Date().getTime();
-		for(var i = 0; i < numTests; i++) {
-			latt.closestTo(testPoint);
-		}
-		var end = new Date().getTime();
-		console.log("fast: " + (end - start));
-
-		start = new Date().getTime();
-		for(var i = 0; i < numTests; i++) {
-			latt.closestTo(testPoint, true);
-		}
-		end = new Date().getTime();
-		console.log("slow: " + (end - start));*/
-
-		// TODO testing speeds of lattice decomposition functions
-		// results: fast is maybe twice as fast or so
-		/*var latt = tessDef.Lattice.LatticeBy(paper.Point.random(), paper.Point.random());
-		var numTests = 10000;
-		var testPoints = [];
-		for(var i = 0; i < numTests; i++) {
-			testPoints.push(paper.Point.random().multiply(1000));
-		}
-
-		var start = new Date().getTime();
-		for(var i = 0; i < numTests; i++) {
-			latt.decompose(testPoints[i]);
-		}
-		var end = new Date().getTime();
-		console.log("fast: " + (end - start));
-
-		start = new Date().getTime();
-		for(var i = 0; i < numTests; i++) {
-			latt.decompose(testPoints[i], true);
-		}
-		end = new Date().getTime();
-		console.log("slow: " + (end - start));*/
 
 		
 		stockTool.activate();
 		//testHitTool.activate();
 		//latticeDebugTool.activate();
-		
-		/*var group1 = new paper.Group();
-		var group2 = new paper.Group();
-		var circ = new paper.Path.Circle(new paper.Point(20,20), 10);
-		console.log("circ child of layer: " + paper.project.activeLayer.isChild(circ));
-		circ.fillColor = 'red';
-		group1.addChild(circ);
-		console.log("child of group1: " + group1.isChild(circ));
-		console.log("child of group2: " + group2.isChild(circ));
-		group2.addChild(circ);
-		console.log("child of group1: " + group1.isChild(circ));
-		console.log("child of group2: " + group2.isChild(circ));
-		group2.addChild(group1);
-		console.log("group1 child of group2: " + group2.isChild(group1));
-		console.log("circ child of layer: " + paper.project.activeLayer.isChild(circ));
-		group1.name = "group1";
-		console.log(group2.children.group1);*/
-		// results of these tests:
-		// items can be child of only one group / layer at a time
-		// group can be child of another group
-		// groups can be named
-		
-		/*var groupa = new paper.Group();
-		var circ1 = new paper.Path.Circle(new paper.Point(20,20), 10);
-		var circ2 = new paper.Path.Circle(new paper.Point(50,20), 10);
-		groupa.addChild(circ1);
-		groupa.addChild(circ2);
-		groupa.fillColor = 'red';
-		//groupa.scale(0.1);
-		var circ3 = new paper.Path.Circle(new paper.Point(80,20), 10);
-		circ3.fillColor = 'black';
-		groupa.addChild(circ3);
-		groupa.translate([0,40]);*/
-		// results of these tests:
-		// attributes set on a group are not applied to items added to the group
-		// after the attributes have been set
-		
-		/*var circa = new paper.Path.Circle([20,20], 10);
-		circa.fillColor = 'red';
-		var circSymbol = new paper.Symbol(circa);
-		var circPlaced = circSymbol.place([15,15]);
-		console.log(circPlaced.matrix.translateX, circPlaced.matrix.translateY);
-		circPlaced.translate([10,10]);
-		console.log(circPlaced.matrix.translateX, circPlaced.matrix.translateY);
-		circSymbol.definition.translate([20,20]);
-		console.log(circPlaced.matrix.translateX, circPlaced.matrix.translateY);*/
-		// results of these tests:
-		// translating or the placement point of a placedsymbol affects its matrix,
-		// but translating the definition of the symbol doesn't
-		
-		// test if you can make a symbol from a placeditem, and if so, if both matrices apply
-		// make circle
-		/*var circ = new paper.Path.Circle([50,50], 20);
-		circ.fillColor = 'red';
-		circ.strokeColor = 'black';
-		// make symbol
-		var circSymbol = new paper.Symbol(circ);
-		// place symbol
-		var circPlaced = circSymbol.place([100,100]);
-		// place a second symbol
-		circSymbol.place([150,150]);
-		// make symbol from placed symbol
-		var subSymbol = new paper.Symbol(circPlaced);
-		// place one of those
-		var subPlaced = subSymbol.place([200,200]);
-		// place a second of those
-		subSymbol.place([250,250]);
-		// translate definition of subsymbol, which is a placed symbol
-		//subPlaced.symbol.definition.translate([50,50]);
-		circPlaced.translate([50,50]);
-		circPlaced.scale(2);
-		console.log(subPlaced.matrix);
-		console.log(circPlaced.matrix);*/
-		//console.log(subPlaced.symbol.definition);
-		// it works. both matrices are applied
-		
-		
-		// placement testing
-		/*var circ = new paper.Path.Circle([50,50], 20);
-		circ.fillColor = 'red';
-		var symbol = new paper.Symbol(circ);
-		paper.project.activeLayer.addChild(circ);
-		circ.translate([50,50]);
-		var placed = symbol.place();*/
 	};
-	
-	
-	var overGrid = function(func) {
-		// TODO make app a jquery plugin
-		var width = $("#testcanvas").width();
-		var height = $("#testcanvas").height();
-		
-		// call a function for each grid tile
-		for(var i = 0; i < width / grid.scale; i++) {
-			for(var j = 0; j < height / grid.scale; j++) {
-				func(new paper.Point(i,j));//,
-					//new paper.Point((i + 0.5) * grid.scale + 0.5, (j + 0.5) * grid.scale + 0.5));
-			}
-		}
-	};
-	
-	var getTileAt = function(point) {
-		/*var canvasPoint = this.elementToCanvas(point);
-		return new Point().setxy(Math.floor(canvasPoint.x / this.pathView.panelWidth),
-								Math.floor(canvasPoint.y / this.pathView.panelHeight));*/
-		return new paper.Point(Math.floor((point.x - grid.origin.x) / grid.scale),
-								Math.floor((point.y - grid.origin.y) / grid.scale));
-	};
-	// convert between spaces
-	var paperToTessellation = function(point) {
-		return point.subtract(grid.origin).multiply(1/grid.scale);
-	};
-	var tessellationToPaper = function(point) {
-		return point.multiply(grid.scale).add(grid.origin);
-	};
-	var tileToTessellation = function(point, tile) {
-		return point.add(tile);
-	};
-	var tessellationToTile = function(point, tile) {
-		return point.subtract(tile);
-	};
-	var tileToPaper = function(point, tile) {
-		return tessellationToPaper(tileToTessellation(point,tile));
-	};
-	var paperToTile = function(point, tile) {
-		return tessellationToTile(paperToTessellation(point), tile);
-	};
-	
-	var testHit = function() {
-		
-		// TODO make app a jquery plugin
-		var width = $("#testcanvas").width();
-		var height = $("#testcanvas").height();
-		
-		// TODO was testing. figured out that it's options.segments, not options.segment
-		// monte carlo simulation of trying to click on segments
-		// define options for hit test
-		var hitTestOptions = {
-			//type: paper.PathItem, // TODO as a string or what? // I don't think this is used
-			segments: true, // look for segment points
-			handles: true, // look for segment handles
-			selected: true, // look for selected paths
-			stroke: true,
-			tolerance:2
-		};
-		
-		var res = 50;
-		
-		var hitCircle = new paper.Path.Circle(null, 3);
-		hitCircle.fillColor = 'green';
-		var hitSymbol = new paper.Symbol(hitCircle);
-		var missCircle = new paper.Path.Circle(null, 3);
-		missCircle.fillColor = 'red';
-		var missSymbol = new paper.Symbol(missCircle);
-		//for(var i = 0; i < 1000; i++) {
-		for(var i = 0; i < res; i++) {
-			for(var j = 0; j < res; j++) {
-				// perform hit test
-				//var testPoint = new paper.Point(Math.random()*400, Math.random()*400);
-				var testPoint = new paper.Point(i * width / res, j * height / res);
-				var hitResult = paper.project.activeLayer.hitTest(testPoint, hitTestOptions);
-				if(hitResult) {
-					hitSymbol.place(testPoint);
-				} else {
-					missSymbol.place(testPoint);
-				}
-			}
-		}
-	 };
 	
 	return $.extend(app, {
 		stockTool : stockTool,
