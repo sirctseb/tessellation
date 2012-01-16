@@ -343,6 +343,24 @@ var app = (function () {
 		}
 		return ldTool;
 	}());
+
+	var makeLatticeEvents = function(lattice) {
+		var selectedColor = 'blue';
+		mouseDown: function(event) {
+			// TODO notify UI of mouse down
+			this.dragging = true;
+			lattice.updateDisplay();
+		},
+		mouseDrag: function(event) {
+			this.drag = event.delta;
+			lattice.updateDisplay();
+		},
+		mouseUp: function(event) {
+			this.dragging = false;
+			lattice.updateDisplay();
+		}
+	};
+	
 	var deselectAll = function() {
 		// deselect selected segments of selected paths
 		// TODO check that a selected item is a path at all
