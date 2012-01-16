@@ -283,7 +283,7 @@ var app = (function () {
 			if(hitResult) {
 				hitResult.item.selected = true;
 			} else {
-				app.deselectAll();
+				//app.deselectAll();
 			}
 		}
 
