@@ -35,6 +35,7 @@
 				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
 				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
 
+				// handler for collapsable clicks
 				$("#tessdefcontainer").on("click", ".tessUI.collapsable", function(event) {
 					$this = $(this);
 					if($this.hasClass('collapsed')) {
@@ -44,9 +45,16 @@
 					}
 					return false;
 				});
+				// handler to prevent parent collapsables from collapsing when children are clicked
+				/*$("#tessdefcontainer .tessUI.collapsable").on("click", ":not(.collapsable)", function(event) {
+					return false;
+				});*/
 				$('#tessdefcontainer').on("click", ".latticeVec", function(event) {
 					// activate lattice editing
 					app.beginEditLattice();
+					paper.view.draw();
+					app.noopTool.activate();
+					return false;
 				});
 
 				$("#tessdefcontainer").append(app.tess.generateUI());

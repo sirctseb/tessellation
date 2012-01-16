@@ -199,7 +199,23 @@ var initTessDef = (function() {
 				this.placement = newPlacement;
 			}
 		},
-		doInitialLatticePlacement: function(view, symbol) {
+		onLatticeChange: function(view) {
+			var that = this;
+			// remove all placements
+			$.each(this.placement.checked, function(coef, visible) {
+				if(visible) {
+					that.latticeGroup.children[coef].remove();
+				}
+			});
+			// redo lattice placement
+			if(this.latticeGroup) {
+				this.latticeGroup.remove();
+			}
+			this.doInitialLatticePlacement(view);
+			view.draw();
+		},
+		doInitialLatticePlacement: function(view) {
+			var symbol = this.symbol;
 			// create a group for the lattice which will become the outer group
 			var latticeGroup = new paper.Group();
 			
@@ -231,13 +247,13 @@ var initTessDef = (function() {
 			// update the outer group to be the lattice group
 			var outerGroup = latticeGroup;
 			// create symbol for entire thing
-			var latticeSymbol = outerGroup.symbolize();
+			//var latticeSymbol = outerGroup.symbolize();
 			// store group and symbol on this
 			// TODO this is clobbered in render
 			this.latticeGroup = outerGroup;
-			this.latticeSymbol = latticeSymbol;
+			///this.latticeSymbol = latticeSymbol;
 			// finally, place entire symbol
-			this.latticeSymbol.place();
+			//this.latticeSymbol.place();
 			
 			// store placement info for resizing
 			this.placement = placement;
@@ -333,11 +349,12 @@ var initTessDef = (function() {
 			
 			// make symbol from outer group
 			var outerSymbol = outerGroup.symbolize();
+			this.symbol = outerSymbol;
 			
 			// if there is a lattice defined, copy this group to each point
 			if(this.lattice) {
 				// place symbols at visible lattice points
-				this.doInitialLatticePlacement(view, outerSymbol);
+				this.doInitialLatticePlacement(view);
 				
 			} else {
 				// if there is no lattice, place one instance of the symbol for this group
@@ -497,7 +514,7 @@ var initTessDef = (function() {
 		newPolyGroup.transforms = [];
 		newPolyGroup.symbols = [];
 		newPolyGroup.subgroups = [];
-		newPolyGroup.group = new paper.Group();
+		newPolyGroup.group = null;//new paper.Group();
 		newPolyGroup.latticePoints = [];
 		return newPolyGroup;
 	};
@@ -518,6 +535,10 @@ var initTessDef = (function() {
 			return lattice;
 		},
 		reduceBasis: function() {
+			if(this.isReduced()) {
+				return;
+			}
+
 			// basically Euclid's GCD algorithm for vectors
 			// from mit open courseware stuff
 			// http://ocw.mit.edu/courses/mathematics/18-409-topics-in-theoretical-computer-science-an-algorithmists-toolkit-fall-2009/lecture-notes/MIT18_409F09_scribe19.pdf
@@ -664,14 +685,14 @@ var initTessDef = (function() {
 
 	// tessellation for wedding hearts
 	var heartGroup = CreatePolyGroup();
-	heartGroup.addPolygon(SquarePoly.clone());
+	/*heartGroup.addPolygon(SquarePoly);
 	heartGroup.addTransform(new paper.Matrix().scale(1,-1, SquarePoly.position)
 												//.rotate(180, SquarePoly.position)
 												.translate(SquarePoly.bounds.width, 0)
 											);
 	heartGroup.addLattice(Lattice.LatticeBy(new paper.Point(SquarePoly.bounds.width * 2,0),
 											new paper.Point(SquarePoly.bounds.width*0.5,SquarePoly.bounds.height)));
-	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());
+	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());*/
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
