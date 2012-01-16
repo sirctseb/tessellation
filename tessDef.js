@@ -110,7 +110,7 @@ var initTessDef = (function() {
 			return label;
 		},
 		generateUI: function() {
-			// todo generate the html ui which displays the lattice definition	
+			// todo generate the html ui which displays the lattice definition
 		},
 		recomputeLattice: function(view) {
 			// TODO there is probably a better way to do this
