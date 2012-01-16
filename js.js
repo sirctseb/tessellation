@@ -369,48 +369,7 @@ var app = (function () {
 		// activate original layer
 		paper.project.layers[0].activate();
 		
-		/*var tess44 = tessellation.setup({type: "{4,4}",
-										gridColor: settings.gridColor,
-										editLayer: settings.editLayer,
-										gridLayer: settings.gridLayer,
-										copyLayer: settings.copyLayer});*/
-										
-		// TODO testing
-		//app.tess44 = tess44;
-		
-		// this works, i think we should do it this way
-		/*var latPoint = [new paper.Point([0.5,0.5]),
-						new paper.Point([0.5,100.5]),
-						new paper.Point([100.5,0.5]),
-						new paper.Point([100.5,100.5])];
-		var square = paper.Path.Rectangle([0,0], [50,50]);
-		square.strokeColor = 'black';
-		var PG = {
-			def: square,
-			symbol: new paper.Symbol(square),
-			stamp: function() {
-				// place symbols
-				//var p1 = this.symbol.place([25,25]);
-				var p1 = new paper.Group([this.symbol.place()]);
-				p1.translate([25,25]);
-				//var p2 = this.symbol.place([35,25]);
-				var p2 = new paper.Group([this.symbol.place()]);
-				p2.translate([35,25]);
-				//var p3 = this.symbol.place([35,35]);
-				var p3 = new paper.Group([this.symbol.place()]);
-				p3.translate([35,35]);
-				p3.rotate(45);
-				return [p1, p2, p3];
-			}
-		};
-		
-		$.each(latPoint, function(index, point) {
-			new paper.Group(PG.stamp()).translate(point);
-		});*/
-		
 		paper.view.scrollBy([-0.5,-0.5]);
-		//var triangle = new paper.Path.RegularPolygon([50,50], 3, 50);
-		//triangle.strokeColor = 'black';
 		
 		var tessDef = initTessDef();
 
