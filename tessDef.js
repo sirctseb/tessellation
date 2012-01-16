@@ -265,7 +265,7 @@ var initTessDef = (function() {
 			
 			// reduce the lattice basis if there is a lattice
 			if(this.lattice && !this.lattice.isReduced()) {
-				this.lattice.reduce();
+				this.lattice.reduceBasis();
 			}
 			
 			// get the group with the subgroups and local symbol placements
