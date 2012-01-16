@@ -590,6 +590,17 @@ var initTessDef = (function() {
 	hitTestGroup.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(120, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(180, TrianglePoly.firstSegment.point));
+
+	// tessellation for wedding hearts
+	var heartGroup = CreatePolyGroup();
+	heartGroup.addPolygon(SquarePoly.clone());
+	heartGroup.addTransform(new paper.Matrix().scale(1,-1, SquarePoly.position)
+												//.rotate(180, SquarePoly.position)
+												.translate(SquarePoly.bounds.width, 0)
+											);
+	heartGroup.addLattice(Lattice.LatticeBy(new paper.Point(SquarePoly.bounds.width * 2,0),
+											new paper.Point(SquarePoly.bounds.width*0.5,SquarePoly.bounds.height)));
+	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
@@ -598,7 +609,8 @@ var initTessDef = (function() {
 		PolyGroup44: PolyGroup44,
 		//GroupHex: rotGroupHex
 		GroupHex: latGroupHex,
-		HitGroup: hitTestGroup
+		HitGroup: hitTestGroup,
+		HeartGroup: heartGroup
 	});
 	
 	return tessDef;

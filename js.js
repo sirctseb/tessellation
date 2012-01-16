@@ -423,17 +423,20 @@ var app = (function () {
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
 		yaxis.strokeColor = 'red';*/
 		
-		//tessDef.PolyGroup44.render(paper.view);
-		tessDef.GroupHex.render(paper.view);
+		tessDef.PolyGroup44.render(paper.view);
+		//tessDef.GroupHex.render(paper.view);
+		//tessDef.HeartGroup.render(paper.view);
 		//tessDef.HitGroup.render(paper.view);
+		//tessDef.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
 		// testing:
 		// create new path and add to the tessellation
 		//var square = new paper.Path.Rectangle([50,50], 20);
 		//square.strokeColor = 'green';
 		//tessDef.GroupHex.addPath(square);
-		this.tess = tessDef.GroupHex;
-		//this.tess = tessDef.PolyGroup44;
+		//this.tess = tessDef.GroupHex;
+		this.tess = tessDef.PolyGroup44;
 		//this.tess = tessDef.HitGroup;
+		//this.tess = tessDef.HeartGroup;
 		//tessDef.GroupHex.group.fillColor = 'red';
 
 		// TODO testing speeds of lattice math functions
