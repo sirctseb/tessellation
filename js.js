@@ -385,9 +385,7 @@ var app = (function () {
 	return $.extend(app, {
 		stockTool : stockTool,
 		editTool : editTool,
-		deselectAll : deselectAll,
 		init: init,
-		testHit: testHit,
 		viewInfo: function() {
 			console.log("view.size: ", paper.view.size.toString());
 			console.log("view.bounds: ", paper.view.bounds.toString());
