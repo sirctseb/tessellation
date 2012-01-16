@@ -113,7 +113,7 @@ var initTessDef = (function() {
 			// todo generate the html ui which displays the lattice definition
 			// create top-most element
 			var head = $("<div></div>", {"class": "tessDefUI collapsable tessUI",
-										text: "Tessellation"});
+										text: "Stamp"});
 			// add lattice info
 			if(this.lattice) {
 				// create container for lattice info
@@ -128,7 +128,7 @@ var initTessDef = (function() {
 			}
 
 			// add polygon header
-			var polyHead = $("<div/>", {"class": "tessUI polyHead collapsable", text:"Polygons"}).appendTo(head);
+			var polyHead = $("<div/>", {"class": "tessUI polyHead collapsable", text:"Shapes (" + this.polygons.length + ")"}).appendTo(head);
 			// add polygons
 			$.each(this.polygons, function(index, polygon) {
 				// create an entry
@@ -137,7 +137,8 @@ var initTessDef = (function() {
 			// TODO if polyHead.children().length == 0, add "No polygons, click to add"
 
 			// add substructure header
-			var substructure = $("<div/>", {"class": "tessUI substructureHead collapsable", text: "Substructure"}).appendTo(head);
+			var substructure = $("<div/>", {"class": "tessUI substructureHead collapsable",
+											text: "Substamps (" + this.subgroups.length + ")"}).appendTo(head);
 			// add subroup UI's
 			// TODO these will contain superfluous Tessellation header elements
 			$.each(this.subgroups, function(index, subgroup) {
@@ -145,7 +146,7 @@ var initTessDef = (function() {
 			});
 
 			// add transformation header
-			var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable", text: "Transformations"}).appendTo(head);
+			var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable", text: "Placements"}).appendTo(head);
 			// add trasnform UI's
 			$.each(this.transforms, function(index, transform) {
 				$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead);
@@ -332,7 +333,8 @@ var initTessDef = (function() {
 			var innerSymbol = this.getInnerGroup(view);
 			
 			// place inner symbol into main polygroup group
-			var outerGroup = new paper.Group([innerSymbol.place()]);
+			//var outerGroup = new paper.Group([innerSymbol.place()]);
+			var outerGroup = new paper.Group();
 
 			var that = this;
 			
@@ -623,9 +625,11 @@ var initTessDef = (function() {
 	
 	var innerGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
 	innerGroup44.addPolygon(SquarePoly);
+	innerGroup44.addTransform(new paper.Matrix());
 	var PolyGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
 	PolyGroup44.addSubgroup(innerGroup44);
+	PolyGroup44.addTransform(new paper.Matrix());
 	
 	/*var innerGroupHex = CreatePolyGroup();
 	innerGroupHex.addPolygon(TrianglePoly.clone());
@@ -641,6 +645,7 @@ var initTessDef = (function() {
 	// new formulation in a single group
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addPolygon(TrianglePoly);
+	latGroupHex.addTransform(new paper.Matrix());
 	latGroupHex.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	// TODO testing
 	//for(var i = 10; i < 90; i+=10) {
@@ -652,6 +657,7 @@ var initTessDef = (function() {
 	var hitTestGroup = CreatePolyGroup();
 	hitTestGroup.addPolygon(TrianglePoly);
 	// TODO write group with transforms so we can test hitPolygons
+	hitTestGroup.addTransform(new paper.Matrix());
 	hitTestGroup.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(120, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(180, TrianglePoly.firstSegment.point));
