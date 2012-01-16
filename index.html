@@ -46,6 +46,7 @@
 				});
 				$('#tessdefcontainer').on("click", ".latticeVec", function(event) {
 					// activate lattice editing
+					app.beginEditLattice();
 				});
 
 				$("#tessdefcontainer").append(app.tess.generateUI());

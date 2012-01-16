@@ -337,22 +337,56 @@ var app = (function () {
 		return ldTool;
 	}());
 
-	var makeLatticeEvents = function(lattice) {
+	var makeHandlers = function(lattice, vecName) {
+
 		var selectedColor = 'blue';
-		mouseDown: function(event) {
-			// TODO notify UI of mouse down
-			this.dragging = true;
-			lattice.updateDisplay();
-		},
-		mouseDrag: function(event) {
-			this.drag = event.delta;
-			lattice.updateDisplay();
-		},
-		mouseUp: function(event) {
-			this.dragging = false;
-			lattice.updateDisplay();
-		}
+		var handlers = {
+			mouseDown: function(event) {
+				// TODO notify UI of mouse down
+				//this.dragging = true;
+				//lattice.updateDisplay();
+				this.fillColor = selectedColor;
+			},
+			mouseDrag: function(event) {
+				//this.drag = event.delta;
+				//lattice.updateDisplay();
+
+				// update display
+				this.position = event.point;
+				// update lattice
+				lattice[vecName] = event.point;
+			},
+			mouseUp: function(event) {
+				//this.dragging = false;
+				//lattice.updateDisplay();
+				this.fillColor = null;
+			}
+		};
+		return handlers;
 	};
+	var makeLatticeDisplay = function(lattice) {
+		var display = new paper.Group();
+		$.each(['v1', 'v2'], function(index, vecName) {
+			// create display elements
+			// draw line
+			var line = new paper.Path(new paper.Point(), lattice[vecName]);
+			// draw handle
+			var handle = new paper.Path.Circle(vector, 3);
+			// group to hold display elements
+			var group = new paper.Group([line, handle]);
+			group.strokeColor = 'blue';
+
+			// add group to display group
+			group.addTo(display);
+
+			// add handlers to elements
+			handle.attach(makeHandlers(lattice, vecName));
+		});
+		return display;
+	};
+	app.beginEditLattice = function() {
+		this.latticeDisplay = makeLatticeDisplay(this.tess.lattice);
+	}
 
 	app.applyStyle = function(style) {
 		$.each(paper.project.selectedItems, function(index, item) {

@@ -597,7 +597,34 @@ var initTessDef = (function() {
 			var closestCoefs = coefs.round();
 			var location = this.getPoint(closestCoefs);
 			return {point: location, coefs: closestCoefs};
-		}
+		},/*
+		createDisplay: function() {
+			if(this.displayGroup) {
+				this.displayGroup.remove();
+			}
+			// create group to hold display elements
+			this.displayGroup = new paper.Group();
+			// create vector lines
+			var v1Line = new paper.Path(new paper.Point(), this.v1);
+			v1Line.name = 'v1Line';
+			var v2Line = new paper.Path(new paper.Point(), this.v2);
+			v2Line.name = 'v2Line';
+			this.displayGroup.addChildren([this.v1Line, this.v2Line]);
+			this.displayGroup.strokeColor = 'blue';
+		},
+		updateDisplay: function() {
+			if(this.displayGroup) {
+				this.v1 = this.v1.add(this.displayGroup.children['v1Line'].drag);
+				this.v2 = this.v1.add(this.displayGroup.children['v2Line'].drag);
+				this.displayGroup.children['v1Line'].lastSegment.point = this.v1;
+			}
+		},
+		removeDisplay: function() {
+			if(this.displayGroup) {
+				this.displayGroup.remove();
+				delete this.displayGroup;
+			}
+		}*/
 	};
 	
 	var innerGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
