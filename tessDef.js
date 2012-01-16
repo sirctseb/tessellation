@@ -111,6 +111,47 @@ var initTessDef = (function() {
 		},
 		generateUI: function() {
 			// todo generate the html ui which displays the lattice definition
+			// create top-most element
+			var head = $("<div></div>", {"class": "tessDefUI collapsable tessUI",
+										text: "Tessellation"});
+			// add lattice info
+			if(this.lattice) {
+				// create container for lattice info
+				var lattice = $("<div></div>", {"class": "latticeHead collapsable tessUI", text: "Lattice"}).appendTo(head);
+				// create lattice info
+				// TODO on hover or click, show lattice vectors in view
+				// TODO jquery doesn't seem to like content text and properties passed in through an object
+				//var v1 = $("<div>" + this.lattice.v1.toString() + "</div>", {"class": "latticeVec tessUI"}).appendTo(lattice);
+				var v1 = $("<div/>", {"class": "latticeVec tessUI", text: this.lattice.v1.toString()}).appendTo(lattice);
+				//var v2 = $("<div>" + this.lattice.v2.toString() + "</div>", {class: "latticeVec tessUI"}).appendTo(lattice);
+				var v2 = $("<div/>", {"class": "latticeVec tessUI", text: this.lattice.v2.toString()}).appendTo(lattice);
+			}
+
+			// add polygon header
+			var polyHead = $("<div/>", {"class": "tessUI polyHead collapsable", text:"Polygons"}).appendTo(head);
+			// add polygons
+			$.each(this.polygons, function(index, polygon) {
+				// create an entry
+				$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead);
+			});
+			// TODO if polyHead.children().length == 0, add "No polygons, click to add"
+
+			// add substructure header
+			var substructure = $("<div/>", {"class": "tessUI substructureHead collapsable", text: "Substructure"}).appendTo(head);
+			// add subroup UI's
+			// TODO these will contain superfluous Tessellation header elements
+			$.each(this.subgroups, function(index, subgroup) {
+				subgroup.generateUI().appendTo(substructure);
+			});
+
+			// add transformation header
+			var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable", text: "Transformations"}).appendTo(head);
+			// add trasnform UI's
+			$.each(this.transforms, function(index, transform) {
+				$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead);
+			});
+
+			return head;
 		},
 		recomputeLattice: function(view) {
 			// TODO there is probably a better way to do this

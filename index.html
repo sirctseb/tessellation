@@ -34,6 +34,8 @@
 				// initialize color pickers
 				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
 				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
+
+				$("#tessdefcontainer").append(app.tess.generateUI());
 			});
 		var applyStyle = function() {
 			// use jquery to serialize into array
@@ -76,6 +78,9 @@
 		
 		<div id="settings" class="rightmenu">
 			Settings
+			<div id="tessdefcontainer" class="settinggroup">
+				<div>Tessellation Definition</div>
+			</div>
 			<div id="pathstylecontainer" class="settinggroup">
 				<div>Path Style</div>
 					<form id='pathStyleForm'>

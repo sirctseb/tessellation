@@ -58,6 +58,10 @@ header
 	/*padding-left:-10px;*/
 	margin-left:-10px;
 }
+.tessUI>.tessUI
+{
+	margin-left:10px;
+}
 .colorPickerContainer
 {
 	/*position:relative;*/
