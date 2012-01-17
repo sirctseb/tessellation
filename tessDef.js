@@ -593,14 +593,33 @@ var initTessDef = (function() {
 
 	// tessellation for wedding hearts
 	var heartGroup = CreatePolyGroup();
-	heartGroup.addPolygon(SquarePoly.clone());
+	heartGroup.addPolygon(SquarePoly);
 	heartGroup.addTransform(new paper.Matrix().scale(1,-1, SquarePoly.position)
 												//.rotate(180, SquarePoly.position)
 												.translate(SquarePoly.bounds.width, 0)
 											);
 	heartGroup.addLattice(Lattice.LatticeBy(new paper.Point(SquarePoly.bounds.width * 2,0),
 											new paper.Point(SquarePoly.bounds.width*0.5,SquarePoly.bounds.height)));
+
 	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());
+
+	var rectangle = new paper.Path.Rectangle([0,0], [50,100]);
+	rectangle.strokeColor = "#ddd";
+	rectangle.remove();
+	var kcGroup = CreatePolyGroup();
+	kcGroup.addPolygon(rectangle);
+	kcGroup.addTransform(new paper.Matrix());
+	kcGroup.addTransform(new paper.Matrix()
+									.rotate(90, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
+						);
+	kcGroup.addTransform(new paper.Matrix()
+									.rotate(180, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
+						);
+	kcGroup.addTransform(new paper.Matrix()
+									.rotate(270, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
+						);
+	kcGroup.addLattice(Lattice.LatticeBy(new paper.Point(100, 0),
+										new paper.Point(0,100)));
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
@@ -610,7 +629,8 @@ var initTessDef = (function() {
 		//GroupHex: rotGroupHex
 		GroupHex: latGroupHex,
 		HitGroup: hitTestGroup,
-		HeartGroup: heartGroup
+		HeartGroup: heartGroup,
+		kcGroup: kcGroup
 	});
 	
 	return tessDef;
