@@ -57,15 +57,6 @@ var initTessDef = (function() {
 	
 	var tessDef = {};
 	
-	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
-	SquarePoly.strokeColor = '#ddd';
-	SquarePoly.strokeWidth = 3;
-	SquarePoly.remove();
-	var TrianglePoly = new paper.Path.RegularPolygon([50,50], 3, 50);
-	TrianglePoly.strokeColor = '#ddd';
-	TrianglePoly.strokeWidth = 3;
-	TrianglePoly.remove();
-	
 	// PolyGroup represents a set of polygons or a PolyGroup with transformations applied
 	var PolyGroup = {
 		polygons: null,
@@ -625,6 +616,11 @@ var initTessDef = (function() {
 		},
 	};
 	
+	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
+	SquarePoly.strokeColor = '#ddd';
+	SquarePoly.strokeWidth = 3;
+	SquarePoly.remove();
+
 	var innerGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
 	innerGroup44.addPolygon(SquarePoly);
 	innerGroup44.addTransform(new paper.Matrix());
@@ -633,6 +629,11 @@ var initTessDef = (function() {
 	PolyGroup44.addSubgroup(innerGroup44);
 	PolyGroup44.addTransform(new paper.Matrix());
 	
+	var TrianglePoly = new paper.Path.RegularPolygon([50,50], 3, 50);
+	TrianglePoly.strokeColor = '#ddd';
+	TrianglePoly.strokeWidth = 3;
+	TrianglePoly.remove();
+
 	/*var innerGroupHex = CreatePolyGroup();
 	innerGroupHex.addPolygon(TrianglePoly.clone());
 	var rotGroupHex = CreatePolyGroup();
