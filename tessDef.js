@@ -134,7 +134,8 @@ var initTessDef = (function() {
 				// create an entry
 				$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead);
 			});
-			// TODO if polyHead.children().length == 0, add "No polygons, click to add"
+			// add polygon entry
+			$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
 
 			// add substructure header
 			var substructure = $("<div/>", {"class": "tessUI substructureHead collapsable",

@@ -46,14 +46,21 @@
 					return false;
 				});
 				// handler to prevent parent collapsables from collapsing when children are clicked
-				/*$("#tessdefcontainer .tessUI.collapsable").on("click", ":not(.collapsable)", function(event) {
+				$("#tessdefcontainer").on("click", ".tessUI", function(event) {
 					return false;
-				});*/
+				});
+				// activate lattice editing when we click on the lattice details
 				$('#tessdefcontainer').on("click", ".latticeVec", function(event) {
 					// activate lattice editing
 					app.beginEditLattice();
+					// update display
 					paper.view.draw();
 					return false;
+				});
+
+				// handler to add a new polygon
+				$("#tessdefcontainer").on("click", ".addPolyentry", function(event) {
+					// TODO add new shape
 				});
 
 				$("#tessdefcontainer").append(app.tess.generateUI());
