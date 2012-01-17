@@ -146,7 +146,8 @@ var initTessDef = (function() {
 			});
 
 			// add transformation header
-			var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable", text: "Placements"}).appendTo(head);
+			var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable",
+											text: "Placements (" + this.transforms.length + ")"}).appendTo(head);
 			// add trasnform UI's
 			$.each(this.transforms, function(index, transform) {
 				$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead);
