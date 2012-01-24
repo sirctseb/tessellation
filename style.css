@@ -58,6 +58,18 @@ header
 	/*padding-left:-10px;*/
 	margin-left:-10px;
 }
+.tessUI>.tessUI
+{
+	padding-left:10px;
+}
+.collapsed
+{
+	background-color:#888888;
+}
+.collapsed>*
+{
+	display:none;
+}
 .colorPickerContainer
 {
 	/*position:relative;*/
