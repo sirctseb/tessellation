@@ -3,7 +3,7 @@
 // check if a point is in the interior of an assumed convex polygon
 // TODO put this somewhere better
 paper.Path.inject({
-	isInterior: function(point) {
+	/*isInterior: function(point) {
 		if(!this.closed) {
 			return false;
 		}
@@ -23,6 +23,20 @@ paper.Path.inject({
 		});
 		
 		return interior;
+	}*/
+
+	// version which should work with general paths
+	isInterior: function(point) {
+		// TODO check for closed?
+		/*if(!this.closed) {
+			return false;
+		}*/
+
+		// find the closest point on any curve of the path to the given point
+		var nearestCurveLocation = this.getNearestLocation(point);
+
+		// check if the given point is inward of the nearest location
+		return nearestCurveLocation.normal.dot(point.subtract(nearestCurveLocation.point)) * ( this.clockwise ? -1 : 1 ) > 0;
 	}
 });
 
