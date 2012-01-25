@@ -5,7 +5,9 @@
 		<title>Paper.js stuff</title>
 		<link rel="stylesheet" href="style.css" />
 		<script type="text/javascript" src="jquery-1.6.1.js"></script>
+		<script type="text/javascript" src="timer.js"></script>
 		<script type="text/javascript" src="paper.js"></script>
+		<script type="text/javascript" src="paperjsPlugins.js"></script>
 		<script type="text/javascript" src="tessDef.js"></script>
 		<script type="text/javascript" src="log.js"></script>
 		<script type="text/javascript" src="js.js"></script>
@@ -29,6 +31,38 @@
 				console.log('view.size: ' + paper.view.size);*/
 				
 				var tessDef = initTessDef();
+
+				// test speed differences between old and new method for testing path hits
+				/*var target = new paper.Path.RegularPolygon([100,100], 3, 80);
+				target.strokeColor = 'green';
+				timer.useSeconds(true);
+				var numTests = 1000;
+				var maxPoint = new paper.Point([200,200]);
+				var hits = 0,
+					misses = 0;
+				timer.startTimer("hittest");
+				for(var i = 0; i < numTests; i++) {
+					target.isInterior(maxPoint.multiply(paper.Point.random())) ? hits++ : misses++;
+				}
+				log.log("nearest point time: " + timer.lap("hittest"));
+				log.log("hits: " + hits + ", misses: " + misses);
+
+
+				hits = misses = 0;
+				for(var i = 0; i < numTests; i++) {
+					target.isInterior2(maxPoint.multiply(paper.Point.random())) ? hits++ : misses++;
+				}
+				log.log("convex assumption time: " + timer.lap("hittest"));
+				log.log("hits: " + hits + ", misses: " + misses);
+
+
+				hits = misses = 0;
+				for(var i = 0; i < numTests; i++) {
+					target.isInterior4(maxPoint.multiply(paper.Point.random())) ? hits++ : misses++;
+				}
+				log.log("hittest time: " + timer.lap("hittest"));
+				log.log("hits: " + hits + ", misses: " + misses);*/
+
 				
 				// test lattice reduction
 				// seems to be working, should test better
