@@ -6,6 +6,26 @@ Object.create = function(o) {
 	return new F();
 };
 
+var objWithBlank = {};
+objWithBlank[''] = 4;
+console.log(objWithBlank['']);
+//console.log(objWithBlank.);
+
+phantom.injectJs('timer.js');
+
+timer.useSeconds(true);
+timer.lap("fast");
+var sum = 0;
+for(var i = 0; i < 1000000; i++) {
+	sum += Math.sqrt(Math.random());
+}
+console.log(timer.lap("fast"), "timer");
+timer.lap("slow");
+for(var i = 0; i < 10000000; i++) {
+	sum += Math.sqrt(Math.random());
+}
+console.log(timer.lap("slow"), "timer");
+
 var o1 = {'a': true, 'b': false, 'c': true };
 var o2 = {'a': false, 'c': true };
 if(o1['a'] === o2['a']) {

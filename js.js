@@ -443,7 +443,7 @@ var app = (function () {
 		var tessDef = initTessDef();
 
 		// turn on tool debug output
-		log.enable('tools');
+		//log.enable('tools');
 		
 		// TODO for debugging: draw coordinate axes
 		/*var xaxis = new paper.Path([[0,-100], [0,100]]);
