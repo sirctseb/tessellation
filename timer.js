@@ -26,11 +26,7 @@ var timer = (function() {
 
 			// return the difference between now and the previous time
 			// make sure there is a previous time, if not, return now
-			if(timers[name].length < 2) {
-				return timers[name][0];
-			} else {
-				return timers[name][timers[name].length-1] - timers[name][timers[name].length-2];
-			}
+			return this.getLapTime(name);
 		},
 		// return the time at wich lap occured
 		getTime: function(name, lap) {
