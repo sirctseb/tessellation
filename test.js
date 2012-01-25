@@ -6,6 +6,11 @@ Object.create = function(o) {
 	return new F();
 };
 
+var objWithBlank = {};
+objWithBlank[''] = 4;
+console.log(objWithBlank['']);
+//console.log(objWithBlank.);
+
 var o1 = {'a': true, 'b': false, 'c': true };
 var o2 = {'a': false, 'c': true };
 if(o1['a'] === o2['a']) {
