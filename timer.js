@@ -2,6 +2,8 @@
 var timer = (function() {
 	// object to hold the results of timers
 	var timers = {};
+	// return values are in units of seconds instead of milliseconds
+	var useSeconds = false;
 
 	// methods
 	return {
@@ -26,7 +28,7 @@ var timer = (function() {
 
 			// return the difference between now and the previous time
 			// make sure there is a previous time, if not, return now
-			return this.getLapTime(name);
+			return this.getLapTime(name) / (useSeconds ? 1000 : 1);
 		},
 		// return the time at wich lap occured
 		getTime: function(name, lap) {
@@ -51,7 +53,7 @@ var timer = (function() {
 			}
 
 			// return the time
-			return timers[name][lap];
+			return timers[name][lap] / (useSeconds ? 1000 : 1);
 		},
 		// return the time a given lap took
 		getLapTime: function(name, lap) {
@@ -75,7 +77,14 @@ var timer = (function() {
 			}
 
 			// return the difference in times
-			return lapTime - prevLapTime;
+			return (lapTime - prevLapTime) / (useSeconds ? 1000 : 1);
+		},
+		// method to choose units
+		useSeconds: function(choice) {
+			if(arguments.length < 1) {
+				choice = true;
+			}
+			useSeconds = choice;
 		}
 	}
 }());
