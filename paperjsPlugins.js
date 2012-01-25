@@ -26,6 +26,8 @@ paper.Path.inject({
 	}*/
 
 	// version which should work with general paths
+	// TODO shouldn't work with self-intersecting paths
+	// TODO test with non-convex paths
 	isInterior: function(point) {
 		// TODO check for closed?
 		/*if(!this.closed) {
