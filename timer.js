@@ -28,7 +28,7 @@ var timer = (function() {
 
 			// return the difference between now and the previous time
 			// make sure there is a previous time, if not, return now
-			return this.getLapTime(name) / (useSeconds ? 1000 : 1);
+			return this.getLapTime(name);
 		},
 		// return the time at wich lap occured
 		getTime: function(name, lap) {
@@ -77,7 +77,7 @@ var timer = (function() {
 			}
 
 			// return the difference in times
-			return (lapTime - prevLapTime) / (useSeconds ? 1000 : 1);
+			return lapTime - prevLapTime;
 		},
 		// method to choose units
 		useSeconds: function(choice) {
