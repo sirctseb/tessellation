@@ -60,15 +60,30 @@ var initTessDef = (function() {
 			label.strokeColor = 'blue';
 			return label;
 		},
+		// TODO this should not be in tessDef
 		generateUI: function() {
 			// todo generate the html ui which displays the lattice definition
 			// create top-most element
 			var head = $("<div></div>", {"class": "tessDefUI collapsable tessUI",
 										text: "Stamp"});
+			var tess = this;
+			// header click handler to set tess as render head
+			head.click(function(event) {
+				tess.setRenderHead(tess);
+				paper.view.draw();
+				return false;
+			});
 			// add lattice info
 			if(this.lattice) {
 				// create container for lattice info
 				var lattice = $("<div></div>", {"class": "latticeHead collapsable tessUI", text: "Lattice"}).appendTo(head);
+				// lattice click handler to set lattice as render head
+				lattice.click(function(event) {
+					tess.setRenderHead(tess.lattice);
+					paper.view.draw();
+					return false;
+				});
+
 				// create lattice info
 				// TODO on hover or click, show lattice vectors in view
 				// TODO jquery doesn't seem to like content text and properties passed in through an object
@@ -79,18 +94,33 @@ var initTessDef = (function() {
 			}
 
 			// add polygon header
-			var polyHead = $("<div/>", {"class": "tessUI polyHead collapsable", text:"Shapes (" + this.polygons.length + ")"}).appendTo(head);
+			var polyHead = $("<div/>", {"class": "tessUI polyHead collapsable", text:"Shapes (" + this.polygons.length + ")"}).appendTo(head)
+							.click(function(event) {
+								tess.setRenderHead(tess.polygons);
+								paper.view.draw();
+								return false;
+							})
 			// add polygons
 			$.each(this.polygons, function(index, polygon) {
 				// create an entry
-				$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead);
+				$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead)
+				.click(function(event) {
+					tess.setRenderHead(polygon);
+					paper.view.draw();
+					return false;
+				});
 			});
 			// add polygon entry
 			$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
 
 			// add substructure header
 			var substructure = $("<div/>", {"class": "tessUI substructureHead collapsable",
-											text: "Substamps (" + this.subgroups.length + ")"}).appendTo(head);
+											text: "Substamps (" + this.subgroups.length + ")"}).appendTo(head)
+								.click(function(event) {
+									tess.setRenderHead(tess.subgroups);
+									paper.view.draw();
+									return false;
+								})
 			// add subroup UI's
 			// TODO these will contain superfluous Tessellation header elements
 			$.each(this.subgroups, function(index, subgroup) {
@@ -99,13 +129,68 @@ var initTessDef = (function() {
 
 			// add transformation header
 			var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable",
-											text: "Placements (" + this.transforms.length + ")"}).appendTo(head);
+											text: "Placements (" + this.transforms.length + ")"}).appendTo(head)
+								.click(function(event) {
+									tess.setRenderHead(tess.transforms);
+									paper.view.draw();
+									return false;
+								});
 			// add trasnform UI's
 			$.each(this.transforms, function(index, transform) {
-				$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead);
+				$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead)
+				.click(function(event) {
+					tess.setRenderHead(transform);
+					paper.view.draw();
+					return false;
+				})
 			});
 
 			return head;
+		},
+		setRenderHead: function(head) {
+			// pass command up to root
+			if(this.parent) {
+				this.parent.setRenderHead(head);
+				return;
+			}
+
+			if(this.undo) {
+				this.undo();
+				this.undo = null;
+			}
+
+			// TODO lattice existence assumption
+			// if head is not lattice, hide lattice group
+			if(head !== this.lattice) {
+				this.latticeGroup.visible = false;
+			}
+
+			// if head is this polygroup (stamp), place one instance of the outer group
+			if(head === this) {
+				// TODO which layer?
+				this.currentRender = new paper.Group();
+				this.currentRender.addChild(this.symbol.place());
+				// TODO we should probably just add the existing group to a layer to make it visible
+				// TODO it would make interaction easier too probably
+			}
+			// if head is the lattice, make it visible
+			if(head === this.lattice) {
+				// remove any current render and make lattice group visible
+				this.latticeGroup.visible = true;
+				// TODO show lattice arrows?
+			}
+			// if head is the set of polygons
+			if(head === this.polygons) {
+				
+			}
+			// if head is a single local polygon
+			if($.inArray(head, this.polygons) >= 0) {
+				var parent = head.parent;
+				this.undo = function() {
+					parent.addChild(head);
+				}
+				paper.project.activeLayer.addChild(head);
+			}
 		},
 		recomputeLattice: function(view) {
 			// TODO there is probably a better way to do this
