@@ -379,7 +379,7 @@ var initTessDef = (function() {
 			
 			// check against local polygons
 			$.each(this.polygons, function(index, polygon) {
-				if(polygon.isInterior(point)) {
+				if(polygon.contains(point)) {
 					hit = true;
 					hitInfo = {
 						polygon: polygon,
