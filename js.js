@@ -8,6 +8,7 @@ var app = (function () {
 		editLayer: 0,
 		gridLayer: 1,
 		copyLayer: 2,
+		latticeEditLayer: 3,
 		newPathNumber: 0
 	};
 	
@@ -45,7 +46,7 @@ var app = (function () {
 			};
 
 			// perform hit test
-			var hitResult = paper.project.activeLayer.hitTest(event.point, hitTestOptions);
+			var hitResult = paper.project.layers[settings.editLayer].hitTest(event.point, hitTestOptions);
 
 			// store the whole hitresult on the tool
 			this.hitResult = hitResult;
@@ -61,7 +62,7 @@ var app = (function () {
 			if(!this.hitResult) {
 				if(event.modifiers.shift) {
 					// perform hit test
-					hitResult = paper.project.activeLayer.hitTest(event.point, strokeHitTestOptions);
+					hitResult = paper.project.layers[settings.editLayer].hitTest(event.point, strokeHitTestOptions);
 					// if we hit a stroke, insert a segment there
 					if(hitResult) {
 						console.log("hit stroke: " + hitResult.location.index+1);
@@ -70,7 +71,7 @@ var app = (function () {
 						hitResult.item.insert(hitResult.location.index+1, event.point);
 						
 						// redo the hit test so that the new segment will be hit
-						this.hitResult = paper.project.activeLayer.hitTest(event.point, hitTestOptions);
+						this.hitResult = paper.project.layers[settings.editLayer].hitTest(event.point, hitTestOptions);
 					} else {
 						// if we don't hit a stroke, append a point to the end
 						console.log("shift held, adding point");
@@ -83,7 +84,7 @@ var app = (function () {
 					}
 				} else {
 					// check for hit on stroke
-					hitResult = paper.project.activeLayer.hitTest(event.point, strokeHitTestOptions);
+					hitResult = paper.project.layers[settings.editLayer].hitTest(event.point, strokeHitTestOptions);
 					if(hitResult) {
 						this.hitResult = hitResult;
 					} else {
@@ -206,6 +207,11 @@ var app = (function () {
 		// mouse down handler
 		function mouseDown(event) {
 			log.log('stock tool: mouse down', 'tools');
+			// remove lattice display if it exists
+			if(app.latticeDisplay) {
+				app.latticeDisplay.destroy();
+				delete app.latticeDisplay;
+			}
 			
 			// perform hit test
 			var hitResult = paper.project.activeLayer.hitTest(event.point);
@@ -337,6 +343,85 @@ var app = (function () {
 		return ldTool;
 	}());
 
+	app.noopTool = ( function() {
+		return new paper.Tool();
+	}());
+
+	var makeHandlers = function(tess, vecName) {
+
+		var selectedColor = 'blue';
+		var handlers = {
+			mousedown: function(event) {
+				// TODO notify UI of mouse down
+				// set color to selected color
+				this.fillColor = selectedColor;
+				// deactivate tools so it doesn't drage other stuff at the same time
+				app.noopTool.activate();
+			},
+			mousedrag: function(event) {
+				log.log('dragging ' + vecName, 'latticeDisplay');
+
+				// update display
+				// set the position of the handle
+				this.position = event.point;
+				// set the end point of the line
+				this.parent.children['line'].lastSegment.point = this.position;
+				// update lattice
+				tess.lattice[vecName] = event.point;
+				// have to update matrix
+				// TODO should have getter / setter on lattice vectors that does this
+				tess.lattice.computeMatrix();
+				// redraw lattice
+				tess.onLatticeChange(paper.view);
+
+				// TODO update html UI
+			},
+			mouseup: function(event) {
+				// reset fill color
+				this.fillColor = 'white';
+				// reactivate stock tool
+				app.stockTool.activate();
+			}
+		};
+		return handlers;
+	};
+	var makeLatticeDisplay = function(tess) {
+		// save old layer
+		var oldLayer = paper.project.activeLayer;
+		// activate lattice edit layer
+		paper.project.layers[settings.latticeEditLayer].activate();
+
+		var lattice = tess.lattice;
+		var display = new paper.Group();
+		$.each(['v1', 'v2'], function(index, vecName) {
+			// create display elements
+			// draw line
+			var line = new paper.Path(new paper.Point(), lattice[vecName]);
+			line.name = 'line';
+			// draw handle
+			var handle = new paper.Path.Circle(lattice[vecName], 3);
+			handle.name = 'handle';
+			handle.fillColor = 'white';
+			// group to hold display elements
+			var group = new paper.Group([line, handle]);
+			group.strokeColor = 'blue';
+
+			// add group to display group
+			display.addChild(group);
+
+			// add handlers to elements
+			handle.attach(makeHandlers(tess, vecName));
+		});
+		// reactive original layer
+		oldLayer.activate();
+		return {displayGroup: display, destroy: function() {
+			this.displayGroup.remove();
+		}};
+	};
+	app.beginEditLattice = function() {
+		this.latticeDisplay = makeLatticeDisplay(this.tess);
+	}
+
 	app.applyStyle = function(style) {
 		$.each(paper.project.selectedItems, function(index, item) {
 			item.style = style;
@@ -349,6 +434,7 @@ var app = (function () {
 		// create layers in order
 		var gridLayer = new paper.Layer();
 		var copyLayer = new paper.Layer();
+		var latticeEditLayer = new paper.Layer();
 		// activate original layer
 		paper.project.layers[0].activate();
 		
@@ -365,14 +451,14 @@ var app = (function () {
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
 		yaxis.strokeColor = 'red';*/
 		
-		tessDef.PolyGroup44.render(paper.view);
-		//tessDef.GroupHex.render(paper.view);
+		//tessDef.PolyGroup44.render(paper.view);
+		tessDef.GroupHex.render(paper.view);
 		//tessDef.HeartGroup.render(paper.view);
 		//tessDef.HitGroup.render(paper.view);
 		//tessDef.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
 		
-		//this.tess = tessDef.GroupHex;
-		this.tess = tessDef.PolyGroup44;
+		this.tess = tessDef.GroupHex;
+		//this.tess = tessDef.PolyGroup44;
 		//this.tess = tessDef.HitGroup;
 		//this.tess = tessDef.HeartGroup;
 
