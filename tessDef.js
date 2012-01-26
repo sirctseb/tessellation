@@ -181,11 +181,24 @@ var initTessDef = (function() {
 			}
 			// if head is the set of polygons
 			if(head === this.polygons) {
-				
+				// color code the polygons
+				// TODO color code better than random
+				// TODO color code html elements
+				$.each(this.polygons, function(index, polygon) {
+					polygon.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
+				});
+				// define function to undo changes
+				this.undo = function() {
+					$.each(this.polygons, function(index, polygon) {
+						// TODO magic constant
+						polygon.strokeColor = '#ddd';
+					});
+				}
 			}
 			// if head is a single local polygon
 			if($.inArray(head, this.polygons) >= 0) {
 				var parent = head.parent;
+				// define function to undo changes
 				this.undo = function() {
 					parent.addChild(head);
 				}
