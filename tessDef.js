@@ -85,6 +85,9 @@ var initTessDef = (function() {
 				this.currentRender.addChild(this.symbol.place());
 				// TODO we should probably just add the existing group to a layer to make it visible
 				// TODO it would make interaction easier too probably
+				this.undo = function() {
+					this.currentRender.remove();
+				}
 			}
 			// if head is the lattice, make it visible
 			if(head === this.lattice) {
@@ -94,6 +97,8 @@ var initTessDef = (function() {
 			}
 			// if head is the set of polygons
 			if(head === this.polygons) {
+				this.currentRender = new paper.Group();
+				this.currentRender.addChild(this.symbol.place());
 				// color code the polygons
 				// TODO color code better than random
 				// TODO color code html elements
@@ -106,6 +111,7 @@ var initTessDef = (function() {
 						// TODO magic constant
 						polygon.strokeColor = '#ddd';
 					});
+					this.currentRender.remove();
 				}
 			}
 			// if head is a single local polygon

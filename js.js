@@ -431,45 +431,65 @@ var app = (function () {
 
 	// generate the html ui which displays the lattice definition
 	app.generateUI = function() {
+		log.enable("lattUIEvents");
+		var tess = this.tess;
+
 		// create top-most element
-		var head = $("<div></div>", {"class": "tessDefUI collapsable tessUI",
-									text: "Stamp"});
-		var tess = this;
-		// header click handler to set tess as render head
-		head.click(function(event) {
-			tess.setRenderHead(tess);
-			paper.view.draw();
-			return false;
-		});
-		// add lattice info
-		if(this.lattice) {
-			// create container for lattice info
-			var lattice = $("<div></div>", {"class": "latticeHead collapsable tessUI", text: "Lattice"}).appendTo(head);
-			// lattice click handler to set lattice as render head
-			lattice.click(function(event) {
-				tess.setRenderHead(tess.lattice);
+		/*var head = $("<div></div>", {"class": "tessDefUI collapsable tessUI",
+									text: "Stamp"});*/
+		var head = $("<div></div>", {"class": "tessDefUI collapsable tessSection tessUI"})
+		.append($("<div/>", {"class": "collapseArrow"}))
+		.append($("<div></div>", {"class": "tessHeader", text:"Stamp"})
+			// header click handler to set tess as render head
+			.click(function(event) {
+				log.log("stamp click", "lattUIEvents");
+				tess.setRenderHead(tess);
 				paper.view.draw();
-				return false;
-			});
+				//return false;
+			})
+		);
+		// add lattice info
+		if(tess.lattice) {
+			// create container for lattice info
+			//var lattice = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI", text: "Lattice"}).appendTo(head);
+			var lattice = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"}).appendTo(head)
+			.append($("<div/>", {"class": "collapseArrow"}))
+			.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
+			// lattice click handler to set lattice as render head
+				.click(function(event) {
+					tess.setRenderHead(tess.lattice);
+					paper.view.draw();
+					return false;
+				})
+			);
 
 			// create lattice info
 			// TODO on hover or click, show lattice vectors in view
 			// TODO jquery doesn't seem to like content text and properties passed in through an object
-			//var v1 = $("<div>" + this.lattice.v1.toString() + "</div>", {"class": "latticeVec tessUI"}).appendTo(lattice);
-			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: this.lattice.v1.toString()}).appendTo(lattice);
-			//var v2 = $("<div>" + this.lattice.v2.toString() + "</div>", {class: "latticeVec tessUI"}).appendTo(lattice);
-			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: this.lattice.v2.toString()}).appendTo(lattice);
+			//var v1 = $("<div>" + tess.lattice.v1.toString() + "</div>", {"class": "latticeVec tessUI"}).appendTo(lattice);
+			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice.v1.toString()}).appendTo(lattice);
+			//var v2 = $("<div>" + tess.lattice.v2.toString() + "</div>", {class: "latticeVec tessUI"}).appendTo(lattice);
+			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice.v2.toString()}).appendTo(lattice);
 		}
 
 		// add polygon header
-		var polyHead = $("<div/>", {"class": "tessUI polyHead collapsable", text:"Shapes (" + this.polygons.length + ")"}).appendTo(head)
+		/*var polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable", text:"Shapes (" + tess.polygons.length + ")"}).appendTo(head)
+						.click(function(event) {
+							tess.setRenderHead(tess.polygons);
+							paper.view.draw();
+							return false;
+						});*/
+		var polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(head)
+		.append($("<div/>", {"class": "collapseArrow"}))
+		.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + tess.polygons.length + ")"})
 						.click(function(event) {
 							tess.setRenderHead(tess.polygons);
 							paper.view.draw();
 							return false;
 						})
+		);
 		// add polygons
-		$.each(this.polygons, function(index, polygon) {
+		$.each(tess.polygons, function(index, polygon) {
 			// create an entry
 			$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead)
 			.click(function(event) {
@@ -482,29 +502,47 @@ var app = (function () {
 		$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
 
 		// add substructure header
-		var substructure = $("<div/>", {"class": "tessUI substructureHead collapsable",
-										text: "Substamps (" + this.subgroups.length + ")"}).appendTo(head)
+		/*var substructure = $("<div/>", {"class": "tessSection tessUI substructureHead collapsable",
+										text: "Substamps (" + tess.subgroups.length + ")"}).appendTo(head)
+							.click(function(event) {
+								tess.setRenderHead(tess.subgroups);
+								paper.view.draw();
+								return false;
+							});*/
+		var substructure = $("<div/>", {"class": "tessSection tessUI substructureHead collapsable"}).appendTo(head)
+		.append($("<div/>", {"class": "collapseArrow"}))
+		.append($("<div/>", {"class": "tessHeader", text: "Substamps (" + tess.subgroups.length + ")"})
 							.click(function(event) {
 								tess.setRenderHead(tess.subgroups);
 								paper.view.draw();
 								return false;
 							})
+		);
 		// add subroup UI's
 		// TODO these will contain superfluous Tessellation header elements
-		$.each(this.subgroups, function(index, subgroup) {
+		$.each(tess.subgroups, function(index, subgroup) {
 			subgroup.generateUI().appendTo(substructure);
 		});
 
 		// add transformation header
-		var transformHead = $("<div/>", {"class": "tessUI transformHead collapsable",
-										text: "Placements (" + this.transforms.length + ")"}).appendTo(head)
+		/*var transformHead = $("<div/>", {"class": "tessSection tessUI transformHead collapsable",
+										text: "Placements (" + tess.transforms.length + ")"}).appendTo(head)
 							.click(function(event) {
 								tess.setRenderHead(tess.transforms);
 								paper.view.draw();
 								return false;
-							});
+							});*/
+		var transformHead = $("<div/>", {"class": "tessSection tessUI transformHead collapsable"}).appendTo(head)
+		.append($("<div/>", {"class": "collapseArrow"}))
+		.append($("<div/>", {"class": "tessHeader", text: "Placements (" + tess.transforms.length + ")"})
+							.click(function(event) {
+								tess.setRenderHead(tess.transforms);
+								paper.view.draw();
+								return false;
+							})
+		);
 		// add trasnform UI's
-		$.each(this.transforms, function(index, transform) {
+		$.each(tess.transforms, function(index, transform) {
 			$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead)
 			.click(function(event) {
 				tess.setRenderHead(transform);
