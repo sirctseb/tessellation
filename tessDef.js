@@ -74,10 +74,14 @@ var initTessDef = (function() {
 
 			// TODO lattice existence assumption
 			// if head is not lattice, hide lattice group
-			if(head !== this.lattice) {
+			if(head !== null && head !== this.lattice) {
 				this.latticeGroup.visible = false;
 			}
 
+			// null indicates draw full tessellation
+			if(head === null) {
+				this.latticeGroup.visible = true;
+			}
 			// if head is this polygroup (stamp), place one instance of the outer group
 			if(head === this) {
 				// TODO which layer?
@@ -91,9 +95,9 @@ var initTessDef = (function() {
 			}
 			// if head is the lattice, make it visible
 			if(head === this.lattice) {
-				// remove any current render and make lattice group visible
+				// make lattice group visible
 				this.latticeGroup.visible = true;
-				// TODO show lattice arrows?
+				// TODO show lattice arrows
 			}
 			// if head is the set of polygons
 			if(head === this.polygons) {

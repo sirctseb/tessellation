@@ -439,8 +439,10 @@ var app = (function () {
 		.append($("<div></div>", {"class": "tessHeader", text:"Stamp"})
 			// header click handler to set tess as render head
 			.click(function(event) {
-				log.log("stamp click", "lattUIEvents");
-				tess.setRenderHead(tess);
+				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
+				tess.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? tess : null);
+				// take selected state off any other selected item
+				$(".selected").not($(this)).removeClass("selected");
 				paper.view.draw();
 				return false;
 			})
@@ -467,11 +469,15 @@ var app = (function () {
 		// add polygon header
 		var polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(head)
 		.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + tess.polygons.length + ")"})
-						.click(function(event) {
-							tess.setRenderHead(tess.polygons);
-							paper.view.draw();
-							return false;
-						})
+			.click(function(event) {
+				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
+				tess.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? tess.polygons : null);
+				// take selected state off any other selected item
+				$(".selected").not($(this)).removeClass("selected");
+				//tess.setRenderHead(tess.polygons);
+				paper.view.draw();
+				return false;
+			})
 		);
 		// add polygons
 		$.each(tess.polygons, function(index, polygon) {

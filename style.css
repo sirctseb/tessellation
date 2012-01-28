@@ -102,6 +102,10 @@ div:only-child.tessHeader
 {
 	/*border-bottom:1px solid #333333;*/
 }
+.tessHeader.selected
+{
+	background-color:#333333;
+}
 .tessUI
 {
 	padding-left:10px;
