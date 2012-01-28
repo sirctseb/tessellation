@@ -6,6 +6,7 @@
 header
 {
 	text-align:center;
+	border-bottom:1px solid black;
 }
 .visibleWhenLoaded
 {
@@ -15,26 +16,27 @@ header
 {
 	width:801px;
 	height:601px;
-	/*border:1px dotted #000000;
-	padding:2px;*/
+	border:1px dotted #000000;
+	/*padding:2px;*/
 	/*margin-left:auto;
 	margin-right:auto;*/
 	/*box-shadow: 0 0 10px #888888;*/
 }
 .outercontainer
 {
-	margin-left:auto;
+	/*margin-left:auto;
 	margin-right:auto;
-	width:1024px;
+	width:1024px;*/
 }
 .rightmenu
 {
+	/*position:absolute;*/
+	background-color:white;
 	border:1px solid #888888;
 	border-radius:10px;
 	/*box-shadow: 3px 3px 5px #888888;*/
 	float:left;
-	/*width:200px;*/
-	width:170px;
+	width:200px;
 	margin-top:19px;
 	/*margin-left:auto;*/
 	margin-left:0px;
@@ -44,7 +46,7 @@ header
 	padding-left:30px;
 	/*border:1px dotted;*/
 	text-align:center;
-	padding-right:10px;
+	padding-right:30px;
 }
 .settinggroup
 {
@@ -57,6 +59,90 @@ header
 {
 	/*padding-left:-10px;*/
 	margin-left:-10px;
+}
+.tessHeader
+{
+	/*background-color:#444488;*/
+	/*background-color:#4444dd;*/
+	margin-left:-10px;
+	padding-left:10px;
+	padding-top:5px;
+	padding-bottom:5px;
+	background-image:url(images/menuOverlay.png);
+	background-repeat:repeat-x;
+}
+.collapseArrow
+{
+	width:28px;
+	height:28px;
+	/*background-color:white;*/
+	background-image:url(images/collapse_arrow.png);
+	background-size:20px 20px;
+	background-repeat:no-repeat;
+	background-position:center;
+	/*margin-top: -5px;
+	margin-left: -5px;*/
+	margin-left:-10px;
+	float:left;
+	rotation-point:50% 50%;
+	/*rotation:90deg;*/
+}
+.collapsed>.collapseArrow
+{
+	/* TODO rotate to create a right facing arrow when collapsed */
+	/*-webkit-transform:rotate(-90deg);*/
+	background-image:url(images/expand_arrow.png);
+}
+.tessUI
+{
+	background
+}
+/* TODO this puts a divider between adjacent headers (if it is correct) */
+div:only-child.tessHeader
+{
+	/*border-bottom:1px solid #333333;*/
+}
+.tessHeader.selected
+{
+	background-color:#333333;
+}
+.tessUI
+{
+	padding-left:10px;
+	/*background-color:#444488;*/
+}
+#tessdefcontainer
+{
+	/*color:white;
+	background-color:black;*/
+}
+#tessdefcontainer .tessUI
+{
+	color:white
+}
+#tessdefcontainer>.tessUI
+{
+	background-color:#555555;
+}
+#tessdefcontainer>.tessUI>.tessUI
+{
+	background-color:#777777;
+}
+#tessdefcontainer>.tessUI>.tessUI>.tessUI
+{
+	background-color:#999999;
+}
+.collapsed
+{
+	background-color:#888888;
+}
+.collapsed>*
+{
+	display:none;
+}
+.collapsed>.collapseArrow,.tessHeader
+{
+	display:block;
 }
 .colorPickerContainer
 {

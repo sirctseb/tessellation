@@ -17,15 +17,6 @@ var initTessDef = (function() {
 	
 	var tessDef = {};
 	
-	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
-	SquarePoly.strokeColor = '#ddd';
-	SquarePoly.strokeWidth = 3;
-	SquarePoly.remove();
-	var TrianglePoly = new paper.Path.RegularPolygon([50,50], 3, 50);
-	TrianglePoly.strokeColor = '#ddd';
-	TrianglePoly.strokeWidth = 3;
-	TrianglePoly.remove();
-	
 	// PolyGroup represents a set of polygons or a PolyGroup with transformations applied
 	var PolyGroup = {
 		polygons: null,
@@ -68,6 +59,74 @@ var initTessDef = (function() {
 			label.paragraphStyle.justification = 'center';
 			label.strokeColor = 'blue';
 			return label;
+		},
+		setRenderHead: function(head) {
+			// pass command up to root
+			if(this.parent) {
+				this.parent.setRenderHead(head);
+				return;
+			}
+
+			if(this.undo) {
+				this.undo();
+				this.undo = null;
+			}
+
+			// TODO lattice existence assumption
+			// if head is not lattice, hide lattice group
+			if(head !== null && head !== this.lattice) {
+				this.latticeGroup.visible = false;
+			}
+
+			// null indicates draw full tessellation
+			if(head === null) {
+				this.latticeGroup.visible = true;
+			}
+			// if head is this polygroup (stamp), place one instance of the outer group
+			if(head === this) {
+				// TODO which layer?
+				this.currentRender = new paper.Group();
+				this.currentRender.addChild(this.symbol.place());
+				// TODO we should probably just add the existing group to a layer to make it visible
+				// TODO it would make interaction easier too probably
+				this.undo = function() {
+					this.currentRender.remove();
+				}
+			}
+			// if head is the lattice, make it visible
+			if(head === this.lattice) {
+				// make lattice group visible
+				this.latticeGroup.visible = true;
+				// TODO show lattice arrows
+			}
+			// if head is the set of polygons
+			if(head === this.polygons) {
+				this.currentRender = new paper.Group();
+				this.currentRender.addChild(this.symbol.place());
+				// color code the polygons
+				// TODO color code better than random
+				// TODO color code html elements
+				$.each(this.polygons, function(index, polygon) {
+					polygon.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
+				});
+				// define function to undo changes
+				this.undo = function() {
+					$.each(this.polygons, function(index, polygon) {
+						// TODO magic constant
+						polygon.strokeColor = '#ddd';
+					});
+					this.currentRender.remove();
+				}
+			}
+			// if head is a single local polygon
+			if($.inArray(head, this.polygons) >= 0) {
+				var parent = head.parent;
+				// define function to undo changes
+				this.undo = function() {
+					parent.addChild(head);
+				}
+				paper.project.activeLayer.addChild(head);
+			}
 		},
 		recomputeLattice: function(view) {
 			// TODO there is probably a better way to do this
@@ -115,7 +174,23 @@ var initTessDef = (function() {
 				this.placement = newPlacement;
 			}
 		},
-		doInitialLatticePlacement: function(view, symbol) {
+		onLatticeChange: function(view) {
+			var that = this;
+			// remove all placements
+			$.each(this.placement.checked, function(coef, visible) {
+				if(visible) {
+					that.latticeGroup.children[coef].remove();
+				}
+			});
+			// redo lattice placement
+			if(this.latticeGroup) {
+				this.latticeGroup.remove();
+			}
+			this.doInitialLatticePlacement(view);
+			view.draw();
+		},
+		doInitialLatticePlacement: function(view) {
+			var symbol = this.symbol;
 			// create a group for the lattice which will become the outer group
 			var latticeGroup = new paper.Group();
 			
@@ -147,13 +222,13 @@ var initTessDef = (function() {
 			// update the outer group to be the lattice group
 			var outerGroup = latticeGroup;
 			// create symbol for entire thing
-			var latticeSymbol = outerGroup.symbolize();
+			//var latticeSymbol = outerGroup.symbolize();
 			// store group and symbol on this
 			// TODO this is clobbered in render
 			this.latticeGroup = outerGroup;
-			this.latticeSymbol = latticeSymbol;
+			///this.latticeSymbol = latticeSymbol;
 			// finally, place entire symbol
-			this.latticeSymbol.place();
+			//this.latticeSymbol.place();
 			
 			// store placement info for resizing
 			this.placement = placement;
@@ -232,7 +307,8 @@ var initTessDef = (function() {
 			var innerSymbol = this.getInnerGroup(view);
 			
 			// place inner symbol into main polygroup group
-			var outerGroup = new paper.Group([innerSymbol.place()]);
+			//var outerGroup = new paper.Group([innerSymbol.place()]);
+			var outerGroup = new paper.Group();
 
 			var that = this;
 			
@@ -249,11 +325,12 @@ var initTessDef = (function() {
 			
 			// make symbol from outer group
 			var outerSymbol = outerGroup.symbolize();
+			this.symbol = outerSymbol;
 			
 			// if there is a lattice defined, copy this group to each point
 			if(this.lattice) {
 				// place symbols at visible lattice points
-				this.doInitialLatticePlacement(view, outerSymbol);
+				this.doInitialLatticePlacement(view);
 				
 			} else {
 				// if there is no lattice, place one instance of the symbol for this group
@@ -413,7 +490,7 @@ var initTessDef = (function() {
 		newPolyGroup.transforms = [];
 		newPolyGroup.symbols = [];
 		newPolyGroup.subgroups = [];
-		newPolyGroup.group = new paper.Group();
+		newPolyGroup.group = null;//new paper.Group();
 		newPolyGroup.latticePoints = [];
 		return newPolyGroup;
 	};
@@ -434,6 +511,10 @@ var initTessDef = (function() {
 			return lattice;
 		},
 		reduceBasis: function() {
+			if(this.isReduced()) {
+				return;
+			}
+
 			// basically Euclid's GCD algorithm for vectors
 			// from mit open courseware stuff
 			// http://ocw.mit.edu/courses/mathematics/18-409-topics-in-theoretical-computer-science-an-algorithmists-toolkit-fall-2009/lecture-notes/MIT18_409F09_scribe19.pdf
@@ -513,15 +594,27 @@ var initTessDef = (function() {
 			var closestCoefs = coefs.round();
 			var location = this.getPoint(closestCoefs);
 			return {point: location, coefs: closestCoefs};
-		}
+		},
 	};
 	
+	var SquarePoly = new paper.Path.Rectangle([0,0],[100,100]);
+	SquarePoly.strokeColor = '#ddd';
+	SquarePoly.strokeWidth = 3;
+	SquarePoly.remove();
+
 	var innerGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
 	innerGroup44.addPolygon(SquarePoly);
+	innerGroup44.addTransform(new paper.Matrix());
 	var PolyGroup44 = CreatePolyGroup();//Object.create(PolyGroup);
 	PolyGroup44.addLattice(Lattice.LatticeBy(new paper.Point([0,100]), new paper.Point([100,0])));
 	PolyGroup44.addSubgroup(innerGroup44);
+	PolyGroup44.addTransform(new paper.Matrix());
 	
+	var TrianglePoly = new paper.Path.RegularPolygon([50,50], 3, 50);
+	TrianglePoly.strokeColor = '#ddd';
+	TrianglePoly.strokeWidth = 3;
+	TrianglePoly.remove();
+
 	/*var innerGroupHex = CreatePolyGroup();
 	innerGroupHex.addPolygon(TrianglePoly.clone());
 	var rotGroupHex = CreatePolyGroup();
@@ -536,6 +629,7 @@ var initTessDef = (function() {
 	// new formulation in a single group
 	var latGroupHex = CreatePolyGroup();
 	latGroupHex.addPolygon(TrianglePoly);
+	latGroupHex.addTransform(new paper.Matrix());
 	latGroupHex.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	// TODO testing
 	//for(var i = 10; i < 90; i+=10) {
@@ -547,20 +641,21 @@ var initTessDef = (function() {
 	var hitTestGroup = CreatePolyGroup();
 	hitTestGroup.addPolygon(TrianglePoly);
 	// TODO write group with transforms so we can test hitPolygons
+	hitTestGroup.addTransform(new paper.Matrix());
 	hitTestGroup.addTransform(new paper.Matrix().rotate(60, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(120, TrianglePoly.firstSegment.point));
 	hitTestGroup.addTransform(new paper.Matrix().rotate(180, TrianglePoly.firstSegment.point));
 
 	// tessellation for wedding hearts
 	var heartGroup = CreatePolyGroup();
-	heartGroup.addPolygon(SquarePoly.clone());
+	/*heartGroup.addPolygon(SquarePoly);
 	heartGroup.addTransform(new paper.Matrix().scale(1,-1, SquarePoly.position)
 												//.rotate(180, SquarePoly.position)
 												.translate(SquarePoly.bounds.width, 0)
 											);
 	heartGroup.addLattice(Lattice.LatticeBy(new paper.Point(SquarePoly.bounds.width * 2,0),
 											new paper.Point(SquarePoly.bounds.width*0.5,SquarePoly.bounds.height)));
-	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());
+	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());*/
 	
 	$.extend(tessDef, {
 		//Poly: Poly,
