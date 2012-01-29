@@ -13,19 +13,16 @@
  */
 var $, paper; // declarations for jslint
 
-var initTessDef = (function() {
+//var initTessDef = (function() {
+var tessellationModel = function(spec, my) {
 	
-	var tessDef = {};
-	
-	// PolyGroup represents a set of polygons or a PolyGroup with transformations applied
-	var PolyGroup = {
-		polygons: null,
+	var that,
+		polygons = [],
 		// a nested polygon group that will be transformed by this PG's transforms or lattice
-		subgroups: null,
-		transforms: null,
-		lattice: null,
-		latticePoints: null,
-		symbols: null,
+		subgroups = [],
+		transforms = [],
+		lattice = [],
+		latticePoints = [],
 		group: null,
 		symbol: null,
 		//symbols: [], // one per polygon
@@ -515,7 +512,6 @@ var initTessDef = (function() {
 		var newPolyGroup = Object.create(PolyGroup);
 		newPolyGroup.polygons = [];
 		newPolyGroup.transforms = [];
-		newPolyGroup.symbols = [];
 		newPolyGroup.subgroups = [];
 		newPolyGroup.group = null;//new paper.Group();
 		newPolyGroup.latticePoints = [];
