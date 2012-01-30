@@ -318,16 +318,16 @@ var app = (function () {
 			// make a new point
 			ldTool.target = event.point;
 			// show decomposition into lattice components
-			//var v1 = app.tess.lattice.v1;
-			//var v2 = app.tess.lattice.v2;
-			/*var v1 = new paper.Path.Line(new paper.Point(), app.tess.lattice.v1);
-			var v2 = new paper.Path.Line(new paper.Point(), app.tess.lattice.v2);
+			//var v1 = app.tess.lattice().v1();
+			//var v2 = app.tess.lattice().v2();
+			/*var v1 = new paper.Path.Line(new paper.Point(), app.tess.lattice().v1());
+			var v2 = new paper.Path.Line(new paper.Point(), app.tess.lattice().v2());
 			v1.strokeColor = 'red';
 			v2.strokeColor = 'green';*/
 
-			var coef = app.tess.lattice.decompose(event.point);
-			var c1 = app.tess.lattice.v1.multiply(coef.x);
-			var c2 = app.tess.lattice.v2.multiply(coef.y);
+			var coef = app.tess.lattice().decompose(event.point);
+			var c1 = app.tess.lattice().v1().multiply(coef.x);
+			var c2 = app.tess.lattice().v2().multiply(coef.y);
 			var c1Line = new paper.Path.Line(new paper.Point(), c1);
 			var c2Line = new paper.Path.Line(c1, c1.add(c2));
 			console.log('coef: ' + coef.toString());
@@ -367,10 +367,11 @@ var app = (function () {
 				// set the end point of the line
 				this.parent.children['line'].lastSegment.point = this.position;
 				// update lattice
-				tess.lattice[vecName] = event.point;
+				// TODO this is broken with new accessors
+				tess.lattice()[vecName] = event.point;
 				// have to update matrix
 				// TODO should have getter / setter on lattice vectors that does this
-				tess.lattice.computeMatrix();
+				tess.lattice().computeMatrix();
 				// redraw lattice
 				tess.onLatticeChange(paper.view);
 
@@ -391,11 +392,12 @@ var app = (function () {
 		// activate lattice edit layer
 		paper.project.layers[settings.latticeEditLayer].activate();
 
-		var lattice = tess.lattice;
+		var lattice = tess.lattice();
 		var display = new paper.Group();
 		$.each(['v1', 'v2'], function(index, vecName) {
 			// create display elements
 			// draw line
+			// TODO this is broken with new accessors
 			var line = new paper.Path(new paper.Point(), lattice[vecName]);
 			line.name = 'line';
 			// draw handle
@@ -448,13 +450,13 @@ var app = (function () {
 			})
 		);
 		// add lattice info
-		if(tess.lattice) {
+		if(tess.lattice()) {
 			// create container for lattice info
 			var lattice = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"}).appendTo(head)
 			.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
 				// lattice click handler to set lattice as render head
 				.click(function(event) {
-					tess.setRenderHead(tess.lattice);
+					tess.setRenderHead(tess.lattice());
 					paper.view.draw();
 					return false;
 				})
@@ -462,25 +464,25 @@ var app = (function () {
 
 			// create lattice info
 			// TODO jquery doesn't seem to like content text and properties passed in through an object
-			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice.v1.toString()}).appendTo(lattice);
-			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice.v2.toString()}).appendTo(lattice);
+			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice().v1().toString()}).appendTo(lattice);
+			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice().v2().toString()}).appendTo(lattice);
 		}
 
 		// add polygon header
 		var polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(head)
-		.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + tess.polygons.length + ")"})
+		.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + tess.polygons().length + ")"})
 			.click(function(event) {
 				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
-				tess.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? tess.polygons : null);
+				tess.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? tess.polygons() : null);
 				// take selected state off any other selected item
 				$(".selected").not($(this)).removeClass("selected");
-				//tess.setRenderHead(tess.polygons);
+				//tess.setRenderHead(tess.polygons());
 				paper.view.draw();
 				return false;
 			})
 		);
 		// add polygons
-		$.each(tess.polygons, function(index, polygon) {
+		$.each(tess.polygons(), function(index, polygon) {
 			// create an entry
 			$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead)
 			.click(function(event) {
@@ -494,30 +496,30 @@ var app = (function () {
 
 		// add substructure header
 		var substructure = $("<div/>", {"class": "tessSection tessUI substructureHead collapsable"}).appendTo(head)
-		.append($("<div/>", {"class": "tessHeader", text: "Substamps (" + tess.subgroups.length + ")"})
+		.append($("<div/>", {"class": "tessHeader", text: "Substamps (" + tess.subgroups().length + ")"})
 							.click(function(event) {
-								tess.setRenderHead(tess.subgroups);
+								tess.setRenderHead(tess.subgroups());
 								paper.view.draw();
 								return false;
 							})
 		);
 		// add subroup UI's
 		// TODO these will contain superfluous Tessellation header elements
-		$.each(tess.subgroups, function(index, subgroup) {
+		$.each(tess.subgroups(), function(index, subgroup) {
 			subgroup.generateUI().appendTo(substructure);
 		});
 
 		// add transformation header
 		var transformHead = $("<div/>", {"class": "tessSection tessUI transformHead collapsable"}).appendTo(head)
-		.append($("<div/>", {"class": "tessHeader", text: "Placements (" + tess.transforms.length + ")"})
+		.append($("<div/>", {"class": "tessHeader", text: "Placements (" + tess.transforms().length + ")"})
 							.click(function(event) {
-								tess.setRenderHead(tess.transforms);
+								tess.setRenderHead(tess.transforms());
 								paper.view.draw();
 								return false;
 							})
 		);
 		// add trasnform UI's
-		$.each(tess.transforms, function(index, transform) {
+		$.each(tess.transforms(), function(index, transform) {
 			$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead)
 			.click(function(event) {
 				tess.setRenderHead(transform);
@@ -543,7 +545,8 @@ var app = (function () {
 		
 		paper.view.scrollBy([-0.5,-0.5]);
 		
-		var tessDef = initTessDef();
+		//var tessDef = initTessDef();
+		var tessellations = tessellationExamples();
 
 		// turn on tool debug output
 		//log.enable('tools');
@@ -554,16 +557,16 @@ var app = (function () {
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
 		yaxis.strokeColor = 'red';*/
 		
-		//tessDef.PolyGroup44.render(paper.view);
-		tessDef.GroupHex.render(paper.view);
-		//tessDef.HeartGroup.render(paper.view);
-		//tessDef.HitGroup.render(paper.view);
-		//tessDef.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
+		//tessellations.PolyGroup44.render(paper.view);
+		tessellations.GroupHex.render(paper.view);
+		//tessellations.HeartGroup.render(paper.view);
+		//tessellations.HitGroup.render(paper.view);
+		//tessellations.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
 		
-		this.tess = tessDef.GroupHex;
-		//this.tess = tessDef.PolyGroup44;
-		//this.tess = tessDef.HitGroup;
-		//this.tess = tessDef.HeartGroup;
+		this.tess = tessellations.GroupHex;
+		//this.tess = tessellations.PolyGroup44;
+		//this.tess = tessellations.HitGroup;
+		//this.tess = tessellations.HeartGroup;
 
 		
 		stockTool.activate();
