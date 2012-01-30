@@ -518,6 +518,7 @@ var tessellationModel = function(spec, my) {
 	that.onResize = onResize;
 	that.setRenderHead = setRenderHead;
 	that.render = render;
+	that.onLatticeChange = onLatticeChange;
 
 	// accessors
 	that.polygons = function(polygons_in) {
