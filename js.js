@@ -369,9 +369,6 @@ var app = (function () {
 				// update lattice
 				// TODO this is broken with new accessors
 				tess.lattice()[vecName] = event.point;
-				// have to update matrix
-				// TODO should have getter / setter on lattice vectors that does this
-				tess.lattice().computeMatrix();
 				// redraw lattice
 				tess.onLatticeChange(paper.view);
 

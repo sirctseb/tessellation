@@ -671,12 +671,14 @@ var lattice = function(spec, my) {
 	that.v1 = function(v1_in) {
 		if(v1_in) {
 			v1 = v1_in;
+			computeMatrix();
 		}
 		return v1;
 	}
 	that.v2 = function(v2_in) {
 		if(v2_in) {
 			v2 = v2_in;
+			computeMatrix();
 		}
 		return v2;
 	}
