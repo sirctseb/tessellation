@@ -23,500 +23,501 @@ var tessellationModel = function(spec, my) {
 		transforms = [],
 		lattice = [],
 		latticePoints = [],
-		group: null,
-		symbol: null,
-		//symbols: [], // one per polygon
-		//groups: [], // one per copy of the inner polygroup
-		// TODO ?
-		toString: function() { return this.polygons.toString() + /*this.polygroup.toString() + */this.transforms.toString(); },
-		addPolygon: function(polygon) {
-			// add to list
-			this.polygons.push(polygon);
-		},
-		addSubgroup: function(group) {
-			group.parent = this;
-			this.subgroups.push(group);
-		},
-		addTransform: function(transform) {
-			// TODO remove lattice to enforce mutual exclusivity?
-			this.transforms.push(transform);
-		},
-		addLattice: function(lattice) {
-			// TODO remove transforms to enforce mutual exclusivity?
-			this.lattice = lattice;
-		},
-		onResize: function(view) {
-			// TODO if lattice exists
-			this.recomputeLattice(view);
-		},
-		// TODO debugging method to add label on a lattice placement
-		addLabel: function(point, content) {
-			var label = new paper.PointText(point);
-			label.content = content;
-			label.paragraphStyle.justification = 'center';
-			label.strokeColor = 'blue';
-			return label;
-		},
-		setRenderHead: function(head) {
-			// pass command up to root
-			if(this.parent) {
-				this.parent.setRenderHead(head);
-				return;
-			}
+		group = null,
+		symbol = null,
+		latticeGroup = null;
 
-			if(this.undo) {
-				this.undo();
-				this.undo = null;
-			}
+	my = {};
+	that = {};
 
-			// TODO lattice existence assumption
-			// if head is not lattice, hide lattice group
-			if(head !== null && head !== this.lattice) {
-				this.latticeGroup.visible = false;
-			}
+	// TODO ?
+	toString: function() { return polygons.toString() + /*this.polygroup.toString() + */transforms.toString(); },
+	addPolygon: function(polygon) {
+		// add to list
+		polygons.push(polygon);
+	},
+	addSubgroup: function(group) {
+		group.parent = that;
+		subgroups.push(group);
+	},
+	addTransform: function(transform) {
+		// TODO remove lattice to enforce mutual exclusivity?
+		transforms.push(transform);
+	},
+	addLattice: function(lattice) {
+		// TODO remove transforms to enforce mutual exclusivity?
+		lattice = lattice;
+	},
+	onResize: function(view) {
+		// TODO if lattice exists
+		recomputeLattice(view);
+	},
+	// TODO debugging method to add label on a lattice placement
+	addLabel: function(point, content) {
+		var label = new paper.PointText(point);
+		label.content = content;
+		label.paragraphStyle.justification = 'center';
+		label.strokeColor = 'blue';
+		return label;
+	},
+	setRenderHead: function(head) {
+		// pass command up to root
+		if(my.parent) {
+			my.parent.setRenderHead(head);
+			return;
+		}
 
-			// null indicates draw full tessellation
-			if(head === null) {
-				this.latticeGroup.visible = true;
-			}
-			// if head is this polygroup (stamp), place one instance of the outer group
-			if(head === this) {
-				// TODO which layer?
-				this.currentRender = new paper.Group();
-				this.currentRender.addChild(this.symbol.place());
-				// TODO we should probably just add the existing group to a layer to make it visible
-				// TODO it would make interaction easier too probably
-				this.undo = function() {
-					this.currentRender.remove();
-				}
-			}
-			// if head is the lattice, make it visible
-			if(head === this.lattice) {
-				// make lattice group visible
-				this.latticeGroup.visible = true;
-				// TODO show lattice arrows
-			}
-			// if head is the set of polygons
-			if(head === this.polygons) {
-				this.currentRender = new paper.Group();
-				this.currentRender.addChild(this.symbol.place());
-				// color code the polygons
-				// TODO color code better than random
-				// TODO color code html elements
-				$.each(this.polygons, function(index, polygon) {
-					polygon.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
-				});
-				// define function to undo changes
-				this.undo = function() {
-					$.each(this.polygons, function(index, polygon) {
-						// TODO magic constant
-						polygon.strokeColor = '#ddd';
-					});
-					this.currentRender.remove();
-				}
-			}
-			// if head is a single local polygon
-			if($.inArray(head, this.polygons) >= 0) {
-				var parent = head.parent;
-				// define function to undo changes
-				this.undo = function() {
-					parent.addChild(head);
-				}
-				paper.project.activeLayer.addChild(head);
-			}
-		},
-		recomputeLattice: function(view) {
-			// TODO there is probably a better way to do this
+		if(my.undo) {
+			my.undo();
+			my.undo = null;
+		}
 
-			if(this.lattice) {
+		// TODO lattice existence assumption
+		// if head is not lattice, hide lattice group
+		if(head !== null && head !== lattice) {
+			latticeGroup.visible = false;
+		}
 
-				var that = this;
-				var lastPlacement = this.placement;
-				
-				// get lattice points in rectangle
-				rect = view.bounds;
-				// get lattice point closest to middle of rect
-				var closest = this.lattice.closestTo(rect.center);
-				// search for lattice points where symbol placement would be visible
-				var toCheck = [closest.coefs];
-				// TODO need to get symbol from group without lattice
-				var newPlacement = this.searchVisibleLattice(toCheck, this.symbol, rect, null);
-				// TODO debugging empty placement problem
-				if(newPlacement.visible.length === 0) {
-					console.log("something went very wrong");
-					closest = this.lattice.closestTo(rect.center);
-				}
-
-				// compare new placment and old placement
-				// draw at locations in new placement but not in old
-				// remove locations in old but not in new
-				$.each(newPlacement.checked, function(coef, visible) {
-					if(visible) {
-						if(!lastPlacement.checked[coef]) {
-							// new point visible, place and add to lattice group
-							that.latticeGroup.addChild(that.symbol.place(that.lattice.getPoint(visible)));
-							// name child
-							that.latticeGroup.lastChild.name = coef;
-							// also place content symbol and set as sister of original
-							that.latticeGroup.lastChild.sister = that.symbol.sister.place(that.lattice.getPoint(visible));
-						}
-					}
-				});
-				$.each(lastPlacement.checked, function(coef, visible) {
-					if(visible) {
-						if(!newPlacement.checked[coef]) {
-							// also remove content symbol
-							that.latticeGroup.children[coef].sister.remove();
-							// newly not-visible point: remove
-							that.latticeGroup.children[coef].remove();
-						}
-					}
-				});
-				this.placement = newPlacement;
+		// null indicates draw full tessellation
+		if(head === null) {
+			latticeGroup.visible = true;
+		}
+		// if head is this polygroup (stamp), place one instance of the outer group
+		if(head === that) {
+			// TODO which layer?
+			my.currentRender = new paper.Group();
+			my.currentRender.addChild(symbol.place());
+			// TODO we should probably just add the existing group to a layer to make it visible
+			// TODO it would make interaction easier too probably
+			my.undo = function() {
+				my.currentRender.remove();
 			}
-		},
-		onLatticeChange: function(view) {
-			var that = this;
-			// remove all placements
-			$.each(this.placement.checked, function(coef, visible) {
-				if(visible) {
-					that.latticeGroup.children[coef].remove();
-				}
+		}
+		// if head is the lattice, make it visible
+		if(head === lattice) {
+			// make lattice group visible
+			latticeGroup.visible = true;
+			// TODO show lattice arrows
+		}
+		// if head is the set of polygons
+		if(head === polygons) {
+			my.currentRender = new paper.Group();
+			my.currentRender.addChild(symbol.place());
+			// color code the polygons
+			// TODO color code better than random
+			// TODO color code html elements
+			$.each(polygons, function(index, polygon) {
+				polygon.strokeColor = new paper.RgbColor(Math.random(), Math.random(), Math.random());
 			});
-			// redo lattice placement
-			if(this.latticeGroup) {
-				this.latticeGroup.remove();
+			// define function to undo changes
+			my.undo = function() {
+				$.each(polygons, function(index, polygon) {
+					// TODO magic constant
+					polygon.strokeColor = '#ddd';
+				});
+				my.currentRender.remove();
 			}
-			this.doInitialLatticePlacement(view);
-			view.draw();
-		},
-		doInitialLatticePlacement: function(view) {
-			var symbol = this.symbol;
-			// create a group for the lattice which will become the outer group
-			var latticeGroup = new paper.Group();
+		}
+		// if head is a single local polygon
+		if($.inArray(head, polygons) >= 0) {
+			var parent = head.parent;
+			// define function to undo changes
+			this.undo = function() {
+				parent.addChild(head);
+			}
+			paper.project.activeLayer.addChild(head);
+		}
+	},
+	recomputeLattice: function(view) {
+		// TODO there is probably a better way to do this
+
+		if(lattice) {
+
+			//var that = this;
+			var lastPlacement = my.placement;
 			
 			// get lattice points in rectangle
-			var rect = view.bounds;
-			// get lattice point closest to middle of rectangle
-			var closest = this.lattice.closestTo(rect.center);
+			rect = view.bounds;
+			// get lattice point closest to middle of rect
+			var closest = lattice.closestTo(rect.center);
 			// search for lattice points where symbol placement would be visible
 			var toCheck = [closest.coefs];
-			var placement = this.searchVisibleLattice(toCheck, symbol, rect, latticeGroup);
-			this.latticePoints = placement.visible;
-			
-			// place symbols at the visible points
-			//$.each(this.latticePoints, function(index, point) {
-				// TODO set child's name based on the coef values so that we can remove it later
-				//latticeGroup.addChild(symbol.place(point));
-			//});
-			// TODO replacing above loop with loop over coefs so that we can store name
-			var that = this;
-			$.each(placement.checked, function(coef, visible) {
+			// TODO need to get symbol from group without lattice
+			var newPlacement = this.searchVisibleLattice(toCheck, symbol, rect, null);
+			// TODO debugging empty placement problem
+			if(newPlacement.visible.length === 0) {
+				console.log("something went very wrong");
+				closest = lattice.closestTo(rect.center);
+			}
+
+			// compare new placment and old placement
+			// draw at locations in new placement but not in old
+			// remove locations in old but not in new
+			$.each(newPlacement.checked, function(coef, visible) {
 				if(visible) {
-
-					latticeGroup.addChild(symbol.place(that.lattice.getPoint(visible)));
-					// name child
-					latticeGroup.lastChild.name = coef;
-					//console.log('name label: ' + latticeGroup.children[coef].label);
-
-					// also place an instance of the sister symbol and set as sister of original placement
-					paper.project.layers[1].addChild(symbol.sister.place(that.lattice.getPoint(visible)));
-					latticeGroup.lastChild.sister = paper.project.layers[1].lastChild;
-				}
-			});
-			
-			// update the outer group to be the lattice group
-			var outerGroup = latticeGroup;
-			// create symbol for entire thing
-			//var latticeSymbol = outerGroup.symbolize();
-			// store group and symbol on this
-			// TODO this is clobbered in render
-			this.latticeGroup = outerGroup;
-			///this.latticeSymbol = latticeSymbol;
-			// finally, place entire symbol
-			//this.latticeSymbol.place();
-			
-			// store placement info for resizing
-			this.placement = placement;
-		},
-		// return {'visible': the list of lattice locations where the placed symbol bounds intersect the supplied rectangle,
-		//			'checked': an object with an attribute for every coefficient pair that was checked. the value is true iff
-		//						the symbol placement at the corresponding location is visible }
-		searchVisibleLattice: function(toCheck, symbol, rectangle, group) {
-			// create a symbol placement to test with
-			var placement = symbol.place();
-			// visible is the master list of actual project coordinate locations of visible lattice points
-			var visible = [];
-			// checked has an attribute for every lattice coefficient pair that has been searched
-			var checked = {};
-			var coefs;
-			// addNeighbors is a function for adding neighbors to the search queue
-			var addNeighbors = function(index, neighbor) {
-				// produce the actual coefficients
-				var newPoint = neighbor.add(coefs);
-				if(!checked.hasOwnProperty(newPoint.toString())) {
-					// if not yet checked, add to search queue
-					toCheck.push(newPoint);
-					// mark as checked so it won't be added again
-					// the actual truth value will be set when it is examined
-					checked[newPoint.toString()] = false;
-				}
-			};
-			while(toCheck.length > 0) {
-				// search at the first point in toCheck
-				coefs = toCheck.shift();
-				// get lattice point
-				var location = this.lattice.getPoint(coefs);
-				// set translation of placement
-				// TODO this could possible be imprecise
-				placement.translate(location);
-				// test if placement intersects rectangle
-				if(placement.bounds.intersects(rectangle)) {
-					// if so, mark as visible
-					visible.push(location);
-					// put in checked object
-					checked[coefs.toString()] = coefs;
-					// add neighbors to search queue
-					var neighbors = [
-						new paper.Point(-1,-1), new paper.Point(0,-1), new paper.Point(1,-1),
-						new paper.Point(-1, 0),						new paper.Point(1, 0),
-						new paper.Point(-1, 1), new paper.Point(0, 1), new paper.Point(1, 1)
-					];
-					$.each(neighbors, addNeighbors);
-				} else {
-					// set value in checked object
-					checked[coefs.toString()] = false;
-				}
-				// undo placement translation
-				placement.translate(location.negate());
-			}
-			
-			// remove test placement
-			placement.remove();
-			
-			return {'visible': visible, 'checked': checked};
-			
-		},
-		// render in a view
-		render: function(view) {
-			// if the symbol for this group is already defined, return it
-			if(this.symbol) {
-				return this.symbol;
-			}
-			
-			// reduce the lattice basis if there is a lattice
-			if(this.lattice && !this.lattice.isReduced()) {
-				this.lattice.reduceBasis();
-			}
-			
-			// get the group with the subgroups and local symbol placements
-			var innerSymbol = this.getInnerGroup(view);
-			
-			// place inner symbol into main polygroup group
-			//var outerGroup = new paper.Group([innerSymbol.place()]);
-			var outerGroup = new paper.Group();
-
-			// group for holding the placements of the sister symbol
-			var sisterGroup = new paper.Group([innerSymbol.sister.place()]);
-
-			var that = this;
-			
-			// if PG has transforms, make a copy of inner group for each and apply transform
-			if(this.transforms.length > 0) {
-				
-				// parse transforms and apply operations
-				$.each(this.transforms, function(index, transform) {
-					
-					// add transformed placed inner symbol into group 
-					outerGroup.addChild(innerSymbol.place().transform(transform));
-
-					// add transformed placed inner symbol sister into sister group
-					sisterGroup.addChild(innerSymbol.sister.place().transform(transform));
-				});
-			}
-			
-			// make symbol from outer group
-			var outerSymbol = outerGroup.symbolize();
-
-			this.symbol = outerSymbol;
-
-			// make symbol for sister group
-			outerSymbol.sister = sisterGroup.symbolize();
-			
-			// if there is a lattice defined, copy this group to each point
-			if(this.lattice) {
-				// place symbols at visible lattice points
-				this.doInitialLatticePlacement(view);
-				
-			} else {
-				// if there is no lattice, place one instance of the symbol for this group
-				if(!this.parent) {
-					outerSymbol.place();
-					// also place one instance of the sister symbol
-					outerSymbol.sister.place();
-				}
-			}
-			
-			// store group and symbol on this
-			this.group = outerGroup;
-			this.symbol = outerSymbol;
-
-			return this.symbol;
-		},
-		getInnerGroup: function(view) {
-			
-			// get inner groups from subgroups
-			var innerGroups = [];
-			$.each(this.subgroups, function(index, group) {
-				// get subgroup symbol
-				var symbol = group.render(view);
-				// place symbol and put into group
-				innerGroups.push(symbol.place());
-			});
-
-			// create inner group
-			var group = new paper.Group(innerGroups.concat(this.polygons));
-			// make symbol from group
-			var symbol = group.symbolize();
-
-			// create a group & symbol for paths drawn into this group's polygons
-			var sisterInner = innerGroups.map(function(group) { return group.sister; })
-			group.sister = (sisterInner.length > 0) ? new paper.Group(sisterInner) : new paper.Group();
-			symbol.sister = group.sister.symbolize();
-
-			// return symbol
-			return symbol;
-		},
-		addPath: function(path,layer) {
-			
-			// find polygon the new path hits
-			var hitInfo = this.findPolygonAt(path.firstSegment.point);
-			
-			if(hitInfo) {
-				// create a symbol of the path
-				// save original position before creating symbol
-				var symbol = path.symbolize();
-				// add the path back to active layer
-				paper.project.activeLayer.addChild(path);
-				// add path to the group where the matching polygon is
-				hitInfo.polygon.parent.sister.addChild(symbol.place().transform(hitInfo.transform.createInverse()));
-				// make path selected
-				path.selected = true;
-			}
-		},
-		findPolygonAt: function(point) {
-			return this.hitPolygons(point);
-		},
-		hitPolygons: function(point) {
-			var that = this;
-			
-			var hit = false;
-			var hitInfo = null;
-			
-			if(this.latticePoints.length > 0) {
-				$.each(this.latticePoints, function(index, latticePoint) {
-					// translate by -latticePoint to search within this portion of the lattice
-					var curPoint = point.subtract(latticePoint);
-					
-					// check this groups for hits at the lattice point adjusted point
-					hitInfo = that.hitPolygonGlobal(curPoint);
-					
-					// if hit, return from latticePoint loop after
-					// updating transform with the lattice translation
-					if(hitInfo) {
-						hit = true;
-						// pre translate by lattice point
-						hitInfo.transform.preConcatenate(paper.Matrix.getTranslateInstance(latticePoint.x, latticePoint.y));
-						return false;
+					if(!lastPlacement.checked[coef]) {
+						// new point visible, place and add to lattice group
+						latticeGroup.addChild(symbol.place(lattice.getPoint(visible)));
+						// name child
+						latticeGroup.lastChild.name = coef;
+						// also place content symbol and set as sister of original
+						latticeGroup.lastChild.sister = symbol.sister.place(lattice.getPoint(visible));
 					}
-				});
+				}
+			});
+			$.each(lastPlacement.checked, function(coef, visible) {
+				if(visible) {
+					if(!newPlacement.checked[coef]) {
+						// also remove content symbol
+						latticeGroup.children[coef].sister.remove();
+						// newly not-visible point: remove
+						latticeGroup.children[coef].remove();
+					}
+				}
+			});
+			my.placement = newPlacement;
+		}
+	},
+	onLatticeChange: function(view) {
+		//var that = this;
+		// remove all placements
+		$.each(my.placement.checked, function(coef, visible) {
+			if(visible) {
+				latticeGroup.children[coef].remove();
+			}
+		});
+		// redo lattice placement
+		if(latticeGroup) {
+			latticeGroup.remove();
+		}
+		doInitialLatticePlacement(view);
+		view.draw();
+	},
+	doInitialLatticePlacement: function(view) {
+		//var symbol = symbol;
+		// create a group for the lattice which will become the outer group
+		latticeGroup = new paper.Group();
+		
+		// get lattice points in rectangle
+		var rect = view.bounds;
+		// get lattice point closest to middle of rectangle
+		var closest = lattice.closestTo(rect.center);
+		// search for lattice points where symbol placement would be visible
+		var toCheck = [closest.coefs];
+		var placement = searchVisibleLattice(toCheck, symbol, rect, latticeGroup);
+		my.latticePoints = placement.visible;
+		
+		// place symbols at the visible points
+		//$.each(this.latticePoints, function(index, point) {
+			// TODO set child's name based on the coef values so that we can remove it later
+			//latticeGroup.addChild(symbol.place(point));
+		//});
+		// TODO replacing above loop with loop over coefs so that we can store name
+		//var that = this;
+		$.each(placement.checked, function(coef, visible) {
+			if(visible) {
+
+				latticeGroup.addChild(symbol.place(lattice.getPoint(visible)));
+				// name child
+				latticeGroup.lastChild.name = coef;
+				//console.log('name label: ' + latticeGroup.children[coef].label);
+
+				// also place an instance of the sister symbol and set as sister of original placement
+				paper.project.layers[1].addChild(symbol.sister.place(lattice.getPoint(visible)));
+				latticeGroup.lastChild.sister = paper.project.layers[1].lastChild;
+			}
+		});
+		
+		// update the outer group to be the lattice group
+		var outerGroup = latticeGroup;
+		// create symbol for entire thing
+		//var latticeSymbol = outerGroup.symbolize();
+		// store group and symbol on this
+		// TODO this is clobbered in render
+		latticeGroup = outerGroup;
+		///this.latticeSymbol = latticeSymbol;
+		// finally, place entire symbol
+		//this.latticeSymbol.place();
+		
+		// store placement info for resizing
+		my.placement = placement;
+	},
+	// return {'visible': the list of lattice locations where the placed symbol bounds intersect the supplied rectangle,
+	//			'checked': an object with an attribute for every coefficient pair that was checked. the value is true iff
+	//						the symbol placement at the corresponding location is visible }
+	searchVisibleLattice: function(toCheck, symbol, rectangle, group) {
+		// create a symbol placement to test with
+		var placement = symbol.place();
+		// visible is the master list of actual project coordinate locations of visible lattice points
+		var visible = [];
+		// checked has an attribute for every lattice coefficient pair that has been searched
+		var checked = {};
+		var coefs;
+		// addNeighbors is a function for adding neighbors to the search queue
+		var addNeighbors = function(index, neighbor) {
+			// produce the actual coefficients
+			var newPoint = neighbor.add(coefs);
+			if(!checked.hasOwnProperty(newPoint.toString())) {
+				// if not yet checked, add to search queue
+				toCheck.push(newPoint);
+				// mark as checked so it won't be added again
+				// the actual truth value will be set when it is examined
+				checked[newPoint.toString()] = false;
+			}
+		};
+		while(toCheck.length > 0) {
+			// search at the first point in toCheck
+			coefs = toCheck.shift();
+			// get lattice point
+			var location = lattice.getPoint(coefs);
+			// set translation of placement
+			// TODO this could possible be imprecise
+			placement.translate(location);
+			// test if placement intersects rectangle
+			if(placement.bounds.intersects(rectangle)) {
+				// if so, mark as visible
+				visible.push(location);
+				// put in checked object
+				checked[coefs.toString()] = coefs;
+				// add neighbors to search queue
+				var neighbors = [
+					new paper.Point(-1,-1), new paper.Point(0,-1), new paper.Point(1,-1),
+					new paper.Point(-1, 0),						new paper.Point(1, 0),
+					new paper.Point(-1, 1), new paper.Point(0, 1), new paper.Point(1, 1)
+				];
+				$.each(neighbors, addNeighbors);
 			} else {
-				// if no lattice, just do test at given point
-				hitInfo = that.hitPolygonGlobal(point);
+				// set value in checked object
+				checked[coefs.toString()] = false;
 			}
+			// undo placement translation
+			placement.translate(location.negate());
+		}
+		
+		// remove test placement
+		placement.remove();
+		
+		return {'visible': visible, 'checked': checked};
+		
+	},
+	// render in a view
+	render: function(view) {
+		// if the symbol for this group is already defined, return it
+		if(symbol) {
+			return symbol;
+		}
+		
+		// reduce the lattice basis if there is a lattice
+		if(lattice && !lattice.isReduced()) {
+			lattice.reduceBasis();
+		}
+		
+		// get the group with the subgroups and local symbol placements
+		var innerSymbol = getInnerGroup(view);
+		
+		// place inner symbol into main polygroup group
+		//var outerGroup = new paper.Group([innerSymbol.place()]);
+		var outerGroup = new paper.Group();
+
+		// group for holding the placements of the sister symbol
+		var sisterGroup = new paper.Group([innerSymbol.sister.place()]);
+
+		//var that = this;
+		
+		// if PG has transforms, make a copy of inner group for each and apply transform
+		if(transforms.length > 0) {
 			
-			return hitInfo;
-		},
-		// hitPolygon helper function:
-		// check for hits in this group at a supplied global point
-		hitPolygonGlobal: function(point) {
-			var that = this;
-			
-			// check local polygons and subgroups with no transforms applied
-			var hitInfo = that.hitPolygonLocal(point);
-			// if hit, return. don't need to update transform because none was applied here
-			if(hitInfo) {
-				return hitInfo;
-			}
-			
-			var hit = false;
-			
-			// perform reverse transforms to check local polygons and subgroups
-			$.each(this.transforms, function(index, transform) {
-				var localPoint = transform.inverseTransform(point);
+			// parse transforms and apply operations
+			$.each(transforms, function(index, transform) {
 				
-				// do local checks
-				hitInfo = that.hitPolygonLocal(localPoint);
-				// if hit, update transformation with local transform and return
+				// add transformed placed inner symbol into group 
+				outerGroup.addChild(innerSymbol.place().transform(transform));
+
+				// add transformed placed inner symbol sister into sister group
+				sisterGroup.addChild(innerSymbol.sister.place().transform(transform));
+			});
+		}
+		
+		// make symbol from outer group
+		var outerSymbol = outerGroup.symbolize();
+
+		symbol = outerSymbol;
+
+		// make symbol for sister group
+		outerSymbol.sister = sisterGroup.symbolize();
+		
+		// if there is a lattice defined, copy this group to each point
+		if(lattice) {
+			// place symbols at visible lattice points
+			doInitialLatticePlacement(view);
+			
+		} else {
+			// if there is no lattice, place one instance of the symbol for this group
+			if(!parent) {
+				outerSymbol.place();
+				// also place one instance of the sister symbol
+				outerSymbol.sister.place();
+			}
+		}
+		
+		// store group and symbol on this
+		group = outerGroup;
+		symbol = outerSymbol;
+
+		return symbol;
+	},
+	getInnerGroup: function(view) {
+		
+		// get inner groups from subgroups
+		var innerGroups = [];
+		$.each(this.subgroups, function(index, group) {
+			// get subgroup symbol
+			var subsymbol = group.render(view);
+			// place symbol and put into group
+			innerGroups.push(subsymbol.place());
+		});
+
+		// create inner group
+		var group = new paper.Group(innerGroups.concat(this.polygons));
+		// make symbol from group
+		groupSymbol = group.symbolize();
+
+		// create a group & symbol for paths drawn into this group's polygons
+		var sisterInner = innerGroups.map(function(group) { return group.sister; })
+		group.sister = (sisterInner.length > 0) ? new paper.Group(sisterInner) : new paper.Group();
+		groupSymbol.sister = group.sister.symbolize();
+
+		// return symbol
+		return groupSymbol;
+	},
+	addPath: function(path,layer) {
+		
+		// find polygon the new path hits
+		var hitInfo = findPolygonAt(path.firstSegment.point);
+		
+		if(hitInfo) {
+			// create a symbol of the path
+			// save original position before creating symbol
+			var pathSymbol = path.symbolize();
+			// add the path back to active layer
+			paper.project.activeLayer.addChild(path);
+			// add path to the group where the matching polygon is
+			hitInfo.polygon.parent.sister.addChild(pathSymbol.place().transform(hitInfo.transform.createInverse()));
+			// make path selected
+			path.selected = true;
+		}
+	},
+	findPolygonAt: function(point) {
+		return hitPolygons(point);
+	},
+	hitPolygons: function(point) {
+		//var that = this;
+		
+		var hit = false;
+		var hitInfo = null;
+		
+		if(my.latticePoints.length > 0) {
+			$.each(my.latticePoints, function(index, latticePoint) {
+				// translate by -latticePoint to search within this portion of the lattice
+				var curPoint = point.subtract(latticePoint);
+				
+				// check this groups for hits at the lattice point adjusted point
+				hitInfo = hitPolygonGlobal(curPoint);
+				
+				// if hit, return from latticePoint loop after
+				// updating transform with the lattice translation
 				if(hitInfo) {
 					hit = true;
-					hitInfo.transform.preConcatenate(transform);
+					// pre translate by lattice point
+					hitInfo.transform.preConcatenate(paper.Matrix.getTranslateInstance(latticePoint.x, latticePoint.y));
 					return false;
 				}
 			});
-			
-			// if we found a hit, return the hit polygon
-			if(hit) {
-				return hitInfo;
-			}
-		},
-		// hitPolygon helper function:
-		// check local polygons and subgroups for hits at a point in local coords
-		// TODO local is actually sublocal because a transformation (maybe identity) has been applied
-		// TODO the solution is to not have transforms in a group applied to polygons in the group
-		hitPolygonLocal: function(point) {
-			var hit = false;
-			var hitInfo = null;
-			
-			// check against local polygons
-			$.each(this.polygons, function(index, polygon) {
-				if(polygon.contains(point)) {
-					hit = true;
-					hitInfo = {
-						polygon: polygon,
-						transform: new paper.Matrix()
-					};
-					return false;
-				}
-			});
-			
-			// if we hit a local polygon, return
-			if(hit) {
-				return hitInfo;
-			}
-			
-			// if no local polygon hits, recurse into subgroups
-			$.each(this.subgroups, function(index, subgroup) {
-				var subHitInfo = subgroup.hitPolygons(point);
-				if(subHitInfo) {
-					hit = true;
-					hitInfo = subHitInfo;
-					return false;
-				}
-			});
-			
+		} else {
+			// if no lattice, just do test at given point
+			hitInfo = hitPolygonGlobal(point);
+		}
+		
+		return hitInfo;
+	},
+	// hitPolygon helper function:
+	// check for hits in this group at a supplied global point
+	hitPolygonGlobal: function(point) {
+		//var that = this;
+		
+		// check local polygons and subgroups with no transforms applied
+		var hitInfo = hitPolygonLocal(point);
+		// if hit, return. don't need to update transform because none was applied here
+		if(hitInfo) {
 			return hitInfo;
 		}
-	};
-	var CreatePolyGroup = function() {
-		var newPolyGroup = Object.create(PolyGroup);
-		newPolyGroup.polygons = [];
-		newPolyGroup.transforms = [];
-		newPolyGroup.subgroups = [];
-		newPolyGroup.group = null;//new paper.Group();
-		newPolyGroup.latticePoints = [];
-		return newPolyGroup;
-	};
+		
+		var hit = false;
+		
+		// perform reverse transforms to check local polygons and subgroups
+		$.each(transforms, function(index, transform) {
+			var localPoint = transform.inverseTransform(point);
+			
+			// do local checks
+			hitInfo = hitPolygonLocal(localPoint);
+			// if hit, update transformation with local transform and return
+			if(hitInfo) {
+				hit = true;
+				hitInfo.transform.preConcatenate(transform);
+				return false;
+			}
+		});
+		
+		// if we found a hit, return the hit polygon
+		if(hit) {
+			return hitInfo;
+		}
+	},
+	// hitPolygon helper function:
+	// check local polygons and subgroups for hits at a point in local coords
+	// TODO local is actually sublocal because a transformation (maybe identity) has been applied
+	// TODO the solution is to not have transforms in a group applied to polygons in the group
+	hitPolygonLocal: function(point) {
+		var hit = false;
+		var hitInfo = null;
+		
+		// check against local polygons
+		$.each(polygons, function(index, polygon) {
+			if(polygon.contains(point)) {
+				hit = true;
+				hitInfo = {
+					polygon: polygon,
+					transform: new paper.Matrix()
+				};
+				return false;
+			}
+		});
+		
+		// if we hit a local polygon, return
+		if(hit) {
+			return hitInfo;
+		}
+		
+		// if no local polygon hits, recurse into subgroups
+		$.each(subgroups, function(index, subgroup) {
+			var subHitInfo = subgroup.hitPolygons(point);
+			if(subHitInfo) {
+				hit = true;
+				hitInfo = subHitInfo;
+				return false;
+			}
+		});
+		
+		return hitInfo;
+	}
+
+	that.addPolygon = addPolygon;
+	that.addSubgroup = addSubgroup;
+	that.addTransform = addTransform;
+	that.addLattice = addLattice;
+	that.onResize = onResize;
+	that.setRenderHead = setRenderHead;
+	that.render = render;
 
 	// Lattice represents an operator which places a polygon or group at every point in a lattice defined by two vectors
 	var Lattice = {
@@ -691,5 +692,5 @@ var tessellationModel = function(spec, my) {
 		HeartGroup: heartGroup
 	});
 	
-	return tessDef;
+	return that;
 });
