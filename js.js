@@ -367,8 +367,7 @@ var app = (function () {
 				// set the end point of the line
 				this.parent.children['line'].lastSegment.point = this.position;
 				// update lattice
-				// TODO this is broken with new accessors
-				tess.lattice()[vecName] = event.point;
+				tess.lattice()[vecName](event.point);
 				// redraw lattice
 				tess.onLatticeChange(paper.view);
 
@@ -394,11 +393,10 @@ var app = (function () {
 		$.each(['v1', 'v2'], function(index, vecName) {
 			// create display elements
 			// draw line
-			// TODO this is broken with new accessors
-			var line = new paper.Path(new paper.Point(), lattice[vecName]);
+			var line = new paper.Path(new paper.Point(), lattice[vecName]());
 			line.name = 'line';
 			// draw handle
-			var handle = new paper.Path.Circle(lattice[vecName], 3);
+			var handle = new paper.Path.Circle(lattice[vecName](), 3);
 			handle.name = 'handle';
 			handle.fillColor = 'white';
 			// group to hold display elements
