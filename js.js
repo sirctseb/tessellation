@@ -208,9 +208,10 @@ var app = (function () {
 		function mouseDown(event) {
 			log.log('stock tool: mouse down', 'tools');
 			// remove lattice display if it exists
-			if(app.latticeDisplay) {
-				app.latticeDisplay.destroy();
-				delete app.latticeDisplay;
+			if(app.latticeView) {
+				//app.latticeDisplay.destroy();
+				app.latticeView.hide();
+				//delete app.latticeDisplay;
 			}
 			
 			// perform hit test
@@ -347,76 +348,26 @@ var app = (function () {
 		return new paper.Tool();
 	}());
 
-	var makeHandlers = function(tess, vecName) {
+	/* latticeEditView delegate methods */
+	app.onLatticeEditViewMouseDown = function() {
+		// deactivate tools so it doesn't drag other stuff at the same time
+		app.noopTool.activate();
+	}
+	app.onLatticeEditViewMouseUp = function() {
+		// reactivate stock tool
+		app.stockTool.activate();
+	}
+	/* end latticeEditView delegate methods */
 
-		var selectedColor = 'blue';
-		var handlers = {
-			mousedown: function(event) {
-				// TODO notify UI of mouse down
-				// set color to selected color
-				this.fillColor = selectedColor;
-				// deactivate tools so it doesn't drage other stuff at the same time
-				app.noopTool.activate();
-			},
-			mousedrag: function(event) {
-				log.log('dragging ' + vecName, 'latticeDisplay');
-
-				// update display
-				// set the position of the handle
-				this.position = event.point;
-				// set the end point of the line
-				this.parent.children['line'].lastSegment.point = this.position;
-				// update lattice
-				tess.lattice()[vecName](event.point);
-				// redraw lattice
-				tess.onLatticeChange(paper.view);
-
-				// TODO update html UI
-			},
-			mouseup: function(event) {
-				// reset fill color
-				this.fillColor = 'white';
-				// reactivate stock tool
-				app.stockTool.activate();
-			}
-		};
-		return handlers;
-	};
-	var makeLatticeDisplay = function(tess) {
-		// save old layer
-		var oldLayer = paper.project.activeLayer;
-		// activate lattice edit layer
-		paper.project.layers[settings.latticeEditLayer].activate();
-
-		var lattice = tess.lattice();
-		var display = new paper.Group();
-		$.each(['v1', 'v2'], function(index, vecName) {
-			// create display elements
-			// draw line
-			var line = new paper.Path(new paper.Point(), lattice[vecName]());
-			line.name = 'line';
-			// draw handle
-			var handle = new paper.Path.Circle(lattice[vecName](), 3);
-			handle.name = 'handle';
-			handle.fillColor = 'white';
-			// group to hold display elements
-			var group = new paper.Group([line, handle]);
-			group.strokeColor = 'blue';
-
-			// add group to display group
-			display.addChild(group);
-
-			// add handlers to elements
-			handle.attach(makeHandlers(tess, vecName));
-		});
-		// reactive original layer
-		oldLayer.activate();
-		return {displayGroup: display, destroy: function() {
-			this.displayGroup.remove();
-		}};
-	};
 	app.beginEditLattice = function() {
-		this.latticeDisplay = makeLatticeDisplay(this.tess);
+		//this.latticeDisplay = makeLatticeDisplay(this.tess);
+		if(this.latticeDisplay) {
+			latticeDisplay.show();
+		} else {
+			this.latticeView = latticeEditView({controller: app,
+												tessellation: app.tess,
+												latticeEditLayer: settings.latticeEditLayer});
+		}
 	};
 
 	app.applyStyle = function(style) {
