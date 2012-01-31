@@ -428,7 +428,7 @@ var app = (function () {
 
 	// generate the html ui which displays the lattice definition
 	app.generateUI = function() {
-		this.htmlView = htmlTessellationView({controller:null, tessellation: this.tess});
+		this.htmlView = htmlTessellationView({controller:app, tessellation: this.tess});
 		return this.htmlView.root();
 	};
 	
