@@ -461,6 +461,10 @@ var app = (function () {
 			// TODO jquery doesn't seem to like content text and properties passed in through an object
 			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice().v1().toString()}).appendTo(lattice);
 			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice().v2().toString()}).appendTo(lattice);
+			// add edit buttons to edit text directly
+			// TODO handlers and text editing
+			v1.append($("<div/>", {"class": "editButton", text: "edit"}));
+			v2.append($("<div/>", {"class": "editButton", text: "edit"}));
 		}
 
 		// add polygon header
