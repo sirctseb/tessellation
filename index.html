@@ -13,6 +13,7 @@
 		<script type="text/javascript" src="paper.js"></script>
 		<script type="text/javascript" src="paperjsPlugins.js"></script>
 		<script type="text/javascript" src="tessDef.js"></script>
+		<script type="text/javascript" src="tessellations.js"></script>
 		<script type="text/javascript" src="js.js"></script>
 		<script type="text/javascript" src="farbtastic/farbtastic.js"></script>
 		<script type="text/javascript" src="jqueryui/js/jquery-ui-1.8.17.custom.min.js"></script>
@@ -39,7 +40,7 @@
 
 				// handler for collapsable clicks
 				/*$("#tessdefcontainer").on("click", ".tessUI.collapsable", function(event) {
-					$this = $(this);
+					var $this = $(this);
 					if($this.hasClass('collapsed')) {
 						$this.removeClass('collapsed');
 					} else {
@@ -51,6 +52,9 @@
 				$("#tessdefcontainer").on("click", ".tessUI", function(event) {
 					return false;
 				});*/
+				$('#tessdefcontainer').on("click", ".collapseArrow", function(event) {
+					$(this).closest(".collapsable").toggleClass("collapsed");
+				})
 				// activate lattice editing when we click on the lattice details
 				$('#tessdefcontainer').on("click", ".latticeVec", function(event) {
 					// activate lattice editing
@@ -65,7 +69,7 @@
 					// TODO add new shape
 				});
 
-				$("#tessdefcontainer").append(app.tess.generateUI());
+				$("#tessdefcontainer").append(app.generateUI());
 			});
 		var applyStyle = function() {
 			// use jquery to serialize into array
@@ -95,7 +99,7 @@
 			//$('#stroke-colorpicker')
 		}
 		var toggleLattice = function() {
-			app.tess.latticeGroup.visible = !app.tess.latticeGroup.visible;
+			app.tess.latticeGroup().visible = !app.tess.latticeGroup().visible;
 			paper.view.draw();
 		}
 
