@@ -1,6 +1,6 @@
 /* a view class to display the structure of a tessellation in html */
 
-htmlTessellationView = function(spec) {
+var htmlTessellationView = function(spec) {
 
 	var that = {};
 
