@@ -360,7 +360,7 @@ var app = (function () {
 	app.onLatticeEditViewMouseDrag = function(info) {
 		//({point: event.point, component: vecName});
 		// set value of lattice vectore
-		this.tess.lattice()[info.vecName](event.point);
+		this.tess.lattice()[info.component](info.point);
 		// update canvas view
 		this.tessellationView.onLatticeChange(paper.view);
 		// update html view
