@@ -20,7 +20,8 @@ var app = (function () {
 		var testTool = new paper.Tool();
 		
 		testTool.onMouseDown = function(event) {
-			var poly = app.tess.hitPolygons(event.point);
+			//var poly = app.tess.hitPolygons(event.point);
+			var poly = app.tessellationView.hitPolygons(event.point);
 			// print result of click
 			console.log(poly.toString());
 		};
@@ -241,7 +242,9 @@ var app = (function () {
 				newPath.name = "path" + settings.newPathNumber;
 				
 				// add to tessellation
-				app.tess.addPath(newPath);
+				//app.tess.addPath(newPath);
+				// TODO seems like we should add path to the tessellation, not the view?
+				app.tessellationView.addPath(newPath);
 				
 				// activate edit tool
 				editTool.activate();
@@ -274,7 +277,8 @@ var app = (function () {
 				} else {
 					paper.view.scrollBy(event.downPoint.subtract(event.point).multiply(paper.view.zoom));
 				}
-				app.tess.onResize(paper.view);
+				//app.tess.onResize(paper.view);
+				app.tessellationView.onResize(paper.view);
 			}
 		}
 
@@ -353,6 +357,15 @@ var app = (function () {
 		// deactivate tools so it doesn't drag other stuff at the same time
 		app.noopTool.activate();
 	}
+	app.onLatticeEditViewMouseDrag = function(info) {
+		//({point: event.point, component: vecName});
+		// set value of lattice vectore
+		this.tess.lattice()[info.vecName](event.point);
+		// update canvas view
+		this.tessellationView.onLatticeChange(paper.view);
+		// update html view
+		this.htmlView.onLatticeChange();
+	}
 	app.onLatticeEditViewMouseUp = function() {
 		// reactivate stock tool
 		app.stockTool.activate();
@@ -407,7 +420,7 @@ var app = (function () {
 		yaxis.strokeColor = 'red';*/
 		
 		//tessellations.PolyGroup44.render(paper.view);
-		tessellations.GroupHex.render(paper.view);
+		//tessellations.GroupHex.render(paper.view);
 		//tessellations.HeartGroup.render(paper.view);
 		//tessellations.HitGroup.render(paper.view);
 		//tessellations.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
@@ -417,7 +430,9 @@ var app = (function () {
 		//this.tess = tessellations.HitGroup;
 		//this.tess = tessellations.HeartGroup;
 
-		
+		this.tessellationView = tessellationView({controller: this, tessellation: this.tess});
+		this.tessellationView.render(paper.view);
+
 		stockTool.activate();
 		//testHitTool.activate();
 		//latticeDebugTool.activate();

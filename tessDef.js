@@ -20,8 +20,8 @@ var tessellationModel = function(spec, my) {
 		polygons = [],
 		subgroups = [],
 		transforms = [],
-		lattice = [],
-		latticePoints = [];/*,
+		lattice = [];
+		/*latticePoints = [],
 		group = null,
 		symbol = null,
 		latticeGroup = null;*/
@@ -47,10 +47,6 @@ var tessellationModel = function(spec, my) {
 		// TODO remove transforms to enforce mutual exclusivity?
 		lattice = lattice_in;
 	};
-	var onResize = function(view) {
-		// TODO if lattice exists
-		recomputeLattice(view);
-	};
 	// TODO debugging method to add label on a lattice placement
 	var addLabel = function(point, content) {
 		var label = new paper.PointText(point);
@@ -59,17 +55,16 @@ var tessellationModel = function(spec, my) {
 		label.strokeColor = 'blue';
 		return label;
 	};
-	
 
 	// public methods
 	that.addPolygon = addPolygon;
 	that.addSubgroup = addSubgroup;
 	that.addTransform = addTransform;
 	that.addLattice = addLattice;
-	that.onResize = onResize;
-	that.setRenderHead = setRenderHead;
-	that.render = render;
-	that.onLatticeChange = onLatticeChange;
+	//that.onResize = onResize;
+	//that.setRenderHead = setRenderHead;
+	//that.render = render;
+	//that.onLatticeChange = onLatticeChange;
 
 	// accessors
 	that.polygons = function(polygons_in) {
@@ -96,7 +91,7 @@ var tessellationModel = function(spec, my) {
 		}
 		return lattice;
 	};
-	that.latticePoints = function() {
+	/*that.latticePoints = function() {
 		return latticePoints;
 	};
 	that.group = function() {
@@ -107,7 +102,7 @@ var tessellationModel = function(spec, my) {
 	};
 	that.latticeGroup = function() {
 		return latticeGroup;
-	};
+	};*/
 
 	return that;
 };

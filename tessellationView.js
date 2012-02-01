@@ -12,6 +12,11 @@ var tessellationView = function(spec, my) {
 		latticeGroup = null,
 		subviews = [];
 	
+
+	var onResize = function(view) {
+		// TODO if lattice exists
+		recomputeLattice(view);
+	};
 	// TODO refactor
 	var setRenderHead = function(head) {
 		// pass command up to root
@@ -81,11 +86,11 @@ var tessellationView = function(spec, my) {
 			paper.project.activeLayer.addChild(head);
 		}
 	};
-	// TODO refactor
+
 	var recomputeLattice = function(view) {
 		// TODO there is probably a better way to do this
 
-		if(lattice) {
+		if(my.tessellation.lattice()) {
 
 			//var that = this;
 			var lastPlacement = my.placement;
@@ -93,7 +98,7 @@ var tessellationView = function(spec, my) {
 			// get lattice points in rectangle
 			rect = view.bounds;
 			// get lattice point closest to middle of rect
-			var closest = lattice.closestTo(rect.center);
+			var closest = my.tessellation.lattice().closestTo(rect.center);
 			// search for lattice points where symbol placement would be visible
 			var toCheck = [closest.coefs];
 			// TODO need to get symbol from group without lattice
@@ -101,7 +106,7 @@ var tessellationView = function(spec, my) {
 			// TODO debugging empty placement problem
 			if(newPlacement.visible.length === 0) {
 				console.log("something went very wrong");
-				closest = lattice.closestTo(rect.center);
+				closest = my.tessellation.lattice().closestTo(rect.center);
 			}
 
 			// compare new placment and old placement
@@ -111,11 +116,11 @@ var tessellationView = function(spec, my) {
 				if(visible) {
 					if(!lastPlacement.checked[coef]) {
 						// new point visible, place and add to lattice group
-						latticeGroup.addChild(symbol.place(lattice.getPoint(visible)));
+						latticeGroup.addChild(symbol.place(my.tessellation.lattice().getPoint(visible)));
 						// name child
 						latticeGroup.lastChild.name = coef;
 						// also place content symbol and set as sister of original
-						latticeGroup.lastChild.sister = symbol.sister.place(lattice.getPoint(visible));
+						latticeGroup.lastChild.sister = symbol.sister.place(my.tessellation.lattice().getPoint(visible));
 					}
 				}
 			});
@@ -132,7 +137,6 @@ var tessellationView = function(spec, my) {
 			my.placement = newPlacement;
 		}
 	};
-	// TOOD refactor
 	var onLatticeChange = function(view) {
 		//var that = this;
 		// remove all placements
@@ -148,7 +152,6 @@ var tessellationView = function(spec, my) {
 		doInitialLatticePlacement(view);
 		view.draw();
 	};
-	// TODO refactdor
 	var doInitialLatticePlacement = function(view) {
 		//var symbol = symbol;
 		// create a group for the lattice which will become the outer group
@@ -157,7 +160,7 @@ var tessellationView = function(spec, my) {
 		// get lattice points in rectangle
 		var rect = view.bounds;
 		// get lattice point closest to middle of rectangle
-		var closest = lattice.closestTo(rect.center);
+		var closest = my.tessellation.lattice().closestTo(rect.center);
 		// search for lattice points where symbol placement would be visible
 		var toCheck = [closest.coefs];
 		var placement = searchVisibleLattice(toCheck, symbol, rect, latticeGroup);
@@ -173,32 +176,27 @@ var tessellationView = function(spec, my) {
 		$.each(placement.checked, function(coef, visible) {
 			if(visible) {
 
-				latticeGroup.addChild(symbol.place(lattice.getPoint(visible)));
+				latticeGroup.addChild(symbol.place(my.tessellation.lattice().getPoint(visible)));
 				// name child
 				latticeGroup.lastChild.name = coef;
 				//console.log('name label: ' + latticeGroup.children[coef].label);
 
 				// also place an instance of the sister symbol and set as sister of original placement
-				paper.project.layers[1].addChild(symbol.sister.place(lattice.getPoint(visible)));
+				paper.project.layers[1].addChild(symbol.sister.place(my.tessellation.lattice().getPoint(visible)));
 				latticeGroup.lastChild.sister = paper.project.layers[1].lastChild;
 			}
 		});
 		
+		/* // TODO these were the last remaining statements from a series of commented lines. they do nothing
 		// update the outer group to be the lattice group
 		var outerGroup = latticeGroup;
-		// create symbol for entire thing
-		//var latticeSymbol = outerGroup.symbolize();
 		// store group and symbol on this
 		// TODO this is clobbered in render
-		latticeGroup = outerGroup;
-		///this.latticeSymbol = latticeSymbol;
-		// finally, place entire symbol
-		//this.latticeSymbol.place();
+		latticeGroup = outerGroup;*/
 		
 		// store placement info for resizing
 		my.placement = placement;
 	};
-	// TODO refactor
 	// return {'visible': the list of lattice locations where the placed symbol bounds intersect the supplied rectangle,
 	//			'checked': an object with an attribute for every coefficient pair that was checked. the value is true iff
 	//						the symbol placement at the corresponding location is visible }
@@ -226,7 +224,7 @@ var tessellationView = function(spec, my) {
 			// search at the first point in toCheck
 			coefs = toCheck.shift();
 			// get lattice point
-			var location = lattice.getPoint(coefs);
+			var location = my.tessellation.lattice().getPoint(coefs);
 			// set translation of placement
 			// TODO this could possible be imprecise
 			placement.translate(location);
@@ -365,6 +363,11 @@ var tessellationView = function(spec, my) {
 			paper.project.activeLayer.addChild(path);
 			// add path to the group where the matching polygon is
 			hitInfo.polygon.parent.sister.addChild(pathSymbol.place().transform(hitInfo.transform.createInverse()));
+			// add the path to the model
+			hitInfo.polygon.contents = hitInfo.polygon.contents || [];
+			// TODO should we store the transform? it could be computed again just by doing findPolygonAt again.
+			// but not necessarily if it is moved in the mean time
+			hitInfo.polygon.contents.push({path: path, transform: hitInfo.transform});
 			// make path selected
 			path.selected = true;
 		}
@@ -417,7 +420,7 @@ var tessellationView = function(spec, my) {
 		var hit = false;
 		
 		// perform reverse transforms to check local polygons and subgroups
-		$.each(transforms, function(index, transform) {
+		$.each(my.tessellation.transforms(), function(index, transform) {
 			var localPoint = transform.inverseTransform(point);
 			
 			// do local checks
@@ -444,7 +447,7 @@ var tessellationView = function(spec, my) {
 		var hitInfo = null;
 		
 		// check against local polygons
-		$.each(polygons, function(index, polygon) {
+		$.each(my.tessellation.polygons(), function(index, polygon) {
 			if(polygon.contains(point)) {
 				hit = true;
 				hitInfo = {
@@ -461,8 +464,10 @@ var tessellationView = function(spec, my) {
 		}
 		
 		// if no local polygon hits, recurse into subgroups
-		$.each(subgroups, function(index, subgroup) {
-			var subHitInfo = subgroup.hitPolygons(point);
+		//$.each(my.subgroups, function(index, subgroup) {
+		$.each(my.subviews, function(index, subview) {
+			//var subHitInfo = subgroup.hitPolygons(point);
+			var subHitInfo = subview.hitPolygons(point);
 			if(subHitInfo) {
 				hit = true;
 				hitInfo = subHitInfo;
@@ -472,4 +477,12 @@ var tessellationView = function(spec, my) {
 		
 		return hitInfo;
 	};
+
+	// public methods
+	that.hitPolygonLocal = hitPolygonLocal; // shouldn't really be super public, only to this class
+	that.onResize = onResize;
+	that.render = render;
+	that.onLatticeChange = onLatticeChange;
+
+	return that;
 };

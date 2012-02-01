@@ -29,10 +29,13 @@ var latticeEditView = function(spec, my) {
 				this.position = event.point;
 				// set the end point of the line
 				this.parent.children['line'].lastSegment.point = this.position;
+				my.controller.onLatticeEditViewMouseDrag({point: event.point, component: vecName});
+				/* // TODO these are done by the controller now via the above call
 				// update lattice
 				tess.lattice()[vecName](event.point);
 				// redraw lattice
 				tess.onLatticeChange(paper.view);
+				*/
 
 				// TODO update html UI
 			},
