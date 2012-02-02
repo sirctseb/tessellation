@@ -7,6 +7,7 @@ var htmlTessellationView = function(spec) {
 	var my =	{ controller: spec.controller,
 				  tessellation: spec.tessellation};
 
+	// private members
 	// some main elements
 	var root,
 		stampHead,
@@ -15,6 +16,8 @@ var htmlTessellationView = function(spec) {
 		substructureHead,
 		subgroupViews,
 		transformHead;
+	// lattice subview
+	var latticeView;
 	
 	var construct = function() {
 
@@ -27,11 +30,10 @@ var htmlTessellationView = function(spec) {
 		stampHead = $("<div></div>", {"class": "tessHeader", text:"Stamp"}).appendTo(root);
 
 		// lattice section
-		latticeHead = null;
-		if(my.tessellation.lattice()) {
-			// create container for lattice info
-			latticeHead = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"}).appendTo(root);
-		}
+		latticeView = htmlLatticeView({controller: my.controller,
+										tessellation: my.tessellation,
+										superview: that});
+		latticeHead = latticeView.root().appendTo(root);
 
 		// polygon section
 		polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(root);
@@ -53,28 +55,6 @@ var htmlTessellationView = function(spec) {
 			paper.view.draw();
 			return false;
 		});
-
-		// add lattice info
-		if(my.tessellation.lattice()) {
-			// create container for lattice info
-			latticeHead.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
-				// lattice click handler to set lattice as render head
-				.click(function(event) {
-					my.tessellation.setRenderHead(my.tessellation.lattice());
-					paper.view.draw();
-					return false;
-				})
-			);
-
-			// create lattice info
-			// TODO jquery doesn't seem to like content text and properties passed in through an object
-			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v1().toString()}).appendTo(latticeHead);
-			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v2().toString()}).appendTo(latticeHead);
-			// add edit buttons to edit text directly
-			// TODO handlers and text editing
-			v1.append($("<div/>", {"class": "editButton", text: "edit"}));
-			v2.append($("<div/>", {"class": "editButton", text: "edit"}));
-		}
 
 		// add polygon info
 		polyHead.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + my.tessellation.polygons().length + ")"})
@@ -145,11 +125,8 @@ var htmlTessellationView = function(spec) {
 
 	// update lattice display
 	var onLatticeChange = function() {
-		// TODO get fresh tessellation from controller?
-		var vecs = ["v1", "v2"];
-		$(".latticeVec", latticeHead).each(function(index) {
-			$(this).text(my.tessellation.lattice()[vecs[index]]().toString());
-		});
+		// pass event to lattice subview
+		latticeView.onLatticeChange();
 	}
 
 	// public methods
@@ -158,6 +135,65 @@ var htmlTessellationView = function(spec) {
 	// accessors
 	that.root = function() {
 		return root;
+	}
+
+	return that;
+};
+
+/* class for lattice subview */
+var htmlLatticeView = function(spec, my) {
+	var that = {};
+	my = { controller: spec.controller,
+			tessellation: spec.tessellation,
+			superview: spec.superview };
+
+	// private members
+	var latticeHead;
+
+	var construct = function() {
+		// add lattice info
+		if(my.tessellation.lattice()) {
+			// create container for lattice info
+			latticeHead = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"});
+			// create container for lattice info
+			latticeHead.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
+				// lattice click handler to set lattice as render head
+				.click(function(event) {
+					my.tessellation.setRenderHead(my.tessellation.lattice());
+					paper.view.draw();
+					return false;
+				})
+			);
+
+			// create lattice info
+			// TODO jquery doesn't seem to like content text and properties passed in through an object
+			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v1().toString()}).appendTo(latticeHead);
+			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v2().toString()}).appendTo(latticeHead);
+			// add edit buttons to edit text directly
+			// TODO handlers and text editing
+			v1.before($("<div/>", {"class": "editButton", text: "edit"}).click(function(event) {that.editVector("v1");}));
+			v2.before($("<div/>", {"class": "editButton", text: "edit"}).click(function(event) {that.editVector("v2");}));
+		}
+	};
+	construct();
+
+	var onLatticeChange = function() {
+		// TODO get fresh tessellation from controller?
+		var vecs = ["v1", "v2"];
+		$(".latticeVec", latticeHead).each(function(index) {
+			$(this).text(my.tessellation.lattice()[vecs[index]]().toString());
+		});
+	}
+	var editVector = function(vec) {
+		// TODO show text boxes and labels and submit button
+	}
+
+	// public methods
+	that.onLatticeChange = onLatticeChange;
+
+	// accessors
+	that.root = function() {
+		return latticeHead;
 	}
 
 	return that;

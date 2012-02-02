@@ -132,6 +132,10 @@ div:only-child.tessHeader
 {
 	background-color:#999999;
 }
+.editButton
+{
+	float:right;
+}
 .collapsed
 {
 	background-color:#888888;
