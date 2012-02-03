@@ -372,6 +372,18 @@ var app = (function () {
 	}
 	/* end latticeEditView delegate methods */
 
+	/* htmlLatticeView delegate methods */
+	app.setLatticeValues = function(values) {
+		/*this.tess.lattice().v1(values.v1);
+		this.tess.lattice().v2(values.v2);*/
+		var that = this;
+		$.each(values, function(key, value) {
+			that.tess.lattice()[key](value);
+		});
+		// update tessellation view
+		this.tessellationView.onLatticeChange(paper.view);
+	}
+
 	app.beginEditLattice = function() {
 		//this.latticeDisplay = makeLatticeDisplay(this.tess);
 		if(this.latticeDisplay) {

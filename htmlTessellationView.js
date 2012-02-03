@@ -1,5 +1,5 @@
 /* a view class to display the structure of a tessellation in html */
-
+log.enable("vectorEdit");
 var htmlTessellationView = function(spec) {
 
 	var that = {};
@@ -7,6 +7,7 @@ var htmlTessellationView = function(spec) {
 	var my =	{ controller: spec.controller,
 				  tessellation: spec.tessellation};
 
+	// private members
 	// some main elements
 	var root,
 		stampHead,
@@ -15,6 +16,8 @@ var htmlTessellationView = function(spec) {
 		substructureHead,
 		subgroupViews,
 		transformHead;
+	// lattice subview
+	var latticeView;
 	
 	var construct = function() {
 
@@ -27,11 +30,10 @@ var htmlTessellationView = function(spec) {
 		stampHead = $("<div></div>", {"class": "tessHeader", text:"Stamp"}).appendTo(root);
 
 		// lattice section
-		latticeHead = null;
-		if(my.tessellation.lattice()) {
-			// create container for lattice info
-			latticeHead = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"}).appendTo(root);
-		}
+		latticeView = htmlLatticeView({controller: my.controller,
+										tessellation: my.tessellation,
+										superview: that});
+		latticeHead = latticeView.root().appendTo(root);
 
 		// polygon section
 		polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(root);
@@ -53,28 +55,6 @@ var htmlTessellationView = function(spec) {
 			paper.view.draw();
 			return false;
 		});
-
-		// add lattice info
-		if(my.tessellation.lattice()) {
-			// create container for lattice info
-			latticeHead.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
-				// lattice click handler to set lattice as render head
-				.click(function(event) {
-					my.tessellation.setRenderHead(my.tessellation.lattice());
-					paper.view.draw();
-					return false;
-				})
-			);
-
-			// create lattice info
-			// TODO jquery doesn't seem to like content text and properties passed in through an object
-			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v1().toString()}).appendTo(latticeHead);
-			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v2().toString()}).appendTo(latticeHead);
-			// add edit buttons to edit text directly
-			// TODO handlers and text editing
-			v1.append($("<div/>", {"class": "editButton", text: "edit"}));
-			v2.append($("<div/>", {"class": "editButton", text: "edit"}));
-		}
 
 		// add polygon info
 		polyHead.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + my.tessellation.polygons().length + ")"})
@@ -145,11 +125,8 @@ var htmlTessellationView = function(spec) {
 
 	// update lattice display
 	var onLatticeChange = function() {
-		// TODO get fresh tessellation from controller?
-		var vecs = ["v1", "v2"];
-		$(".latticeVec", latticeHead).each(function(index) {
-			$(this).text(my.tessellation.lattice()[vecs[index]]().toString());
-		});
+		// pass event to lattice subview
+		latticeView.onLatticeChange();
 	}
 
 	// public methods
@@ -159,6 +136,161 @@ var htmlTessellationView = function(spec) {
 	that.root = function() {
 		return root;
 	}
+
+	return that;
+};
+
+/* class for lattice subview */
+var htmlLatticeView = function(spec, my) {
+	var that = {};
+	my = { controller: spec.controller,
+			tessellation: spec.tessellation,
+			superview: spec.superview };
+
+	// private members
+	var latticeHead,
+		v1display,
+		v2display; // TODO contain all vector displays in these outer divs
+	var vdisplays;
+
+	var construct = function() {
+		// add lattice info
+		if(my.tessellation.lattice()) {
+			// create container for lattice info
+			latticeHead = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"});
+			// create container for lattice info
+			latticeHead.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
+				// lattice click handler to set lattice as render head
+				.click(function(event) {
+					my.tessellation.setRenderHead(my.tessellation.lattice());
+					paper.view.draw();
+					return false;
+				})
+			);
+			v1display = $("<div/>", {"class": "tessUI v1display vdisplay"}).appendTo(latticeHead);
+			v2display = $("<div/>", {"class": "tessUI v2display vdisplay"}).appendTo(latticeHead);
+			vdisplays = {v1: v1display, v2: v2display};
+
+			addDefaultVectorView(["v1"]);
+			addEditVectorView("v1");
+			addDefaultVectorView(["v2"]);
+			addEditVectorView("v2");
+			cancelEditVector();
+
+			// register for click away event
+			focus.register(latticeHead, onClickAway);
+		}
+	};
+
+	var onLatticeChange = function() {
+		// TODO get fresh tessellation from controller?
+		var vecs = ["v1", "v2"];
+		$(".latticeVec", latticeHead).each(function(index) {
+			$(this).text(my.tessellation.lattice()[vecs[index]]().toString());
+		});
+	}
+	var addDefaultVectorView = function(components) {
+		components = components || ["v1", "v2"];
+
+		$.each(components, function(index, component) {
+			// create text display
+			$("<div/>", {"class": "latticeVec " + component+"default", text: my.tessellation.lattice()[component]().toString()})
+			// add to head
+			.appendTo(vdisplays[component])
+			// add edit button
+			.before($("<div/>", {"class": "editButton " + component+"default", text: "edit"})
+						.click(
+							function(event) {
+								log.log("edit button clicked", "vectorEdit");
+								editVector(component);
+							}
+						)
+					);
+		});
+	};
+	var addEditVectorView = function(component) {
+		// TODO add submit on enter
+		log.log("adding edit vector view", "vectorEdit");
+
+		var editClass = component+"edit";
+		// append everything to vector display
+		vdisplays[component]
+		// add submit button
+		.append($("<div/>", {"class": "vecEditSubmit " + editClass, text: "submit"})
+						.click(function(event) {finishEditVector(component);}))
+		// create first label // TODO make actual label
+		.append($("<label/>", {"class": "vecEditLabel " + editClass, text: "x: ", "for": component+"xEdit"}))
+		// add first text box
+		.append($("<input/>", {"class": "vecEditField " + editClass,
+								type: "text",
+								value: my.tessellation.lattice()[component]().x,
+								id: component+"xEdit"}))
+		// add second label // TODO make actual label
+		.append($("<label/>", {"class": "vecEditLabel " + editClass, text: "y: ", "for": component+"yEdit"}))
+		// add second text box
+		.append($("<input/>", {"class": "vecEditField " + editClass,
+								type: "text",
+								value: my.tessellation.lattice()[component]().y,
+								id: component+"yEdit"}));
+	};
+	var updateFieldValues = function() {
+		var v1 = my.tessellation.lattice().v1();
+		var v2 = my.tessellation.lattice().v2();
+		$("#v1xEdit", latticeHead).val(v1.x);
+		$("#v1yEdit", latticeHead).val(v1.y);
+		$("#v2xEdit", latticeHead).val(v2.x);
+		$("#v2yEdit", latticeHead).val(v2.y);
+	}
+	var editVector = function(vec) {
+		log.log("starting edit vector", "vectorEdit");
+
+		// update field values because they aren't made fresh anymore
+		updateFieldValues();
+
+		// show text boxes and labels and submit button
+		if(vec === "v1") {
+			// show edit view for v1 and default view for v2
+			$(".v1edit, .v2default", latticeHead).show();
+			$(".v1default, .v2edit", latticeHead).hide();
+		} else if(vec === "v2") {
+			// show edit view for v2 and default view for v1
+			$(".v2edit, .v1default", latticeHead).show();
+			$(".v2default, .v1edit", latticeHead).hide();
+		}
+	};
+	var finishEditVector = function(component) {
+		var value = {};
+		value[component] = new paper.Point(parseFloat($("#xEdit", latticeHead).val()),
+											parseFloat($("#yEdit", latticeHead).val()));
+		// send value to controller
+		my.controller.setLatticeValues(
+			 value
+		);
+
+		// put default displays back
+		cancelEditVector();
+	};
+	var cancelEditVector = function() {
+		log.log("cancel", "vectorEdit");
+
+		// hide edit views and show default views
+		$(".v1edit, .v2edit", latticeHead).hide();
+		$(".v1default, .v2default", latticeHead).show();
+	}
+	var onClickAway = function() {
+		// TODO test if we are currently in edit state before resetting view
+		cancelEditVector();
+	}
+
+	// public methods
+	that.onLatticeChange = onLatticeChange;
+
+	// accessors
+	that.root = function() {
+		return latticeHead;
+	};
+
+	construct();
 
 	return that;
 };
