@@ -203,7 +203,6 @@ var htmlLatticeView = function(spec, my) {
 							function(event) {
 								log.log("edit button clicked", "vectorEdit");
 								editVector(component);
-								//return false;
 							}
 						)
 					);
@@ -233,37 +232,18 @@ var htmlLatticeView = function(spec, my) {
 								type: "text",
 								value: my.tessellation.lattice()[component]().y,
 								id: "yEdit"}));
-		// on click away, cancel any editing that is occuring
-		//.blur(function(event) {cancelEditVector(); log.log("focus out of vdisplay[" + component + "]");});
 	};
 	var editVector = function(vec) {
 		// TODO update field values because they aren't made fresh anymore
 		log.log("starting edit vector", "vectorEdit");
 
-		// subscribe to click away event
-		/*$.subscribe("clickaway",
-			function() {
-				log.log("got click away event", "vectorEdit");
-				cancelEditVector();
-			}
-		);*/
-
-		// remove existing displays
-		//$(".vdisplay", latticeHead).empty();
-
 		// show text boxes and labels and submit button
 		if(vec === "v1") {
-			// add edit view for v1
-			//addEditVectorView("v1");
-			// put in normal view for v2
-			//addDefaultVectorView(["v2"]);
+			// show edit view for v1 and default view for v2
 			$(".v1edit, .v2default", latticeHead).show();
 			$(".v1default, .v2edit", latticeHead).hide();
 		} else if(vec === "v2") {
-			// put in normal view for v1
-			//addDefaultVectorView(["v1"]);
-			// add edit view for v2
-			//addEditVectorView("v2");
+			// show edit view for v2 and default view for v1
 			$(".v2edit, .v1default", latticeHead).show();
 			$(".v2default, .v1edit", latticeHead).hide();
 		}
@@ -283,11 +263,7 @@ var htmlLatticeView = function(spec, my) {
 	var cancelEditVector = function() {
 		log.log("cancel", "vectorEdit");
 
-		// remove existing displays
-		//$(".vdisplay", latticeHead).empty();
-
-		// put default display back
-		//addDefaultVectorView();
+		// hide edit views and show default views
 		$(".v1edit, .v2edit", latticeHead).hide();
 		$(".v1default, .v2default", latticeHead).show();
 	}

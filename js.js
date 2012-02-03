@@ -409,10 +409,6 @@ var app = (function () {
 	};
 	
 	var init = function() {
-		// set up global click handler to signify loss of focus for other elements
-		/*$("body").click(function(event) {
-			$.publish("clickaway");
-		});*/
 		
 		// create layers in order
 		var gridLayer = new paper.Layer();
