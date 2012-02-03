@@ -148,7 +148,10 @@ var htmlLatticeView = function(spec, my) {
 			superview: spec.superview };
 
 	// private members
-	var latticeHead;
+	var latticeHead,
+		v1display,
+		v2display; // TODO contain all vector displays in these outer divs
+	var vdisplays;
 
 	var construct = function() {
 		// add lattice info
@@ -164,18 +167,13 @@ var htmlLatticeView = function(spec, my) {
 					return false;
 				})
 			);
+			v1display = $("<div/>", {"class": "tessUI v1display vdisplay"}).appendTo(latticeHead);
+			v2display = $("<div/>", {"class": "tessUI v2display vdisplay"}).appendTo(latticeHead);
+			vdisplays = {v1: v1display, v2: v2display};
 
-			// create lattice info
-			// TODO jquery doesn't seem to like content text and properties passed in through an object
-			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v1().toString()}).appendTo(latticeHead);
-			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: my.tessellation.lattice().v2().toString()}).appendTo(latticeHead);
-			// add edit buttons to edit text directly
-			// TODO handlers and text editing
-			v1.before($("<div/>", {"class": "editButton", text: "edit"}).click(function(event) {that.editVector("v1");}));
-			v2.before($("<div/>", {"class": "editButton", text: "edit"}).click(function(event) {that.editVector("v2");}));
+			addDefaultVectorView();
 		}
 	};
-	construct();
 
 	var onLatticeChange = function() {
 		// TODO get fresh tessellation from controller?
@@ -184,8 +182,79 @@ var htmlLatticeView = function(spec, my) {
 			$(this).text(my.tessellation.lattice()[vecs[index]]().toString());
 		});
 	}
+	var addDefaultVectorView = function(components) {
+		components = components || ["v1", "v2"];
+
+		$.each(components, function(index, component) {
+			// create text display
+			$("<div/>", {"class": "latticeVec", text: my.tessellation.lattice()[component]().toString()})
+			// add to head
+			.appendTo(vdisplays[component])
+			// add edit button
+			.before($("<div/>", {"class": "editButton", text: "edit"}).click(function(event) {editVector(component);}));
+		});
+	};
+	var addEditVectorView = function(component) {
+		// TODO add submit on enter
+
+		// append everything to vector display
+		vdisplays[component]
+		// add submit button
+		.append($("<div/>", {"class": "vecEditSubmit", text: "submit"}).click(function(event) {finishEditVector(component);}))
+		// create first label // TODO make actual label
+		.append($("<label/>", {"class": "vecEditLabel", text: "x: ", "for": "xEdit"}))
+		// add first text box
+		.append($("<input/>", {"class": "vecEditField",
+								type: "text",
+								value: my.tessellation.lattice()[component]().x,
+								id: "xEdit"}))
+		// add second label // TODO make actual label
+		.append($("<label/>", {"class": "vecEditLabel", text: "y: ", "for": "yEdit"}))
+		// add second text box
+		.append($("<input/>", {"class": "vecEditField",
+								type: "text",
+								value: my.tessellation.lattice()[component]().y,
+								id: "yEdit"}))
+		// on click away, cancel any editing that is occuring
+		.blur(function(event) {cancelEditVector(); log.log("focus out of vdisplay[" + component + "]");});
+	};
 	var editVector = function(vec) {
-		// TODO show text boxes and labels and submit button
+		// remove existing displays
+		$(".vdisplay", latticeHead).empty();
+
+		// show text boxes and labels and submit button
+		if(vec === "v1") {
+			// add edit view for v1
+			addEditVectorView("v1");
+			// put in normal view for v2
+			addDefaultVectorView(["v2"]);
+		} else if(vec === "v2") {
+			// put in normal view for v1
+			addDefaultVectorView(["v1"]);
+			// add edit view for v2
+			addEditVectorView("v2");
+		}
+	};
+	var finishEditVector = function(component) {
+		var value = {};
+		value[component] = new paper.Point(parseFloat($("#xEdit", latticeHead).val()),
+											parseFloat($("#yEdit", latticeHead).val()));
+		// send value to controller
+		my.controller.setLatticeValues(
+			 value
+		);
+
+		// put default displays back
+		cancelEditVector();
+	};
+	var cancelEditVector = function() {
+		log.log("cancel");
+
+		// remove existing displays
+		$(".vdisplay", latticeHead).empty();
+
+		// put default display back
+		addDefaultVectorView();
 	}
 
 	// public methods
@@ -194,7 +263,9 @@ var htmlLatticeView = function(spec, my) {
 	// accessors
 	that.root = function() {
 		return latticeHead;
-	}
+	};
+
+	construct();
 
 	return that;
 };

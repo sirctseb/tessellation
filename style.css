@@ -110,6 +110,8 @@ div:only-child.tessHeader
 {
 	padding-left:10px;
 	/*background-color:#444488;*/
+	/*padding-top:5px;
+	padding-bottom:5px;*/
 }
 #tessdefcontainer
 {
@@ -132,9 +134,19 @@ div:only-child.tessHeader
 {
 	background-color:#999999;
 }
+.vecEditField
+{
+	width:40px;
+}
 .editButton
 {
 	float:right;
+	/* TODO make this an image */
+}
+.vecEditSubmit
+{
+	float:right;
+	/* TODO make this an image */
 }
 .collapsed
 {
