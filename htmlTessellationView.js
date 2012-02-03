@@ -194,7 +194,7 @@ var htmlLatticeView = function(spec, my) {
 
 		$.each(components, function(index, component) {
 			// create text display
-			$("<div/>", {"class": "latticeVec " + component+"default", text: my.tessellation.lattice()[component]().toString()})
+			$("<div/>", {"class": "latticeVec " + component+"default", text: my.tessellation.lattice()[component]().prettyPrint()})
 			// add to head
 			.appendTo(vdisplays[component])
 			// add edit button
@@ -223,23 +223,23 @@ var htmlLatticeView = function(spec, my) {
 		// add first text box
 		.append($("<input/>", {"class": "vecEditField " + editClass,
 								type: "text",
-								value: my.tessellation.lattice()[component]().x,
+								value: my.tessellation.lattice()[component]().x.toFixed(2),
 								id: component+"xEdit"}))
 		// add second label // TODO make actual label
 		.append($("<label/>", {"class": "vecEditLabel " + editClass, text: "y: ", "for": component+"yEdit"}))
 		// add second text box
 		.append($("<input/>", {"class": "vecEditField " + editClass,
 								type: "text",
-								value: my.tessellation.lattice()[component]().y,
+								value: my.tessellation.lattice()[component]().y.toFixed(2),
 								id: component+"yEdit"}));
 	};
 	var updateFieldValues = function() {
 		var v1 = my.tessellation.lattice().v1();
 		var v2 = my.tessellation.lattice().v2();
-		$("#v1xEdit", latticeHead).val(v1.x);
-		$("#v1yEdit", latticeHead).val(v1.y);
-		$("#v2xEdit", latticeHead).val(v2.x);
-		$("#v2yEdit", latticeHead).val(v2.y);
+		$("#v1xEdit", latticeHead).val(v1.x.toFixed(2));
+		$("#v1yEdit", latticeHead).val(v1.y.toFixed(2));
+		$("#v2xEdit", latticeHead).val(v2.x.toFixed(2));
+		$("#v2yEdit", latticeHead).val(v2.y.toFixed(2));
 	}
 	var editVector = function(vec) {
 		log.log("starting edit vector", "vectorEdit");
