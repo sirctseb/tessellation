@@ -1,5 +1,5 @@
 /* a view class to display the structure of a tessellation in html */
-
+log.enable("vectorEdit");
 var htmlTessellationView = function(spec) {
 
 	var that = {};
@@ -171,7 +171,14 @@ var htmlLatticeView = function(spec, my) {
 			v2display = $("<div/>", {"class": "tessUI v2display vdisplay"}).appendTo(latticeHead);
 			vdisplays = {v1: v1display, v2: v2display};
 
-			addDefaultVectorView();
+			addDefaultVectorView(["v1"]);
+			addEditVectorView("v1");
+			addDefaultVectorView(["v2"]);
+			addEditVectorView("v2");
+			cancelEditVector();
+
+			// register for click away event
+			focus.register(latticeHead, onClickAway);
 		}
 	};
 
@@ -187,52 +194,78 @@ var htmlLatticeView = function(spec, my) {
 
 		$.each(components, function(index, component) {
 			// create text display
-			$("<div/>", {"class": "latticeVec", text: my.tessellation.lattice()[component]().toString()})
+			$("<div/>", {"class": "latticeVec " + component+"default", text: my.tessellation.lattice()[component]().toString()})
 			// add to head
 			.appendTo(vdisplays[component])
 			// add edit button
-			.before($("<div/>", {"class": "editButton", text: "edit"}).click(function(event) {editVector(component);}));
+			.before($("<div/>", {"class": "editButton " + component+"default", text: "edit"})
+						.click(
+							function(event) {
+								log.log("edit button clicked", "vectorEdit");
+								editVector(component);
+								//return false;
+							}
+						)
+					);
 		});
 	};
 	var addEditVectorView = function(component) {
 		// TODO add submit on enter
+		log.log("adding edit vector view", "vectorEdit");
 
+		var editClass = component+"edit";
 		// append everything to vector display
 		vdisplays[component]
 		// add submit button
-		.append($("<div/>", {"class": "vecEditSubmit", text: "submit"}).click(function(event) {finishEditVector(component);}))
+		.append($("<div/>", {"class": "vecEditSubmit " + editClass, text: "submit"})
+						.click(function(event) {finishEditVector(component);}))
 		// create first label // TODO make actual label
-		.append($("<label/>", {"class": "vecEditLabel", text: "x: ", "for": "xEdit"}))
+		.append($("<label/>", {"class": "vecEditLabel " + editClass, text: "x: ", "for": "xEdit"}))
 		// add first text box
-		.append($("<input/>", {"class": "vecEditField",
+		.append($("<input/>", {"class": "vecEditField " + editClass,
 								type: "text",
 								value: my.tessellation.lattice()[component]().x,
 								id: "xEdit"}))
 		// add second label // TODO make actual label
-		.append($("<label/>", {"class": "vecEditLabel", text: "y: ", "for": "yEdit"}))
+		.append($("<label/>", {"class": "vecEditLabel " + editClass, text: "y: ", "for": "yEdit"}))
 		// add second text box
-		.append($("<input/>", {"class": "vecEditField",
+		.append($("<input/>", {"class": "vecEditField " + editClass,
 								type: "text",
 								value: my.tessellation.lattice()[component]().y,
-								id: "yEdit"}))
+								id: "yEdit"}));
 		// on click away, cancel any editing that is occuring
-		.blur(function(event) {cancelEditVector(); log.log("focus out of vdisplay[" + component + "]");});
+		//.blur(function(event) {cancelEditVector(); log.log("focus out of vdisplay[" + component + "]");});
 	};
 	var editVector = function(vec) {
+		// TODO update field values because they aren't made fresh anymore
+		log.log("starting edit vector", "vectorEdit");
+
+		// subscribe to click away event
+		/*$.subscribe("clickaway",
+			function() {
+				log.log("got click away event", "vectorEdit");
+				cancelEditVector();
+			}
+		);*/
+
 		// remove existing displays
-		$(".vdisplay", latticeHead).empty();
+		//$(".vdisplay", latticeHead).empty();
 
 		// show text boxes and labels and submit button
 		if(vec === "v1") {
 			// add edit view for v1
-			addEditVectorView("v1");
+			//addEditVectorView("v1");
 			// put in normal view for v2
-			addDefaultVectorView(["v2"]);
+			//addDefaultVectorView(["v2"]);
+			$(".v1edit, .v2default", latticeHead).show();
+			$(".v1default, .v2edit", latticeHead).hide();
 		} else if(vec === "v2") {
 			// put in normal view for v1
-			addDefaultVectorView(["v1"]);
+			//addDefaultVectorView(["v1"]);
 			// add edit view for v2
-			addEditVectorView("v2");
+			//addEditVectorView("v2");
+			$(".v2edit, .v1default", latticeHead).show();
+			$(".v2default, .v1edit", latticeHead).hide();
 		}
 	};
 	var finishEditVector = function(component) {
@@ -248,13 +281,19 @@ var htmlLatticeView = function(spec, my) {
 		cancelEditVector();
 	};
 	var cancelEditVector = function() {
-		log.log("cancel");
+		log.log("cancel", "vectorEdit");
 
 		// remove existing displays
-		$(".vdisplay", latticeHead).empty();
+		//$(".vdisplay", latticeHead).empty();
 
 		// put default display back
-		addDefaultVectorView();
+		//addDefaultVectorView();
+		$(".v1edit, .v2edit", latticeHead).hide();
+		$(".v1default, .v2default", latticeHead).show();
+	}
+	var onClickAway = function() {
+		// TODO test if we are currently in edit state before resetting view
+		cancelEditVector();
 	}
 
 	// public methods
