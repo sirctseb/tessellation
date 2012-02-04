@@ -138,6 +138,18 @@ var tessellationView = function(spec, my) {
 		}
 	};
 	var onLatticeChange = function(view) {
+		// update placements
+		var i = 0;
+		$.each(my.placement.checked, function(coef, visible) {
+			if(visible) {
+				latticeGroup.children[coef].matrix.setToTranslation(my.tessellation.lattice().getPoint(visible));
+				i++;
+			}
+		});
+		recomputeLattice(view);
+		view.draw();
+		return;
+
 		//var that = this;
 		// remove all placements
 		$.each(my.placement.checked, function(coef, visible) {
