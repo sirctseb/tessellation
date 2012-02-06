@@ -165,7 +165,6 @@ var tessellationView = function(spec, my) {
 		view.draw();
 	};
 	var doInitialLatticePlacement = function(view) {
-		//var symbol = symbol;
 		// create a group for the lattice which will become the outer group
 		latticeGroup = new paper.Group();
 		
@@ -179,12 +178,6 @@ var tessellationView = function(spec, my) {
 		my.latticePoints = placement.visible;
 		
 		// place symbols at the visible points
-		//$.each(this.latticePoints, function(index, point) {
-			// TODO set child's name based on the coef values so that we can remove it later
-			//latticeGroup.addChild(symbol.place(point));
-		//});
-		// TODO replacing above loop with loop over coefs so that we can store name
-		//var that = this;
 		$.each(placement.checked, function(coef, visible) {
 			if(visible) {
 
@@ -198,13 +191,6 @@ var tessellationView = function(spec, my) {
 				latticeGroup.lastChild.sister = paper.project.layers[1].lastChild;
 			}
 		});
-		
-		/* // TODO these were the last remaining statements from a series of commented lines. they do nothing
-		// update the outer group to be the lattice group
-		var outerGroup = latticeGroup;
-		// store group and symbol on this
-		// TODO this is clobbered in render
-		latticeGroup = outerGroup;*/
 		
 		// store placement info for resizing
 		my.placement = placement;
@@ -284,13 +270,10 @@ var tessellationView = function(spec, my) {
 		var innerSymbol = getInnerGroup(view);
 		
 		// place inner symbol into main polygroup group
-		//var outerGroup = new paper.Group([innerSymbol.place()]);
 		var outerGroup = new paper.Group();
 
 		// group for holding the placements of the sister symbol
 		var sisterGroup = new paper.Group([innerSymbol.sister.place()]);
-
-		//var that = this;
 		
 		// if PG has transforms, make a copy of inner group for each and apply transform
 		if(my.tessellation.transforms().length > 0) {
@@ -388,7 +371,6 @@ var tessellationView = function(spec, my) {
 		return hitPolygons(point);
 	};
 	var hitPolygons = function(point) {
-		//var that = this;
 		
 		var hit = false;
 		var hitInfo = null;
@@ -420,7 +402,6 @@ var tessellationView = function(spec, my) {
 	// hitPolygon helper function:
 	// check for hits in this group at a supplied global point
 	var hitPolygonGlobal = function(point) {
-		//var that = this;
 		
 		// check local polygons and subgroups with no transforms applied
 		var hitInfo = hitPolygonLocal(point);
@@ -476,9 +457,7 @@ var tessellationView = function(spec, my) {
 		}
 		
 		// if no local polygon hits, recurse into subgroups
-		//$.each(my.subgroups, function(index, subgroup) {
 		$.each(subviews, function(index, subview) {
-			//var subHitInfo = subgroup.hitPolygons(point);
 			var subHitInfo = subview.hitPolygons(point);
 			if(subHitInfo) {
 				hit = true;

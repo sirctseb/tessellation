@@ -92,7 +92,6 @@ var htmlTessellationView = function(spec) {
 		);
 		// add subgroup views
 		$.each(my.tessellation.subgroups(), function(index, subgroup) {
-			//subgroup.generateUI().appendTo(substructureHead);
 			// create view for subgroup
 			subgroupViews.push(htmlTessellationView({controller:my.controller, tessellation: subgroup}));
 			// add subgroup root to this view

@@ -208,11 +208,9 @@ var app = (function () {
 		// mouse down handler
 		function mouseDown(event) {
 			log.log('stock tool: mouse down', 'tools');
-			// remove lattice display if it exists
+			// hide lattice display if it exists
 			if(app.latticeView) {
-				//app.latticeDisplay.destroy();
 				app.latticeView.hide();
-				//delete app.latticeDisplay;
 			}
 			
 			// perform hit test
@@ -358,7 +356,6 @@ var app = (function () {
 		app.noopTool.activate();
 	}
 	app.onLatticeEditViewMouseDrag = function(info) {
-		//({point: event.point, component: vecName});
 		// set value of lattice vectore
 		this.tess.lattice()[info.component](info.point);
 		// update canvas view
@@ -374,8 +371,6 @@ var app = (function () {
 
 	/* htmlLatticeView delegate methods */
 	app.setLatticeValues = function(values) {
-		/*this.tess.lattice().v1(values.v1);
-		this.tess.lattice().v2(values.v2);*/
 		var that = this;
 		$.each(values, function(key, value) {
 			that.tess.lattice()[key](value);
@@ -385,7 +380,6 @@ var app = (function () {
 	}
 
 	app.beginEditLattice = function() {
-		//this.latticeDisplay = makeLatticeDisplay(this.tess);
 		if(this.latticeDisplay) {
 			latticeDisplay.show();
 		} else {
@@ -430,12 +424,6 @@ var app = (function () {
 		xaxis.strokeColor = 'red';
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
 		yaxis.strokeColor = 'red';*/
-
-		//tessellations.PolyGroup44.render(paper.view);
-		//tessellations.GroupHex.render(paper.view);
-		//tessellations.HeartGroup.render(paper.view);
-		//tessellations.HitGroup.render(paper.view);
-		//tessellations.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
 		
 		this.tess = tessellations.GroupHex;
 		//this.tess = tessellations.PolyGroup44;
