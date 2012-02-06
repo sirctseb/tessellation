@@ -13,3 +13,9 @@ paper.Item.inject({
 		return symbol;
 	}
 });
+
+paper.Point.inject({
+	prettyPrint: function() {
+		return "x: " + this.x.toFixed(2) + " y: " + this.y.toFixed(2);
+	}
+});
