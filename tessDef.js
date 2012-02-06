@@ -229,6 +229,6 @@ var lattice = function(spec, my) {
 		}
 		return v2;
 	}
-
+	
 	return that;
 };

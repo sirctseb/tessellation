@@ -69,12 +69,33 @@ var tessellationExamples = function() {
 											new paper.Point(SquarePoly.bounds.width*0.5,SquarePoly.bounds.height)));
 	log.log('heart lattice is reduced: ' + heartGroup.lattice.isReduced());*/
 
+	var rectangle = new paper.Path.Rectangle([0,0], [50,100]);
+	rectangle.strokeColor = "#ddd";
+	rectangle.remove();
+	var kcGroup = CreatePolyGroup();
+	kcGroup.addPolygon(rectangle);
+	kcGroup.addTransform(new paper.Matrix());
+	kcGroup.addTransform(new paper.Matrix()
+									.rotate(90, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
+						);
+	kcGroup.addTransform(new paper.Matrix()
+									.rotate(180, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
+						);
+	kcGroup.addTransform(new paper.Matrix()
+									.rotate(270, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
+						);
+	kcGroup.addLattice(Lattice.LatticeBy(new paper.Point(150, 0),
+										new paper.Point(0,150)));
+	/*kcGroup.addLattice(Lattice.LatticeBy(new paper.Point(0,100),
+										new paper.Point(50,50)));*/
+
 	return {
 		//PolyGroup: PolyGroup,
 		//Lattice: Lattice,
 		PolyGroup44: PolyGroup44,
 		GroupHex: latGroupHex,
 		HitGroup: hitTestGroup,
-		HeartGroup: heartGroup
+		HeartGroup: heartGroup,
+		KCGroup: kcGroup
 	};
 };
