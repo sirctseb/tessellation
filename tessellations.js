@@ -72,7 +72,8 @@ var tessellationExamples = function() {
 	var rectangle = new paper.Path.Rectangle([0,0], [50,100]);
 	rectangle.strokeColor = "#ddd";
 	rectangle.remove();
-	var kcGroup = CreatePolyGroup();
+	//var kcGroup = CreatePolyGroup();
+	var kcGroup = tessellationModel();
 	kcGroup.addPolygon(rectangle);
 	kcGroup.addTransform(new paper.Matrix());
 	kcGroup.addTransform(new paper.Matrix()
@@ -84,8 +85,9 @@ var tessellationExamples = function() {
 	kcGroup.addTransform(new paper.Matrix()
 									.rotate(270, new paper.Point(rectangle.bounds.right, rectangle.bounds.bottom))
 						);
-	kcGroup.addLattice(Lattice.LatticeBy(new paper.Point(150, 0),
-										new paper.Point(0,150)));
+	kcGroup.addLattice(lattice({v1:new paper.Point(150, 0), v2: new paper.Point(0,150)}));
+	/*kcGroup.addLattice(Lattice.LatticeBy(new paper.Point(150, 0),
+										new paper.Point(0,150)));*/
 	/*kcGroup.addLattice(Lattice.LatticeBy(new paper.Point(0,100),
 										new paper.Point(50,50)));*/
 
