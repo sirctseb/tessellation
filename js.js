@@ -430,21 +430,7 @@ var app = (function () {
 		xaxis.strokeColor = 'red';
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
 		yaxis.strokeColor = 'red';*/
-		
-<<<<<<< HEAD
-		//tessDef.PolyGroup44.render(paper.view);
-		//tessDef.GroupHex.render(paper.view);
-		//tessDef.HeartGroup.render(paper.view);
-		//tessDef.HitGroup.render(paper.view);
-		//tessDef.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
-		tessDef.kcGroup.render(paper.view);
-		
-		//this.tess = tessDef.GroupHex;
-		//this.tess = tessDef.PolyGroup44;
-		//this.tess = tessDef.HitGroup;
-		//this.tess = tessDef.HeartGroup;
-		this.tess = tessDef.kcGroup;
-=======
+
 		//tessellations.PolyGroup44.render(paper.view);
 		//tessellations.GroupHex.render(paper.view);
 		//tessellations.HeartGroup.render(paper.view);
@@ -458,7 +444,6 @@ var app = (function () {
 
 		this.tessellationView = tessellationView({controller: this, tessellation: this.tess});
 		this.tessellationView.render(paper.view);
->>>>>>> optimize
 
 		stockTool.activate();
 		//testHitTool.activate();
