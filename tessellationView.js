@@ -477,7 +477,7 @@ var tessellationView = function(spec, my) {
 		
 		// if no local polygon hits, recurse into subgroups
 		//$.each(my.subgroups, function(index, subgroup) {
-		$.each(my.subviews, function(index, subview) {
+		$.each(subviews, function(index, subview) {
 			//var subHitInfo = subgroup.hitPolygons(point);
 			var subHitInfo = subview.hitPolygons(point);
 			if(subHitInfo) {
@@ -495,6 +495,7 @@ var tessellationView = function(spec, my) {
 	that.onResize = onResize;
 	that.render = render;
 	that.onLatticeChange = onLatticeChange;
+	that.addPath = addPath;
 
 	return that;
 };
