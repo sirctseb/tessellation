@@ -143,6 +143,8 @@ var tessellationView = function(spec, my) {
 		$.each(my.placement.checked, function(coef, visible) {
 			if(visible) {
 				latticeGroup.children[coef].matrix.setToTranslation(my.tessellation.lattice().getPoint(visible));
+				// also update content symbol
+				latticeGroup.children[coef].sister.matrix.setToTranslation(my.tessellation.lattice().getPoint(visible));
 				i++;
 			}
 		});
