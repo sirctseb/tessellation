@@ -26,20 +26,12 @@ var latticeEditView = function(spec, my) {
 
 				// update display
 				// set the position of the handle
-				// TODO testing differential translation so not everything is multiple of 0.5
-				//this.position = event.point;
 				this.position = this.position.add(event.delta);
 				// set the end point of the line
 				this.parent.children['line'].lastSegment.point = this.position;
+				// notify controller
 				my.controller.onLatticeEditViewMouseDrag({point: this.position, component: vecName});
-				/* // TODO these are done by the controller now via the above call
-				// update lattice
-				tess.lattice()[vecName](event.point);
-				// redraw lattice
-				tess.onLatticeChange(paper.view);
-				*/
 
-				// TODO update html UI
 			},
 			mouseup: function(event) {
 				// reset fill color
