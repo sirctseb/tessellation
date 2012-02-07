@@ -95,13 +95,8 @@ var htmlTessellationView = function(spec, my) {
 		);
 		// add polygons
 		$.each(my.tessellation.polygons(), function(index, polygon) {
-			// create an entry
-			$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead)
-			.click(function(event) {
-				my.tessellation.setRenderHead(polygon);
-				paper.view.draw();
-				return false;
-			});
+			shapeViews.push(htmlShapeView({controller: my.controller, tessellation: my.tessellation, polygon: polygon}));
+			shapeViews[shapeViews.length-1].root().appendTo(polyHead);
 		});
 		// add polygon entry
 		$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
@@ -340,6 +335,9 @@ var htmlShapeView = function(spec, my) {
 		// add click handler
 		my.root.click(function(event) {
 			// TODO
+			//my.tessellation.setRenderHead(polygon);
+			//paper.view.draw();
+			//return false;
 		});
 	};
 
