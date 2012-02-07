@@ -185,8 +185,10 @@ var htmlLatticeView = function(spec, my) {
 		// TODO get fresh tessellation from controller?
 		var vecs = ["v1", "v2"];
 		$(".latticeVec", latticeHead).each(function(index) {
-			$(this).text(my.tessellation.lattice()[vecs[index]]().toString());
+			$(this).text(my.tessellation.lattice()[vecs[index]]().prettyPrint());
 		});
+		// also change the edit field values in case one is open
+		updateFieldValues();
 	}
 	var addDefaultVectorView = function(components) {
 		components = components || ["v1", "v2"];
