@@ -1,9 +1,10 @@
 /* a view class for lattice editing */
 var latticeEditView = function(spec, my) {
 	var that = {};
-	var my = { controller: spec.controller,
+	var my = $.extend({ controller: spec.controller,
 				tessellation: spec.tessellation,
-				latticeEditLayer: spec.latticeEditLayer};	
+				latticeEditLayer: spec.latticeEditLayer,
+				selectedColor: 'blue'}, my);
 	
 	/** private variables **/
 
@@ -13,11 +14,11 @@ var latticeEditView = function(spec, my) {
 	// private method to produce the mouse handlers for the visible ojects
 	var makeHandlers = function(tess, vecName) {
 
-		var selectedColor = 'blue';
 		var handlers = {
 			mousedown: function(event) {
+				display.fillColor = 'white';
 				// set color to selected color
-				this.fillColor = selectedColor;
+				this.fillColor = my.selectedColor;
 				// notify of mouse down
 				my.controller.onLatticeEditViewMouseDown();
 			},
@@ -44,7 +45,7 @@ var latticeEditView = function(spec, my) {
 	};
 
 	// constructor
-	var constructor = function() {
+	var constructor = function(component) {
 		// save old layer
 		var oldLayer = paper.project.activeLayer;
 		// activate lattice edit layer
@@ -65,6 +66,7 @@ var latticeEditView = function(spec, my) {
 			// group to hold display elements
 			var group = new paper.Group([line, handle]);
 			group.strokeColor = 'blue';
+			group.name = 'group' + vecName;
 
 			// add group to display group
 			display.addChild(group);
@@ -72,24 +74,34 @@ var latticeEditView = function(spec, my) {
 			// add handlers to elements
 			handle.attach(makeHandlers(my.tessellation, vecName));
 		});
+		show(component);
 
 		// reactive original layer
 		oldLayer.activate();
 	}
 
-	// call constructor
-	constructor();
-
-	// public methods
-	that.hide = function() {
+	var hide = function() {
 		// remove display group
 		display.remove();
 	}
-	that.show = function() {
+	var show = function(component) {
 		// TODO make sure visible objects are up to date?
 		// add display group back to lattice edit layer
 		paper.project.layers[my.latticeEditLayer].addChild(display);
+
+		// if a component was passed in, show the handle as selected
+		if(component) {
+			display.fillColor = 'white';
+			display.children['group' + component].children['handle'].fillColor = my.selectedColor;
+		}
 	}
+
+	// public methods
+	that.hide = hide;
+	that.show = show;
+
+	// call constructor
+	constructor(spec.component);
 
 	return that;
 };
