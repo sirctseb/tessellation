@@ -379,15 +379,18 @@ var app = (function () {
 		this.tessellationView.onLatticeChange(paper.view);
 	}
 
-	app.beginEditLattice = function() {
-		if(this.latticeDisplay) {
-			latticeDisplay.show();
+	app.beginEditLattice = function(component) {
+		if(this.latticeView) {
+			this.latticeView.show(component);
 		} else {
 			this.latticeView = latticeEditView({controller: app,
 												tessellation: app.tess,
-												latticeEditLayer: settings.latticeEditLayer});
+												latticeEditLayer: settings.latticeEditLayer,
+												component: component});
 		}
+		paper.view.draw();
 	};
+	/* end htmlLatticeView delegate methods */
 
 	app.applyStyle = function(style) {
 		$.each(paper.project.selectedItems, function(index, item) {
