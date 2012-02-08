@@ -350,6 +350,13 @@ var app = (function () {
 		return new paper.Tool();
 	}());
 
+	/* tessellationView delegate methods */
+	app.onPathAdded = function(polygon, path) {
+		// update the html view
+		app.htmlView.addPath(polygon, path);
+	}
+	/* end tessellationView delegate methods */
+
 	/* latticeEditView delegate methods */
 	app.onLatticeEditViewMouseDown = function() {
 		// deactivate tools so it doesn't drag other stuff at the same time

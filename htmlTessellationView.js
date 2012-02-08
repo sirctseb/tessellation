@@ -145,10 +145,34 @@ var htmlTessellationView = function(spec, my) {
 	var onLatticeChange = function() {
 		// pass event to lattice subview
 		latticeView.onLatticeChange();
-	}
+	};
+
+	// put content element in shape view
+	var addPath = function(polygon, path) {
+		// search for the view with the polygon
+		var found = false;
+		$.each(shapeViews, function(index, view) {
+			if(view.isPolygon(polygon)) {
+				view.addContent(path);
+				found = true;
+				return false;
+			}
+		});
+		// if no polygon matched, search subgroups
+		if(!found) {
+			$.each(subgroupViews, function(index, subview) {
+				if(subview.addPath(polygon, path)) {
+					found = true;
+					return false;
+				}
+			});
+		}
+		return found;
+	};
 
 	// public methods
 	that.onLatticeChange = onLatticeChange;
+	that.addPath = addPath;
 
 	return that;
 };
@@ -347,9 +371,14 @@ var htmlShapeView = function(spec, my) {
 		$("<div/>", {"class": "contentPath tessUI", text: path.toString()})
 			.appendTo(my.root);
 	};
+	// test if the supplied polygon is the polygon that this view represents
+	var isPolygon = function(testPolygon) {
+		return polygon === testPolygon;
+	};
 
 	// public methods
 	that.addContent = addContent;
+	that.isPolygon = isPolygon;
 
 	construct();
 

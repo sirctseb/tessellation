@@ -367,6 +367,9 @@ var tessellationView = function(spec, my) {
 			hitInfo.polygon.contents.push({path: path, transform: hitInfo.transform});
 			// make path selected
 			path.selected = true;
+
+			// notify the controller that we were able to add the content
+			my.controller.onPathAdded(hitInfo.polygon, path);
 		}
 	};
 	var findPolygonAt = function(point) {
