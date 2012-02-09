@@ -122,7 +122,7 @@ div:only-child.tessHeader
 {
 	color:white;
 	/* TODO to round edges which helps separate sections pretty well */
-	border-radius:8px;
+	/*border-radius:8px;*/
 }
 #tessdefcontainer>.tessUI
 {
