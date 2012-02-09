@@ -60,14 +60,6 @@
 				$('#tessdefcontainer').on("click", ".collapseArrow", function(event) {
 					$(this).closest(".collapsable").toggleClass("collapsed");
 				})
-				// activate lattice editing when we click on the lattice details
-				$('#tessdefcontainer').on("click", ".latticeVec", function(event) {
-					// activate lattice editing
-					app.beginEditLattice();
-					// update display
-					paper.view.draw();
-					return false;
-				});
 
 				// handler to add a new polygon
 				$("#tessdefcontainer").on("click", ".addPolyentry", function(event) {

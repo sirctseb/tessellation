@@ -21,10 +21,6 @@ var tessellationModel = function(spec, my) {
 		subgroups = [],
 		transforms = [],
 		lattice = [];
-		/*latticePoints = [],
-		group = null,
-		symbol = null,
-		latticeGroup = null;*/
 
 	my = my || {};
 	that = {};
@@ -40,11 +36,9 @@ var tessellationModel = function(spec, my) {
 		subgroups.push(group);
 	};
 	var addTransform = function(transform) {
-		// TODO remove lattice to enforce mutual exclusivity?
 		transforms.push(transform);
 	};
 	var addLattice = function(lattice_in) {
-		// TODO remove transforms to enforce mutual exclusivity?
 		lattice = lattice_in;
 	};
 	// TODO debugging method to add label on a lattice placement
@@ -61,10 +55,6 @@ var tessellationModel = function(spec, my) {
 	that.addSubgroup = addSubgroup;
 	that.addTransform = addTransform;
 	that.addLattice = addLattice;
-	//that.onResize = onResize;
-	//that.setRenderHead = setRenderHead;
-	//that.render = render;
-	//that.onLatticeChange = onLatticeChange;
 
 	// accessors
 	that.polygons = function(polygons_in) {
@@ -91,18 +81,6 @@ var tessellationModel = function(spec, my) {
 		}
 		return lattice;
 	};
-	/*that.latticePoints = function() {
-		return latticePoints;
-	};
-	that.group = function() {
-		return group;
-	};
-	that.symbol = function() {
-		return symbol;
-	};
-	that.latticeGroup = function() {
-		return latticeGroup;
-	};*/
 
 	return that;
 };
@@ -229,6 +207,6 @@ var lattice = function(spec, my) {
 		}
 		return v2;
 	}
-
+	
 	return that;
 };
