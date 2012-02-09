@@ -9,6 +9,17 @@ var htmlView = function(spec, my) {
 	// the root html element of this view
 	my = $.extend(my, {root: null});
 
+	// create root element
+	if(spec.type) {
+		my.root = $("<" + spec.type + "/>");
+	} else {
+		my.root = $("<div/>");
+	}
+	// allow spec to specify element type and classes
+	if(spec.classes) {
+		my.root.addClass(spec.classes);
+	}
+
 	// method to return the root element
 	var root = function() {
 		return my.root;
