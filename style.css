@@ -140,6 +140,18 @@ div:only-child.tessHeader
 {
 	background-color:#BBBBBB;
 }
+/* the following two add a bottom padding to last sections if they are open */
+/* add the padding to the bottom of last sections if they are open */
+.tessSection:last-child:not(.collapsed)
+{
+	padding-bottom:10px;
+}
+/* "remove padding" by making negative margin in the child header */
+/* so that sections with no content don't have the extra padding */
+.tessSection:last-child:not(.collapsed)>.tessHeader:last-child
+{
+	margin-bottom:-10px;
+}
 .vecEditField
 {
 	width:40px;
