@@ -374,16 +374,14 @@ var htmlShapeView = function(spec, my) {
 	var my = {	controller: spec.controller,
 				tessellation: spec.tessellation,
 				superview: spec.superview };
-
-	that = htmlView(spec,my);
 	
 	// private members
 	// the paperjs path
 	var polygon = spec.polygon;
 
+	that = htmlSectionView($.extend(spec, {headerText: polygon.toString()}), my);
+
 	var construct = function() {
-		// create dom element
-		my.root = $("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()})
 		// add click handler
 		my.root.click(function(event) {
 			// TODO
