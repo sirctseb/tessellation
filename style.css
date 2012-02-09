@@ -118,7 +118,9 @@ div:only-child.tessHeader
 }
 #tessdefcontainer .tessUI
 {
-	color:white
+	color:white;
+	/* TODO to round edges which helps separate sections pretty well */
+	border-radius:8px;
 }
 #tessdefcontainer>.tessUI
 {
@@ -131,6 +133,24 @@ div:only-child.tessHeader
 #tessdefcontainer>.tessUI>.tessUI>.tessUI
 {
 	background-color:#999999;
+}
+#tessdefcontainer>.tessUI>.tessUI>.tessUI>.tessUI
+{
+	background-color:#BBBBBB;
+}
+.vecEditField
+{
+	width:40px;
+}
+.editButton
+{
+	float:right;
+	/* TODO make this an image */
+}
+.vecEditSubmit
+{
+	float:right;
+	/* TODO make this an image */
 }
 .collapsed
 {
