@@ -20,7 +20,8 @@ var app = (function () {
 		var testTool = new paper.Tool();
 		
 		testTool.onMouseDown = function(event) {
-			var poly = app.tess.hitPolygons(event.point);
+			//var poly = app.tess.hitPolygons(event.point);
+			var poly = app.tessellationView.hitPolygons(event.point);
 			// print result of click
 			console.log(poly.toString());
 		};
@@ -207,10 +208,9 @@ var app = (function () {
 		// mouse down handler
 		function mouseDown(event) {
 			log.log('stock tool: mouse down', 'tools');
-			// remove lattice display if it exists
-			if(app.latticeDisplay) {
-				app.latticeDisplay.destroy();
-				delete app.latticeDisplay;
+			// hide lattice display if it exists
+			if(app.latticeView) {
+				app.latticeView.hide();
 			}
 			
 			// perform hit test
@@ -240,7 +240,9 @@ var app = (function () {
 				newPath.name = "path" + settings.newPathNumber;
 				
 				// add to tessellation
-				app.tess.addPath(newPath);
+				//app.tess.addPath(newPath);
+				// TODO seems like we should add path to the tessellation, not the view?
+				app.tessellationView.addPath(newPath);
 				
 				// activate edit tool
 				editTool.activate();
@@ -273,7 +275,8 @@ var app = (function () {
 				} else {
 					paper.view.scrollBy(event.downPoint.subtract(event.point).multiply(paper.view.zoom));
 				}
-				app.tess.onResize(paper.view);
+				//app.tess.onResize(paper.view);
+				app.tessellationView.onResize(paper.view);
 			}
 		}
 
@@ -318,16 +321,16 @@ var app = (function () {
 			// make a new point
 			ldTool.target = event.point;
 			// show decomposition into lattice components
-			//var v1 = app.tess.lattice.v1;
-			//var v2 = app.tess.lattice.v2;
-			/*var v1 = new paper.Path.Line(new paper.Point(), app.tess.lattice.v1);
-			var v2 = new paper.Path.Line(new paper.Point(), app.tess.lattice.v2);
+			//var v1 = app.tess.lattice().v1();
+			//var v2 = app.tess.lattice().v2();
+			/*var v1 = new paper.Path.Line(new paper.Point(), app.tess.lattice().v1());
+			var v2 = new paper.Path.Line(new paper.Point(), app.tess.lattice().v2());
 			v1.strokeColor = 'red';
 			v2.strokeColor = 'green';*/
 
-			var coef = app.tess.lattice.decompose(event.point);
-			var c1 = app.tess.lattice.v1.multiply(coef.x);
-			var c2 = app.tess.lattice.v2.multiply(coef.y);
+			var coef = app.tess.lattice().decompose(event.point);
+			var c1 = app.tess.lattice().v1().multiply(coef.x);
+			var c2 = app.tess.lattice().v2().multiply(coef.y);
 			var c1Line = new paper.Path.Line(new paper.Point(), c1);
 			var c2Line = new paper.Path.Line(c1, c1.add(c2));
 			console.log('coef: ' + coef.toString());
@@ -347,80 +350,54 @@ var app = (function () {
 		return new paper.Tool();
 	}());
 
-	var makeHandlers = function(tess, vecName) {
+	/* tessellationView delegate methods */
+	app.onPathAdded = function(polygon, path) {
+		// update the html view
+		app.htmlView.addPath(polygon, path);
+	}
+	/* end tessellationView delegate methods */
 
-		var selectedColor = 'blue';
-		var handlers = {
-			mousedown: function(event) {
-				// TODO notify UI of mouse down
-				// set color to selected color
-				this.fillColor = selectedColor;
-				// deactivate tools so it doesn't drage other stuff at the same time
-				app.noopTool.activate();
-			},
-			mousedrag: function(event) {
-				log.log('dragging ' + vecName, 'latticeDisplay');
+	/* latticeEditView delegate methods */
+	app.onLatticeEditViewMouseDown = function() {
+		// deactivate tools so it doesn't drag other stuff at the same time
+		app.noopTool.activate();
+	}
+	app.onLatticeEditViewMouseDrag = function(info) {
+		// set value of lattice vectore
+		this.tess.lattice()[info.component](info.point);
+		// update canvas view
+		this.tessellationView.onLatticeChange(paper.view);
+		// update html view
+		this.htmlView.onLatticeChange();
+	}
+	app.onLatticeEditViewMouseUp = function() {
+		// reactivate stock tool
+		app.stockTool.activate();
+	}
+	/* end latticeEditView delegate methods */
 
-				// update display
-				// set the position of the handle
-				this.position = event.point;
-				// set the end point of the line
-				this.parent.children['line'].lastSegment.point = this.position;
-				// update lattice
-				tess.lattice[vecName] = event.point;
-				// have to update matrix
-				// TODO should have getter / setter on lattice vectors that does this
-				tess.lattice.computeMatrix();
-				// redraw lattice
-				tess.onLatticeChange(paper.view);
-
-				// TODO update html UI
-			},
-			mouseup: function(event) {
-				// reset fill color
-				this.fillColor = 'white';
-				// reactivate stock tool
-				app.stockTool.activate();
-			}
-		};
-		return handlers;
-	};
-	var makeLatticeDisplay = function(tess) {
-		// save old layer
-		var oldLayer = paper.project.activeLayer;
-		// activate lattice edit layer
-		paper.project.layers[settings.latticeEditLayer].activate();
-
-		var lattice = tess.lattice;
-		var display = new paper.Group();
-		$.each(['v1', 'v2'], function(index, vecName) {
-			// create display elements
-			// draw line
-			var line = new paper.Path(new paper.Point(), lattice[vecName]);
-			line.name = 'line';
-			// draw handle
-			var handle = new paper.Path.Circle(lattice[vecName], 3);
-			handle.name = 'handle';
-			handle.fillColor = 'white';
-			// group to hold display elements
-			var group = new paper.Group([line, handle]);
-			group.strokeColor = 'blue';
-
-			// add group to display group
-			display.addChild(group);
-
-			// add handlers to elements
-			handle.attach(makeHandlers(tess, vecName));
+	/* htmlLatticeView delegate methods */
+	app.setLatticeValues = function(values) {
+		var that = this;
+		$.each(values, function(key, value) {
+			that.tess.lattice()[key](value);
 		});
-		// reactive original layer
-		oldLayer.activate();
-		return {displayGroup: display, destroy: function() {
-			this.displayGroup.remove();
-		}};
+		// update tessellation view
+		this.tessellationView.onLatticeChange(paper.view);
+	}
+
+	app.beginEditLattice = function(component) {
+		if(this.latticeView) {
+			this.latticeView.show(component);
+		} else {
+			this.latticeView = latticeEditView({controller: app,
+												tessellation: app.tess,
+												latticeEditLayer: settings.latticeEditLayer,
+												component: component});
+		}
+		paper.view.draw();
 	};
-	app.beginEditLattice = function() {
-		this.latticeDisplay = makeLatticeDisplay(this.tess);
-	};
+	/* end htmlLatticeView delegate methods */
 
 	app.applyStyle = function(style) {
 		$.each(paper.project.selectedItems, function(index, item) {
@@ -431,105 +408,8 @@ var app = (function () {
 
 	// generate the html ui which displays the lattice definition
 	app.generateUI = function() {
-		log.enable("lattUIEvents");
-		var tess = this.tess;
-
-		// create top-most element
-		var head = $("<div></div>", {"class": "tessDefUI collapsable tessSection tessUI"})
-		.append($("<div></div>", {"class": "tessHeader", text:"Stamp"})
-			// header click handler to set tess as render head
-			.click(function(event) {
-				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
-				tess.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? tess : null);
-				// take selected state off any other selected item
-				$(".selected").not($(this)).removeClass("selected");
-				paper.view.draw();
-				return false;
-			})
-		);
-		// add lattice info
-		if(tess.lattice) {
-			// create container for lattice info
-			var lattice = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"}).appendTo(head)
-			.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
-				// lattice click handler to set lattice as render head
-				.click(function(event) {
-					tess.setRenderHead(tess.lattice);
-					paper.view.draw();
-					return false;
-				})
-			);
-
-			// create lattice info
-			// TODO jquery doesn't seem to like content text and properties passed in through an object
-			var v1 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice.v1.toString()}).appendTo(lattice);
-			var v2 = $("<div/>", {"class": "latticeVec tessUI", text: tess.lattice.v2.toString()}).appendTo(lattice);
-		}
-
-		// add polygon header
-		var polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(head)
-		.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + tess.polygons.length + ")"})
-			.click(function(event) {
-				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
-				tess.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? tess.polygons : null);
-				// take selected state off any other selected item
-				$(".selected").not($(this)).removeClass("selected");
-				//tess.setRenderHead(tess.polygons);
-				paper.view.draw();
-				return false;
-			})
-		);
-		// add polygons
-		$.each(tess.polygons, function(index, polygon) {
-			// create an entry
-			$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead)
-			.click(function(event) {
-				tess.setRenderHead(polygon);
-				paper.view.draw();
-				return false;
-			});
-		});
-		// add polygon entry
-		$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
-
-		// add substructure header
-		var substructure = $("<div/>", {"class": "tessSection tessUI substructureHead collapsable"}).appendTo(head)
-		.append($("<div/>", {"class": "tessHeader", text: "Substamps (" + tess.subgroups.length + ")"})
-							.click(function(event) {
-								tess.setRenderHead(tess.subgroups);
-								paper.view.draw();
-								return false;
-							})
-		);
-		// add subroup UI's
-		// TODO these will contain superfluous Tessellation header elements
-		$.each(tess.subgroups, function(index, subgroup) {
-			subgroup.generateUI().appendTo(substructure);
-		});
-
-		// add transformation header
-		var transformHead = $("<div/>", {"class": "tessSection tessUI transformHead collapsable"}).appendTo(head)
-		.append($("<div/>", {"class": "tessHeader", text: "Placements (" + tess.transforms.length + ")"})
-							.click(function(event) {
-								tess.setRenderHead(tess.transforms);
-								paper.view.draw();
-								return false;
-							})
-		);
-		// add trasnform UI's
-		$.each(tess.transforms, function(index, transform) {
-			$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead)
-			.click(function(event) {
-				tess.setRenderHead(transform);
-				paper.view.draw();
-				return false;
-			})
-		});
-
-		// add collapse arrows
-		$(".tessHeader", head).before($("<div/>", {"class": "collapseArrow"}));
-
-		return head;
+		this.htmlView = htmlTessellationView({controller:app, tessellation: this.tess});
+		return this.htmlView.root();
 	};
 	
 	var init = function() {
@@ -543,7 +423,8 @@ var app = (function () {
 		
 		paper.view.scrollBy([-0.5,-0.5]);
 		
-		var tessDef = initTessDef();
+		//var tessDef = initTessDef();
+		var tessellations = tessellationExamples();
 
 		// turn on tool debug output
 		//log.enable('tools');
@@ -554,18 +435,14 @@ var app = (function () {
 		var yaxis = new paper.Path([[-100,0], [100,0]]);
 		yaxis.strokeColor = 'red';*/
 		
-		//tessDef.PolyGroup44.render(paper.view);
-		tessDef.GroupHex.render(paper.view);
-		//tessDef.HeartGroup.render(paper.view);
-		//tessDef.HitGroup.render(paper.view);
-		//tessDef.HeartGroup.lattice.draw({i:[-4,4], j:[-4,4]});
-		
-		this.tess = tessDef.GroupHex;
-		//this.tess = tessDef.PolyGroup44;
-		//this.tess = tessDef.HitGroup;
-		//this.tess = tessDef.HeartGroup;
+		this.tess = tessellations.GroupHex;
+		//this.tess = tessellations.PolyGroup44;
+		//this.tess = tessellations.HitGroup;
+		//this.tess = tessellations.HeartGroup;
 
-		
+		this.tessellationView = tessellationView({controller: this, tessellation: this.tess});
+		this.tessellationView.render(paper.view);
+
 		stockTool.activate();
 		//testHitTool.activate();
 		//latticeDebugTool.activate();
