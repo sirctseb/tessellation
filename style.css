@@ -120,7 +120,9 @@ div:only-child.tessHeader
 }
 #tessdefcontainer .tessUI
 {
-	color:white
+	color:white;
+	/* TODO to round edges which helps separate sections pretty well */
+	/*border-radius:8px;*/
 }
 #tessdefcontainer>.tessUI
 {
@@ -133,6 +135,22 @@ div:only-child.tessHeader
 #tessdefcontainer>.tessUI>.tessUI>.tessUI
 {
 	background-color:#999999;
+}
+#tessdefcontainer>.tessUI>.tessUI>.tessUI>.tessUI
+{
+	background-color:#BBBBBB;
+}
+/* the following two add a bottom padding to last sections if they are open */
+/* add the padding to the bottom of last sections if they are open */
+.tessSection:last-child:not(.collapsed)
+{
+	padding-bottom:10px;
+}
+/* "remove padding" by making negative margin in the child header */
+/* so that sections with no content don't have the extra padding */
+.tessSection:last-child:not(.collapsed)>.tessHeader:last-child
+{
+	margin-bottom:-10px;
 }
 .vecEditField
 {
