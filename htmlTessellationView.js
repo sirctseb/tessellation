@@ -70,13 +70,10 @@ var htmlTessellationView = function(spec, my) {
 
 	var that;
 
-	//my = $.extend(my, { controller: spec.controller,
-	//			  tessellation: spec.tessellation });
 	my = my || {};
 
 	// private members
 	// some main elements
-	//var root,
 	var stampHead,
 		latticeHead,
 		polyHead,
@@ -88,7 +85,6 @@ var htmlTessellationView = function(spec, my) {
 	// shape subviews
 		shapeViews = [];
 
-	//that = htmlView(spec, my);
 	that = htmlSectionView($.extend({headerText: "Stamp"}, spec), my);
 	
 	var construct = function() {
@@ -238,11 +234,9 @@ var htmlLatticeView = function(spec, my) {
 
 	my = my || {};
 
-	//that = htmlView(spec, my);
 	that = htmlSectionView($.extend(spec, {headerText: "Lattice"}), my);
 
 	// private members
-	//var latticeHead,
 	var v1display,
 		v2display; // TODO contain all vector displays in these outer divs
 	var vdisplays;
