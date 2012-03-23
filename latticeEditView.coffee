@@ -1,26 +1,18 @@
-window.latticeEditView = (spec, my) ->
-	that = {}
-	my = $.extend({
-			controller: spec.controller,
-			tessellation: spec.tessellation,
-			latticeEditLayer: spec.latticeEditLayer,
-			selectedColor: 'blue'
-		}, my)
+class window.LatticeEditView
 
-	# private variables
-	display = null
-
-	# private method to produce the mouse handlers for the visible objects
-	makeHandlers = (tess, vecName) ->
+	# unnecessarily public method to produce the mouse handlers for the visible objects
+	makeHandlers: (vecName) ->
+		view = this
+		# events fired with this as the Path object
 		{
 			mousedown: (event) ->
-				display.fillColor = 'white'
+				view.display.fillColor = 'white'
 
 				# set color to selected color
-				@fillColor = my.selectedColor
+				@fillColor = view.my.selectedColor
 
 				# notify of mouse down
-				my.controller.onLatticeEditViewMouseDown()
+				view.my.controller.onLatticeEditViewMouseDown()
 
 			mousedrag: (event) ->
 				log.log('dragging ' + vecName, 'latticeDisplay')
@@ -30,30 +22,37 @@ window.latticeEditView = (spec, my) ->
 				@position = @position.add(event.delta)
 
 				# set the end point of the line
-				@parent.children['line'].lastSegment.point = this.position
+				@parent.children['line'].lastSegment.point = @position
 
 				# notify controller
-				my.controller.onLatticeEditViewMouseDrag({point: this.position, component: vecName})
+				view.my.controller.onLatticeEditViewMouseDrag({point: @position, component: vecName})
 
 			mouseup: (event) ->
 				# reset fill color
 				@fillColor = 'white'
 
 				# notify of mouse up
-				my.controller.onLatticeEditViewMouseUp()
+				view.my.controller.onLatticeEditViewMouseUp()
 		}
 
 	# constructor
-	constructor = (component) ->
+	constructor: (spec, my) ->
+		@my = $.extend({
+				controller: spec.controller,
+				tessellation: spec.tessellation,
+				latticeEditLayer: spec.latticeEditLayer,
+				selectedColor: 'blue'
+			}, my)
+
 		# save old latticeEditLayer
 		oldLayer = paper.project.activeLayer
 
 		# activate lattice edit layer
 		# TODO ensure the layer exists?
-		paper.project.layers[my.latticeEditLayer].activate()
+		paper.project.layers[@my.latticeEditLayer].activate()
 
-		lattice = my.tessellation.lattice()
-		display = new paper.Group()
+		lattice = @my.tessellation.lattice()
+		@display = new paper.Group()
 		for vecName, index in ['v1', 'v2']
 			# create display elements
 			# draw line
@@ -69,35 +68,25 @@ window.latticeEditView = (spec, my) ->
 			group.name = 'group' + vecName
 
 			# add group to display group
-			display.addChild(group)
+			@display.addChild(group)
 
 			# add handlers to elements
-			handle.attach(makeHandlers(my.tessellation, vecName))
-		show component
+			handle.attach(@makeHandlers(vecName))
+		@show spec.component
 
 		# reactivate original layer
 		oldLayer.activate()
 
-	hide = ->
+	hide: ->
 		# remove display group
-		display.remove()
+		@display.remove()
 
-	show = (component) ->
+	show: (component) ->
 		# TODO make sure visible objects are up to date?
 		# add display group back to lattice edit layer
-		paper.project.layers[my.latticeEditLayer].addChild(display)
+		paper.project.layers[@my.latticeEditLayer].addChild(@display)
 
 		# if a component was passed in, show the handle as selected
 		if component?
-			display.fillColor = 'white'
-			display.children['group' + component].children['handle'].fillColor = my.selectedColor
-
-	# public methods
-	that.hide = hide
-	that.show = show
-
-	# call constructor
-	constructor spec.component
-
-	# return created object
-	that
+			@display.fillColor = 'white'
+			@display.children['group' + component].children['handle'].fillColor = @my.selectedColor
