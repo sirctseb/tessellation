@@ -1,53 +1,117 @@
-/* a view class to display the structure of a tessellation in html */
-log.enable("vectorEdit");
-var htmlTessellationView = function(spec) {
 
+log.enable("vectorEdit");
+
+/* a super class for html views */
+var htmlView = function(spec, my) {
 	var that = {};
 
-	var my =	{ controller: spec.controller,
-				  tessellation: spec.tessellation};
+	// protected variables
+	// the root html element of this view
+	my = $.extend(my, {root: null});
+
+	// create root element
+	if(spec.type) {
+		my.root = $("<" + spec.type + "/>");
+	} else {
+		my.root = $("<div/>");
+	}
+	// allow spec to specify element type and classes
+	if(spec.classes) {
+		my.root.addClass(spec.classes);
+	}
+
+	// method to return the root element
+	var root = function() {
+		return my.root;
+	}
+
+	// public methods
+	that.root = root;
+
+	return that;
+};
+
+/* a super class for menu sections */
+var htmlSectionView = function(spec, my) {
+	var that;
+
+	// protected variables
+	my = $.extend(my, {header: null});
+
+	var construct = function() {
+		// prepare classes
+		var classes = (spec.classes ? spec.classes : "") + "collapsable tessSection tessUI";
+
+		// subclass from htmlView
+		that = htmlView({classes: classes}, my);
+
+		// add header
+		my.header = $("<div/>", {"class": "tessHeader", text: spec.headerText}).appendTo(my.root)
+
+		// add collapse button
+		.before($("<div/>", {"class": "collapseArrow"}));
+	}
+
+	construct();
+
+	// public methods
+	that.header = function() {
+		return my.header;
+	}
+
+	return that;
+}
+
+/* a view class to display the structure of a tessellation in html */
+var htmlTessellationView = function(spec, my) {
+
+	var that;
+
+	my = $.extend(my, { controller: spec.controller,
+				  tessellation: spec.tessellation });
 
 	// private members
 	// some main elements
-	var root,
-		stampHead,
+	//var root,
+	var stampHead,
 		latticeHead,
 		polyHead,
 		substructureHead,
-		subgroupViews,
+		subgroupViews = [],
 		transformHead;
 	// lattice subview
-	var latticeView;
+	var latticeView,
+	// shape subviews
+		shapeViews = [];
+
+	//that = htmlView(spec, my);
+	that = htmlSectionView({headerText: "Stamp"}, my);
 	
 	var construct = function() {
 
 		log.enable("lattUIEvents");
 
-		// tessellation root
-		root = $("<div></div>", {"class": "tessDefUI collapsable tessSection tessUI"});
-
-		// label for root
-		stampHead = $("<div></div>", {"class": "tessHeader", text:"Stamp"}).appendTo(root);
-
 		// lattice section
 		latticeView = htmlLatticeView({controller: my.controller,
 										tessellation: my.tessellation,
 										superview: that});
-		latticeHead = latticeView.root().appendTo(root);
+		latticeHead = latticeView.root().appendTo(my.root);
 
 		// polygon section
-		polyHead = $("<div/>", {"class": "tessSection tessUI polyHead collapsable"}).appendTo(root);
+		polyHead = htmlSectionView({headerText: "Shapes (" + my.tessellation.polygons().length + ")"});
+		polyHead.root().appendTo(my.root);
 
 		// substructure section
-		substructureHead = $("<div/>", {"class": "tessSection tessUI substructureHead collapsable"}).appendTo(root);
-		subgroupViews = [];
+		substructureHead = htmlSectionView({headerText: "Substamps (" + my.tessellation.subgroups().length + ")"});
+		substructureHead.root().appendTo(my.root);
 
 		// transform section
-		transformHead = $("<div/>", {"class": "tessSection tessUI transformHead collapsable"}).appendTo(root);
+		transformHead = htmlSectionView({headerText: "Placements (" + my.tessellation.transforms().length + ")"});
+		transformHead.root().appendTo(my.root);
 
 		// add click handler to stamp header
 		// header click handler to set tess as render head
-		stampHead.click(function(event) {
+		my.header.click(function(event) {
 			// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
 			my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation : null);
 			// take selected state off any other selected item
@@ -57,9 +121,8 @@ var htmlTessellationView = function(spec) {
 		});
 
 		// add polygon info
-		polyHead.append($("<div/>", {"class": "tessHeader", text:"Shapes (" + my.tessellation.polygons().length + ")"})
-			// click handler to show polygon info
-			.click(function(event) {
+		// click handler to show polygon info
+		polyHead.header().click(function(event) {
 				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
 				my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation.polygons() : null);
 				// take selected state off any other selected item
@@ -67,48 +130,38 @@ var htmlTessellationView = function(spec) {
 				//tess.setRenderHead(tess.polygons());
 				paper.view.draw();
 				return false;
-			})
-		);
+			});
 		// add polygons
 		$.each(my.tessellation.polygons(), function(index, polygon) {
-			// create an entry
-			$("<div/>", {"class": "polyEntry tessUI collapsable", text: polygon.toString()}).appendTo(polyHead)
-			.click(function(event) {
-				my.tessellation.setRenderHead(polygon);
-				paper.view.draw();
-				return false;
-			});
+			shapeViews.push(htmlShapeView({controller: my.controller, tessellation: my.tessellation, polygon: polygon}));
+			shapeViews[shapeViews.length-1].root().appendTo(polyHead.root());
 		});
 		// add polygon entry
 		$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
 
 		// add substructure info
-		substructureHead.append($("<div/>", {"class": "tessHeader", text: "Substamps (" + my.tessellation.subgroups().length + ")"})
-							.click(function(event) {
+		substructureHead.header().click(function(event) {
 								my.tessellation.setRenderHead(my.tessellation.subgroups());
 								paper.view.draw();
 								return false;
-							})
-		);
+							});
 		// add subgroup views
 		$.each(my.tessellation.subgroups(), function(index, subgroup) {
 			// create view for subgroup
 			subgroupViews.push(htmlTessellationView({controller:my.controller, tessellation: subgroup}));
 			// add subgroup root to this view
-			subgroupViews[subgroupViews.length-1].root().appendTo(substructureHead);
+			subgroupViews[subgroupViews.length-1].root().appendTo(substructureHead.root());
 		});
 
 		// add transformation info	
-		transformHead.append($("<div/>", {"class": "tessHeader", text: "Placements (" + my.tessellation.transforms().length + ")"})
-							.click(function(event) {
+		transformHead.header().click(function(event) {
 								my.tessellation.setRenderHead(my.tessellation.transforms());
 								paper.view.draw();
 								return false;
-							})
-		);
+							});
 		// add trasnform UI's
 		$.each(my.tessellation.transforms(), function(index, transform) {
-			$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead)
+			$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead.root())
 			.click(function(event) {
 				my.tessellation.setRenderHead(transform);
 				paper.view.draw();
@@ -116,8 +169,6 @@ var htmlTessellationView = function(spec) {
 			})
 		});
 
-		// add collapse arrows
-		$(".tessHeader", root).before($("<div/>", {"class": "collapseArrow"}));
 	};
 	// call constructor
 	construct();
@@ -126,15 +177,34 @@ var htmlTessellationView = function(spec) {
 	var onLatticeChange = function() {
 		// pass event to lattice subview
 		latticeView.onLatticeChange();
-	}
+	};
+
+	// put content element in shape view
+	var addPath = function(polygon, path) {
+		// search for the view with the polygon
+		var found = false;
+		$.each(shapeViews, function(index, view) {
+			if(view.isPolygon(polygon)) {
+				view.addContent(path);
+				found = true;
+				return false;
+			}
+		});
+		// if no polygon matched, search subgroups
+		if(!found) {
+			$.each(subgroupViews, function(index, subview) {
+				if(subview.addPath(polygon, path)) {
+					found = true;
+					return false;
+				}
+			});
+		}
+		return found;
+	};
 
 	// public methods
 	that.onLatticeChange = onLatticeChange;
-
-	// accessors
-	that.root = function() {
-		return root;
-	}
+	that.addPath = addPath;
 
 	return that;
 };
@@ -146,28 +216,26 @@ var htmlLatticeView = function(spec, my) {
 			tessellation: spec.tessellation,
 			superview: spec.superview };
 
+	//that = htmlView(spec, my);
+	that = htmlSectionView($.extend(spec, {headerText: "Lattice"}), my);
+
 	// private members
-	var latticeHead,
-		v1display,
+	//var latticeHead,
+	var v1display,
 		v2display; // TODO contain all vector displays in these outer divs
 	var vdisplays;
 
 	var construct = function() {
 		// add lattice info
 		if(my.tessellation.lattice()) {
-			// create container for lattice info
-			latticeHead = $("<div></div>", {"class": "latticeHead collapsable tessSection tessUI"});
-			// create container for lattice info
-			latticeHead.append($("<div></div>", {"class": "tessHeader", text:"Lattice"})
-				// lattice click handler to set lattice as render head
-				.click(function(event) {
+			// lattice click handler to set lattice as render head
+			my.header.click(function(event) {
 					my.tessellation.setRenderHead(my.tessellation.lattice());
 					paper.view.draw();
 					return false;
-				})
-			);
-			v1display = $("<div/>", {"class": "tessUI v1display vdisplay"}).appendTo(latticeHead);
-			v2display = $("<div/>", {"class": "tessUI v2display vdisplay"}).appendTo(latticeHead);
+				});
+			v1display = $("<div/>", {"class": "tessUI v1display vdisplay"}).appendTo(my.root);
+			v2display = $("<div/>", {"class": "tessUI v2display vdisplay"}).appendTo(my.root);
 			vdisplays = {v1: v1display, v2: v2display};
 
 			addDefaultVectorView(["v1"]);
@@ -177,14 +245,14 @@ var htmlLatticeView = function(spec, my) {
 			cancelEditVector();
 
 			// register for click away event
-			focus.register(latticeHead, onClickAway);
+			focus.register(my.root, onClickAway);
 		}
 	};
 
 	var onLatticeChange = function() {
 		// TODO get fresh tessellation from controller?
 		var vecs = ["v1", "v2"];
-		$(".latticeVec", latticeHead).each(function(index) {
+		$(".latticeVec", my.root).each(function(index) {
 			$(this).text(my.tessellation.lattice()[vecs[index]]().prettyPrint());
 		});
 		// also change the edit field values in case one is open
@@ -242,10 +310,10 @@ var htmlLatticeView = function(spec, my) {
 	var updateFieldValues = function() {
 		var v1 = my.tessellation.lattice().v1();
 		var v2 = my.tessellation.lattice().v2();
-		$("#v1xEdit", latticeHead).val(v1.x.toFixed(2));
-		$("#v1yEdit", latticeHead).val(v1.y.toFixed(2));
-		$("#v2xEdit", latticeHead).val(v2.x.toFixed(2));
-		$("#v2yEdit", latticeHead).val(v2.y.toFixed(2));
+		$("#v1xEdit", my.root).val(v1.x.toFixed(2));
+		$("#v1yEdit", my.root).val(v1.y.toFixed(2));
+		$("#v2xEdit", my.root).val(v2.x.toFixed(2));
+		$("#v2yEdit", my.root).val(v2.y.toFixed(2));
 	}
 	var editVector = function(vec) {
 		log.log("starting edit vector", "vectorEdit");
@@ -256,12 +324,12 @@ var htmlLatticeView = function(spec, my) {
 		// show text boxes and labels and submit button
 		if(vec === "v1") {
 			// show edit view for v1 and default view for v2
-			$(".v1edit, .v2default", latticeHead).show();
-			$(".v1default, .v2edit", latticeHead).hide();
+			$(".v1edit, .v2default", my.root).show();
+			$(".v1default, .v2edit", my.root).hide();
 		} else if(vec === "v2") {
 			// show edit view for v2 and default view for v1
-			$(".v2edit, .v1default", latticeHead).show();
-			$(".v2default, .v1edit", latticeHead).hide();
+			$(".v2edit, .v1default", my.root).show();
+			$(".v2default, .v1edit", my.root).hide();
 		}
 
 		// notify controller
@@ -269,8 +337,8 @@ var htmlLatticeView = function(spec, my) {
 	};
 	var finishEditVector = function(component) {
 		var value = {};
-		value[component] = new paper.Point(parseFloat($("#xEdit", latticeHead).val()),
-											parseFloat($("#yEdit", latticeHead).val()));
+		value[component] = new paper.Point(parseFloat($("#xEdit", my.root).val()),
+											parseFloat($("#yEdit", my.root).val()));
 		// send value to controller
 		my.controller.setLatticeValues(
 			 value
@@ -283,8 +351,8 @@ var htmlLatticeView = function(spec, my) {
 		log.log("cancel", "vectorEdit");
 
 		// hide edit views and show default views
-		$(".v1edit, .v2edit", latticeHead).hide();
-		$(".v1default, .v2default", latticeHead).show();
+		$(".v1edit, .v2edit", my.root).hide();
+		$(".v1default, .v2default", my.root).show();
 	}
 	var onClickAway = function() {
 		// TODO test if we are currently in edit state before resetting view
@@ -294,10 +362,49 @@ var htmlLatticeView = function(spec, my) {
 	// public methods
 	that.onLatticeChange = onLatticeChange;
 
-	// accessors
-	that.root = function() {
-		return latticeHead;
+	construct();
+
+	return that;
+};
+
+/* class for shape subview */
+var htmlShapeView = function(spec, my) {
+
+	var that;
+	var my = {	controller: spec.controller,
+				tessellation: spec.tessellation,
+				superview: spec.superview };
+	
+	// private members
+	// the paperjs path
+	var polygon = spec.polygon;
+
+	that = htmlSectionView($.extend(spec, {headerText: polygon.toString()}), my);
+
+	var construct = function() {
+		// add click handler
+		my.root.click(function(event) {
+			// TODO
+			//my.tessellation.setRenderHead(polygon);
+			//paper.view.draw();
+			//return false;
+		});
 	};
+
+	// add user-drawn content to the view
+	var addContent = function(path) {
+		// TODO this thing will probably be collapseable and have it's own view class
+		$("<div/>", {"class": "contentPath tessUI", text: path.toString()})
+			.appendTo(my.root);
+	};
+	// test if the supplied polygon is the polygon that this view represents
+	var isPolygon = function(testPolygon) {
+		return polygon === testPolygon;
+	};
+
+	// public methods
+	that.addContent = addContent;
+	that.isPolygon = isPolygon;
 
 	construct();
 
