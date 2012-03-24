@@ -6,11 +6,33 @@
 		<style type="text/css">
 			#wrapper
 				{
-					width:400px;
+					width:401px;
 					height:400px;
 					resize:both;
 					overflow:hidden;
 					border:1px solid black;
+				}
+			.handle
+				{
+					background-color:yellow;
+				}
+			.hor-handle
+				{
+					height:5%;
+					width:100%;
+				}
+			.vert-handle
+				{
+					height:100%;
+					width:1px;
+				}
+			.hor-content
+				{
+					height:95%;
+				}
+			#tophandle
+				{
+
 				}
 			#toppanel
 				{
@@ -19,6 +41,7 @@
 					width:80%;
 					height:20%;
 					float:left;
+					border-bottom:1px solid black;
 				}
 			#rightpanel
 				{
@@ -26,6 +49,14 @@
 					background-color:green;
 					width:20%;
 					height:80%;
+					float:right;
+				}
+			#righthandle
+				{
+					float:left;
+				}
+			#rightcontent
+				{
 					float:right;
 				}
 			#leftpanel
@@ -48,10 +79,25 @@
 	</head>
 	<body>
 		<div id="wrapper" resizeable>
-			<div id="toppanel">top</div>
-			<div id="rightpanel">right</div>
-			<div id="leftpanel">left</div>
-			<div id="bottompanel">bottom</div>
+			<div id="toppanel">
+				<div id="topcontent" class="content hor-content">top</div>
+				<div id="tophandle" class="handle hor-handle"></div>
+			</div>
+			<div id="rightpanel">
+				right
+				<!--<div id="rightcontent" class="content vert-content">right</div>-->
+				<div id="righthandle" class="handle vert-handle"></div>
+			</div>
+			<div id="leftpanel">
+				left
+				<!--<div id="leftcontent" class="content vert-content">left</div>-->
+				<div id="lefthandle" class="handle vert-handle"></div>
+			</div>
+			<div id="bottompanel">
+				<!--<div id="bottomcontent" class="content hor-content">bottom</div>-->
+				<div id="bottomhandle" class="handle hor-handle"></div>
+				bottom
+			</div>
 		</div>
 	</body>
 </html>
