@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Paper.js stuff</title>
+		<style type="text/css">
+			#wrapper
+				{
+					width:400px;
+					height:400px;
+					resize:both;
+					overflow:hidden;
+					border:1px solid black;
+				}
+			#toppanel
+				{
+					display:inline-block;
+					background-color:red;
+					width:80%;
+					height:20%;
+					float:left;
+				}
+			#rightpanel
+				{
+					display:inline-block;
+					background-color:green;
+					width:20%;
+					height:80%;
+					/*float:right;*/
+				}
+			#leftpanel
+				{
+					display:inline-block;
+					background-color:blue;
+					width:20%;
+					height:80%;
+					float:left;
+					clear:left;
+				}
+			#bottompanel
+				{
+					display:inline-block;
+					background-color:black;
+					width:80%;
+					height:20%;
+					/*float:right;*/
+				}
+		</style>
+	</head>
+	<body>
+		<div id="wrapper" resizeable>
+			<div id="toppanel">top</div>
+			<div id="leftpanel">left</div>
+			<div id="rightpanel">right</div>
+			<div id="bottompanel">bottom</div>
+		</div>
+	</body>
+</html>
