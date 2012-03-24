@@ -3,99 +3,34 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Paper.js stuff</title>
-		<style type="text/css">
-			#wrapper
-				{
-					width:401px;
-					height:400px;
-					resize:both;
-					overflow:hidden;
-					border:1px solid black;
-				}
-			.handle
-				{
-					background-color:yellow;
-				}
-			.hor-handle
-				{
-					height:5%;
-					width:100%;
-				}
-			.vert-handle
-				{
-					height:100%;
-					width:1px;
-				}
-			.hor-content
-				{
-					height:95%;
-				}
-			#tophandle
-				{
+		<script type="text/javascript" src="jquery-1.7.1.js"></script>
+		<script type="text/javascript" src="log.js"></script>
+		<script type="text/javascript" src="boxlid.js"></script>
+		<script type="text/javascript">
+			// turn on logging for handles
+			log.enable('handle');
 
-				}
-			#toppanel
-				{
-					display:inline-block;
-					background-color:red;
-					width:80%;
-					height:20%;
-					float:left;
-					border-bottom:1px solid black;
-				}
-			#rightpanel
-				{
-					display:inline-block;
-					background-color:green;
-					width:20%;
-					height:80%;
-					float:right;
-				}
-			#righthandle
-				{
-					float:left;
-				}
-			#rightcontent
-				{
-					float:right;
-				}
-			#leftpanel
-				{
-					display:inline-block;
-					background-color:blue;
-					width:20%;
-					height:80%;
-					float:left;
-				}
-			#bottompanel
-				{
-					display:inline-block;
-					background-color:black;
-					width:80%;
-					height:20%;
-					/*float:right;*/
-				}
-		</style>
+			$(function() {
+				$("#boxlid-layout").boxlid();
+				$(".handle").click(function(event) {
+					log.log($(this).attr('id'), 'handle');
+				});
+			});
+		</script>
+		<link rel="stylesheet" href="boxlid.css" type="text/css" />
 	</head>
 	<body>
-		<div id="wrapper" resizeable>
-			<div id="toppanel">
-				<div id="topcontent" class="content hor-content">top</div>
-				<div id="tophandle" class="handle hor-handle"></div>
+		<div id="boxlid-layout" resizeable>
+			<div class="boxlid-top-panel">
+				top
 			</div>
-			<div id="rightpanel">
+			<div class="boxlid-right-panel">
 				right
-				<!--<div id="rightcontent" class="content vert-content">right</div>-->
-				<div id="righthandle" class="handle vert-handle"></div>
 			</div>
-			<div id="leftpanel">
+			<div class="boxlid-left-panel">
 				left
-				<!--<div id="leftcontent" class="content vert-content">left</div>-->
-				<div id="lefthandle" class="handle vert-handle"></div>
 			</div>
-			<div id="bottompanel">
-				<!--<div id="bottomcontent" class="content hor-content">bottom</div>-->
-				<div id="bottomhandle" class="handle hor-handle"></div>
+			<div class="boxlid-bottom-panel">
 				bottom
 			</div>
 		</div>

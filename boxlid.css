@@ -1,0 +1,67 @@
+.boxlid-wrapper
+	{
+		width:401px;
+		height:400px;
+		resize:both;
+		overflow:hidden;
+		border:1px solid black;
+	}
+.boxlid-handle
+	{
+		background-color:yellow;
+	}
+.boxlid-hor-handle
+	{
+		height:5%;
+		width:100%;
+	}
+.boxlid-vert-handle
+	{
+		height:100%;
+		width:5%;
+	}
+/* to take up the space above the top handle */
+.boxlid-top-content
+	{
+		height:95%;
+	}
+.boxlid-top-panel
+	{
+		display:inline-block;
+		background-color:red;
+		width:80%;
+		height:20%;
+		float:left;
+		border-bottom:1px solid black;
+	}
+.boxlid-right-panel
+	{
+		display:inline-block;
+		background-color:green;
+		width:20%;
+		height:80%;
+		float:right;
+	}
+.boxlid-right-handle
+	{
+		float:left;
+	}
+.boxlid-left-panel
+	{
+		display:inline-block;
+		background-color:blue;
+		width:20%;
+		height:80%;
+		float:left;
+	}
+.boxlid-left-handle
+	{
+		float:right;
+	}
+.boxlid-bottom-panel
+	{
+		display:inline-block;
+		background-color:black;
+		width:80%;
+		height:20%;
+	}
