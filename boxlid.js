@@ -44,7 +44,7 @@
 					return width;
 				});
 				// set width in pixels for right and bottom
-				//$(".boxlid-right-panel", this).width(this.width() - $(".boxlid-top-panel").width() - 1);
+				$(".boxlid-right-panel", this).width(this.width() - $(".boxlid-top-panel").width() - 1);
 				$(".boxlid-bottom-panel", this).width(this.width() - $(".boxlid-left-panel").width() - 1);
 
 				// set height in pixels for top and right
@@ -52,8 +52,8 @@
 					return height;
 				});
 				// set height in pixels for left and bottom
-				$(".boxlid-left-panel", this).height(this.height() - $(".boxlid-top-panel").height());
-				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height());
+				$(".boxlid-left-panel", this).height(this.height() - $(".boxlid-top-panel").height() - 1);
+				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height() - 1);
 
 				// add interaction handlers
 				var toppanel = $(".boxlid-top-panel", this);

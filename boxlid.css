@@ -1,6 +1,6 @@
 .boxlid-wrapper
 	{
-		width:401px;
+		width:400px;
 		height:400px;
 		resize:both;
 		overflow:hidden;
@@ -40,7 +40,6 @@
 		height:20%;
 		float:left;
 		border-bottom:1px solid black;
-		margin-bottom:-1px;
 	}
 .boxlid-top-handle
 	{
@@ -54,7 +53,6 @@
 		height:80%;
 		float:right;
 		border-left:1px solid black;
-		margin-left:-1px;
 	}
 .boxlid-right-handle
 	{
@@ -68,7 +66,6 @@
 		height:80%;
 		float:left;
 		border-right:1px solid black;
-		margin-right:-1px;
 	}
 .boxlid-left-handle
 	{
@@ -81,5 +78,4 @@
 		width:80%;
 		height:20%;
 		border-top:1px solid black;
-		margin-top:-1px;
 	}
