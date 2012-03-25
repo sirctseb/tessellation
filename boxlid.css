@@ -13,14 +13,12 @@
 	}
 .boxlid-hor-handle
 	{
-		/*height:5%;*/
 		height:10px;
 		width:100%;
 	}
 .boxlid-vert-handle
 	{
 		height:100%;
-		/*width:5%;*/
 		width:10px;
 	}
 /* to take up the space above the top handle */

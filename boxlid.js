@@ -55,14 +55,6 @@
 				$(".boxlid-left-panel", this).height(this.height() - $(".boxlid-top-panel").height());
 				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height());
 
-				// TODO show handle image in handle on mouse over
-				//log.log('putting mouse move on', 'handle');
-				/*$(".boxlid-top-handle", this).on("mousemove.boxlid", 
-				})
-				// disable until mousedow
-				.off("mousemove.boxlid");*/
-				//log.log('took mouse move off', 'handle');
-
 				// add interaction handlers
 				$(".boxlid-top-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
@@ -72,7 +64,6 @@
 						toppanel = $(".boxlid-top-panel", $(this).parent().parent());
 
 						// set new height of top panel
-						//log.log(event.pageY - $(this).offset().top, 'handle');
 						toppanel.height(event.pageY - toppanel.offset().top);
 
 						// set new height of left panel
@@ -85,7 +76,6 @@
 
 				// up handlers
 				$("body").mouseup(function(event) {
-					//$(".boxlid-top-handle", that).off("mousemove.boxlid");
 					$("body").off("mousemove.boxlid");
 					log.log('taking mouse move off, because up', 'handle');
 				});
