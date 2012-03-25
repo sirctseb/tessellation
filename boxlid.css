@@ -8,17 +8,20 @@
 	}
 .boxlid-handle
 	{
-		background-color:yellow;
+		/*background-color:yellow;*/
+		background-color:transparent;
 	}
 .boxlid-hor-handle
 	{
-		height:5%;
+		/*height:5%;*/
+		height:10px;
 		width:100%;
 	}
 .boxlid-vert-handle
 	{
 		height:100%;
-		width:5%;
+		/*width:5%;*/
+		width:10px;
 	}
 /* to take up the space above the top handle */
 .boxlid-top-content
@@ -33,6 +36,7 @@
 		height:20%;
 		float:left;
 		border-bottom:1px solid black;
+		margin-bottom:-1px;
 	}
 .boxlid-right-panel
 	{
@@ -41,6 +45,8 @@
 		width:20%;
 		height:80%;
 		float:right;
+		border-left:1px solid black;
+		margin-left:-1px;
 	}
 .boxlid-right-handle
 	{
@@ -53,6 +59,8 @@
 		width:20%;
 		height:80%;
 		float:left;
+		border-right:1px solid black;
+		margin-right:-1px;
 	}
 .boxlid-left-handle
 	{
@@ -64,4 +72,6 @@
 		background-color:black;
 		width:80%;
 		height:20%;
+		border-top:1px solid black;
+		margin-top:-1px;
 	}
