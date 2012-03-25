@@ -11,32 +11,32 @@
 				this.addClass("boxlid-wrapper");
 
 				// top panel init:
-				// wrap contents of top panel in the content wrapper
-				$(".boxlid-top-panel", this).wrapInner(
-					$("<div></div>", {'class': 'boxlid-top-content'})
-				)
 				// add the handle
-				.append(
+				$(".boxlid-top-panel", this).append(
 					$("<div></div>", {'class': 'boxlid-handle boxlid-hor-handle boxlid-top-handle'})
-				);
+				)
+				.addClass("boxlid-panel");
 
 				// right panel:
 				// add handle
 				$(".boxlid-right-panel", this).append(
 					$("<div></div>", {'class': 'boxlid-handle boxlid-vert-handle boxlid-right-handle'})
-				);
+				)
+				.addClass("boxlid-panel");
 
 				// left panel:
 				// add handle
 				$(".boxlid-left-panel", this).append(
 					$("<div></div>", {'class': 'boxlid-handle boxlid-vert-handle boxlid-left-handle'})
-				);
+				)
+				.addClass("boxlid-panel");
 
 				// bottom panel:
 				// add handle
 				$(".boxlid-bottom-panel", this).prepend(
 					$("<div></div>", {'class': 'boxlid-handle boxlid-hor-handle boxlid-bottom-handle'})
-				);
+				)
+				.addClass("boxlid-panel");
 
 				// set sizes in pixels
 				// set width in pixels for top and left
@@ -44,8 +44,8 @@
 					return width;
 				});
 				// set width in pixels for right and bottom
-				$(".boxlid-right-panel", this).width(this.width() - $(".boxlid-top-panel").width());
-				$(".boxlid-bottom-panel", this).width(this.width() - $(".boxlid-left-panel").width());
+				//$(".boxlid-right-panel", this).width(this.width() - $(".boxlid-top-panel").width() - 1);
+				$(".boxlid-bottom-panel", this).width(this.width() - $(".boxlid-left-panel").width() - 1);
 
 				// set height in pixels for top and right
 				$(".boxlid-top-panel, .boxlid-left-panel", this).height(function(index, height) {
@@ -56,23 +56,63 @@
 				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height());
 
 				// add interaction handlers
+				var toppanel = $(".boxlid-top-panel", this);
+				var leftpanel = $(".boxlid-left-panel", this);
+				var rightpanel = $(".boxlid-right-panel", this);
+				var bottompanel = $(".boxlid-bottom-panel", this);
+
+				// top handle drag
 				$(".boxlid-top-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
-						// TODO dragging stuff
-
-						// get top panel
-						toppanel = $(".boxlid-top-panel", $(this).parent().parent());
 
 						// set new height of top panel
 						toppanel.height(event.pageY - toppanel.offset().top);
 
 						// set new height of left panel
-						$(".boxlid-left-panel", toppanel.parent()).height(toppanel.parent().height() - toppanel.height());
+						leftpanel.height(toppanel.parent().height() - toppanel.height() - 1);
 
-						log.log('mouse moved', 'handle');
+						return false;
 					});
-					log.log('putting mouse move on, because down', 'handle');
 				});
+				// left handle drag
+				$(".boxlid-left-handle", that).mousedown(function(event) {
+					$("body").on("mousemove.boxlid", function(event) {
+
+						// set new width of left panel
+						leftpanel.width(event.pageX - leftpanel.offset().left);
+
+						// set new width of bottom panel
+						bottompanel.width(leftpanel.parent().width() - leftpanel.width() - 1);
+
+						return false;
+					});
+				});
+				// right handle drag
+				$(".boxlid-right-handle", that).mousedown(function(event) {
+					$("body").on("mousemove.boxlid", function(event) {
+
+						// set new width of right panel
+						rightpanel.width(rightpanel.offset().left + rightpanel.width() - event.pageX);
+
+						// set new width of top panel
+						toppanel.width(rightpanel.parent().width() - rightpanel.width() - 1);
+
+						return false;
+					});
+				});
+				// bottom handle drag
+				$(".boxlid-bottom-handle", that).mousedown(function(event) {
+					$("body").on("mousemove.boxlid", function(event) {
+
+						// set new height of bottom panel
+						bottompanel.height(bottompanel.offset().top + bottompanel.height() - event.pageY);
+
+						// set new height of right panel
+						rightpanel.height(bottompanel.parent().height() - bottompanel.height() - 1);
+
+						return false;
+					})
+				})
 
 				// up handlers
 				$("body").mouseup(function(event) {

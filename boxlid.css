@@ -6,10 +6,16 @@
 		overflow:hidden;
 		border:1px solid black;
 	}
+.boxlid-panel
+	{
+		position:relative;
+	}
 .boxlid-handle
 	{
-		/*background-color:yellow;*/
-		background-color:transparent;
+		background-color:white;
+		/*background-color:transparent;*/
+		opacity:0.5;
+		position:absolute;
 	}
 .boxlid-hor-handle
 	{
@@ -36,6 +42,10 @@
 		border-bottom:1px solid black;
 		margin-bottom:-1px;
 	}
+.boxlid-top-handle
+	{
+		bottom:0%;
+	}
 .boxlid-right-panel
 	{
 		display:inline-block;
@@ -48,7 +58,7 @@
 	}
 .boxlid-right-handle
 	{
-		float:left;
+		left:0%;
 	}
 .boxlid-left-panel
 	{
@@ -62,12 +72,12 @@
 	}
 .boxlid-left-handle
 	{
-		float:right;
+		right:0%;
 	}
 .boxlid-bottom-panel
 	{
 		display:inline-block;
-		background-color:black;
+		background-color:yellow;
 		width:80%;
 		height:20%;
 		border-top:1px solid black;
