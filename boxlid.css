@@ -1,10 +1,11 @@
 .boxlid-wrapper
 	{
-		width:400px;
-		height:400px;
+		width:600px;
+		height:600px;
 		resize:both;
 		overflow:hidden;
 		border:1px solid black;
+		padding:5px;
 	}
 .boxlid-panel
 	{

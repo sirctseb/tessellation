@@ -38,22 +38,7 @@
 				)
 				.addClass("boxlid-panel");
 
-				// set sizes in pixels
-				// set width in pixels for top and left
-				$(".boxlid-top-panel, .boxlid-left-panel", this).width(function(index, width) {
-					return width;
-				});
-				// set width in pixels for right and bottom
-				$(".boxlid-right-panel", this).width(this.width() - $(".boxlid-top-panel").width() - 1);
-				$(".boxlid-bottom-panel", this).width(this.width() - $(".boxlid-left-panel").width() - 1);
-
-				// set height in pixels for top and right
-				$(".boxlid-top-panel, .boxlid-left-panel", this).height(function(index, height) {
-					return height;
-				});
-				// set height in pixels for left and bottom
-				$(".boxlid-left-panel", this).height(this.height() - $(".boxlid-top-panel").height() - 1);
-				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height() - 1);
+				this.boxlid("resize");
 
 				// add interaction handlers
 				var toppanel = $(".boxlid-top-panel", this);
@@ -65,11 +50,8 @@
 				$(".boxlid-top-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
 
-						// set new height of top panel
-						toppanel.height(event.pageY - toppanel.offset().top);
-
-						// set new height of left panel
-						leftpanel.height(toppanel.parent().height() - toppanel.height() - 1);
+						// resize to set top height
+						that.boxlid('resize', {top: {height: event.pageY - toppanel.offset().top}});
 
 						return false;
 					});
@@ -78,11 +60,8 @@
 				$(".boxlid-left-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
 
-						// set new width of left panel
-						leftpanel.width(event.pageX - leftpanel.offset().left);
-
-						// set new width of bottom panel
-						bottompanel.width(leftpanel.parent().width() - leftpanel.width() - 1);
+						// resize to set left width
+						that.boxlid('resize', {left: {width: event.pageX - leftpanel.offset().left}});
 
 						return false;
 					});
@@ -91,11 +70,8 @@
 				$(".boxlid-right-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
 
-						// set new width of right panel
-						rightpanel.width(rightpanel.offset().left + rightpanel.width() - event.pageX);
-
-						// set new width of top panel
-						toppanel.width(rightpanel.parent().width() - rightpanel.width() - 1);
+						// resize to set right width
+						that.boxlid('resize', {right: {width: rightpanel.offset().left + rightpanel.width() - event.pageX}});
 
 						return false;
 					});
@@ -103,12 +79,8 @@
 				// bottom handle drag
 				$(".boxlid-bottom-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
-
-						// set new height of bottom panel
-						bottompanel.height(bottompanel.offset().top + bottompanel.height() - event.pageY);
-
-						// set new height of right panel
-						rightpanel.height(bottompanel.parent().height() - bottompanel.height() - 1);
+						// resize to set bottom height
+						that.boxlid('resize', {bottom: {height: bottompanel.offset().top + bottompanel.height() - event.pageY}});
 
 						return false;
 					})
@@ -119,8 +91,88 @@
 					$("body").off("mousemove.boxlid");
 					log.log('taking mouse move off, because up', 'handle');
 				});
+
+				// resize handler
+				this.on('resize.boxlid', function(event) {
+					log.log('resizing', 'handle');
+					this.boxlid('resize');
+				});
 			},
-			// blah blah blah
+			// set the sizes of one or more of the panels by any css or pixel integer, and
+			// pixelize the resulting sizes and fill the container area
+			// options = {side: {dimension: size, +}, +}
+			// where	side = (top | right | left | bottom)
+			//			dimension = (width | height)
+			resize: function(options) {
+				log.log('resizing', 'handle');
+				var that = this;
+
+				// set sizes from options if supplied
+				var opposites = {top: {height: 'left',
+								 		width: 'right'},
+								right: {height: 'bottom',
+										width: 'top'},
+								left: {height: 'top',
+										width: 'bottom'},
+								bottom: {height: 'right',
+										width: 'left'}
+								};
+				if(options) {
+					$.each(options, function(side, val) {
+						$.each(val, function(dimension, size) {
+							// set css width or height
+							// allow css string or integer number of pixels
+							$(".boxlid-" + side + "-panel", that).css(dimension, typeof size === 'string' ? size : size + 'px');
+							// set width or height of opposite side
+							$(".boxlid-" + opposites[side][dimension] + "-panel", that)
+								.css(dimension, that[dimension]() - $(".boxlid-" + side + "-panel", that)[dimension]());
+						});
+					});
+				}
+				this.boxlid('pixelizeSizes');
+			},
+			// force all sizes to be set in pixels and to fill the area of the container
+			pixelizeSizes: function() {
+				// force all to be in pixels
+
+				// set sizes in pixels
+				// set width in pixels for top and left
+				$(".boxlid-top-panel, .boxlid-left-panel", this).width(function(index, width) {
+					return width;
+				});
+				// set width in pixels for right and bottom
+				$(".boxlid-right-panel", this).width(this.width() - $(".boxlid-top-panel").width() - 1);
+				$(".boxlid-bottom-panel", this).width(this.width() - $(".boxlid-left-panel").width() - 1);
+
+				// set height in pixels for top and right
+				$(".boxlid-top-panel, .boxlid-right-panel", this).height(function(index, height) {
+					return height;
+				});
+				// set height in pixels for left and bottom
+				$(".boxlid-left-panel", this).height(this.height() - $(".boxlid-top-panel").height() - 1);
+				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height() - 1);
+			},
+			// force a height or width of a panel to be specified in pixels at it's current size or a supplied size
+			// options.dimension = ('width' | 'height' | undefined)					both are set to current size if undefined
+			// options.panel = ('top' | 'right' | 'left' | 'bottom' | undefined)	all are set if undefined
+			// options.css = ({width: css-value} | {height: css-value} | undefined)	set to current size if undefined
+			size: function(options) {
+				var that = this;
+				// set to supplied size, if given
+				if(options.css) {
+					$(".boxlid-" + options.panel + "-panel", this).css(options.css);
+				}
+				options.panel = options.panel ? [options.panel] : ['top', 'right', 'left', 'bottom'];
+				options.dimension = options.dimension ? [options.dimension] : ['width', 'height'];
+				$.each(options.panel, function(panel) {
+					$.each(options.dimension, function(dimension) {
+						// force pixels
+						$(".boxlid-" + options.panel + "-panel", this)[options.dimension](
+							$(".boxlid-" + options.panel + "-panel",this)[options.dimension]()
+						);
+					});
+				});
+			}
 		};
 
 		if(methods[method]) {
