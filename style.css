@@ -6,7 +6,6 @@
 h1
 {
 	text-align:center;
-	border-bottom:1px solid black;
 }
 .visibleWhenLoaded
 {
@@ -14,8 +13,10 @@ h1
 }
 #tessellation
 {
-	width:801px;
-	height:601px;
+	/*width:801px;
+	height:601px;*/
+	width:200px;
+	height:200px;
 	/*border:1px dotted #000000;*/
 }
 .outercontainer

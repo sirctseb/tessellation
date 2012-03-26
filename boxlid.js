@@ -93,6 +93,11 @@
 					log.log('resizing', 'handle');
 					this.boxlid('resize');
 				});
+
+				// resize to supplied sizes if they exist
+				if(options) {
+					this.boxlid('resize', options);
+				}
 			},
 			// set the sizes of one or more of the panels by any css or pixel integer, and
 			// pixelize the resulting sizes and fill the container area

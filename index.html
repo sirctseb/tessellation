@@ -6,6 +6,7 @@
 		<link rel="stylesheet" href="style.css" />
 		<link rel="stylesheet" href="farbtastic/farbtastic.css" type="text/css" />
 		<link rel="stylesheet" href="jqueryui/css/ui-lightness/jquery-ui-1.8.17.custom.css" />
+		<link rel="stylesheet" href="boxlid.css" type="text/css" />
 		<script type="text/javascript" src="utility.js"></script>
 		<script type="text/javascript" src="timer.js"></script>
 		<script type="text/javascript" src="jquery-1.7.1.js"></script>
@@ -22,12 +23,16 @@
 		<script type="text/javascript" src="js.js"></script>
 		<script type="text/javascript" src="farbtastic/farbtastic.js"></script>
 		<script type="text/javascript" src="jqueryui/js/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="boxlid.js"></script>
 		<script type="text/javascript">
 		// declarations of library variables for jslint
 		var paper;
 		var $;
 		var app;
 			$(function() {
+				// initialize boxlid layout
+				$(".boxlid-wrapper").boxlid({top: {height:100}});
+
 				// Get a reference to the canvas object
 				var canvas = $("#tessellation").get(0);
 
@@ -103,15 +108,17 @@
 		</script>
 	</head>
 	<body>
-		 <h1>Tessellation<span class="visibleWhenLoaded"> - <span id="titlename"></span></span></h1>
+		<div class="boxlid-wrapper" style="width:800px; height:800px">
+		 <div class="boxlid-top-panel">
+		 	<h1>Tessellation<span class="visibleWhenLoaded"> - <span id="titlename"></span></span></h1>
+		 </div>
 	<!--
 	<div id="delete">
 		<input type="button" onclick="del($('#deletename').val());" value="Delete">
 		<input type="text" placeholder="model name" id="deletename">
 	</div>-->
-	<div class="outercontainer">
-		
-		<div id="settings" class="rightmenu">
+		<div class="boxlid-right-panel"></div>
+		<div id="settings" class="boxlid-left-panel">
 			<div id="tessdefcontainer" class="settinggroup">
 			</div>
 			<div id="pathstylecontainer" class="settinggroup">
@@ -175,7 +182,7 @@
 			</div>-->
 		</div>
 		<!--<div onclick="$('.error-wrap').toggle();">blah</div>-->
-		<div id="centralui" class="centralui">
+		<div id="centralui" class="boxlid-center">
 			<!-- TODO menu and command and stuff don't seem to be working -->
 			<div id="toolbar" class="toolbar">
 				
@@ -242,13 +249,11 @@
 			<canvas width=801px height=601 id="tessellation" class="tesselation"></canvas>
 		</div>
 		<!--<div class="gallery-wrapper">-->
-		<div id="gallery" class="gallery">
+		<div id="gallery" class="boxlid-bottom-panel">
 			Popular<br>
 			<!--<a href="javascript:loadGallery();">Load Gallery</a>-->
 			<!--- gallery of existing tessellations -->
 		</div>
-		
-		<div id="output"></div>
 	</div>
 	<footer>&copy; sirctseb</footer>
 	</body>

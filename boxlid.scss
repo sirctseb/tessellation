@@ -1,23 +1,43 @@
+$debug:false;
+html
+{
+	height:100%;
+}
+body
+{
+	height:100%;
+}
 .boxlid-wrapper
 	{
-		width:600px;
-		height:600px;
-		resize:both;
-		overflow:hidden;
-		border:1px solid black;
-		padding:5px;
+		@if $debug {
+			width:600px;
+			height:600px;
+			padding:5px;
+			border:1px solid black;
+			resize:both;
+			overflow:hidden;
+		} @else {
+		}
+	}
+.boxlid-center
+	{
+		border:1px solid red;
 	}
 .boxlid-panel
 	{
 		position:relative;
 		display:inline-block;
+		overflow:hidden;
+		background-color:transparent;
 	}
 $handle-size: 10px;
 .boxlid-handle
 	{
-		background-color:white;
+		@if $debug {
+			background-color:white;
+			opacity:0.5;
+		}
 		/*background-color:transparent;*/
-		opacity:0.5;
 		position:absolute;
 	}
 .boxlid-hor-handle
@@ -31,15 +51,18 @@ $handle-size: 10px;
 		@extend .boxlid-handle;
 		height:100%;
 		width:$handle-size;
+		top:0%;
 	}
 .boxlid-top-panel
 	{
 		@extend .boxlid-panel;
-		background-color:red;
 		width:80%;
 		height:20%;
 		float:left;
 		border-bottom:1px solid black;
+		@if $debug {
+			background-color:red;
+		}
 	}
 .boxlid-top-handle
 	{
@@ -49,11 +72,13 @@ $handle-size: 10px;
 .boxlid-right-panel
 	{
 		@extend .boxlid-panel;
-		background-color:green;
 		width:20%;
 		height:80%;
 		float:right;
 		border-left:1px solid black;
+		@if $debug {
+			background-color:green;
+		}
 	}
 .boxlid-right-handle
 	{
@@ -63,11 +88,13 @@ $handle-size: 10px;
 .boxlid-left-panel
 	{
 		@extend .boxlid-panel;
-		background-color:blue;
 		width:20%;
 		height:80%;
 		float:left;
 		border-right:1px solid black;
+		@if $debug {
+			background-color:blue;
+		}
 	}
 .boxlid-left-handle
 	{
@@ -77,10 +104,12 @@ $handle-size: 10px;
 .boxlid-bottom-panel
 	{
 		@extend .boxlid-panel;
-		background-color:yellow;
 		width:80%;
 		height:20%;
 		border-top:1px solid black;
+		@if $debug {
+			background-color:yellow;
+		}
 	}
 .boxlid-bottom-handle
 	{

@@ -11,7 +11,7 @@
 			log.enable('handle');
 
 			$(function() {
-				$("#boxlid-layout").boxlid();
+				$(".boxlid-wrapper").boxlid();
 				$(".handle").click(function(event) {
 					log.log($(this).attr('id'), 'handle');
 				});
@@ -20,7 +20,7 @@
 		<link rel="stylesheet" href="boxlid.css" type="text/css" />
 	</head>
 	<body>
-		<div id="boxlid-layout" resizeable>
+		<div class="boxlid-wrapper" style="width:600px; height:600px">
 			<div class="boxlid-top-panel">
 				top
 			</div>
