@@ -13,30 +13,26 @@
 				// top panel init:
 				// add the handle
 				$(".boxlid-top-panel", this).append(
-					$("<div></div>", {'class': 'boxlid-handle boxlid-hor-handle boxlid-top-handle'})
-				)
-				.addClass("boxlid-panel");
+					$("<div></div>", {'class': 'boxlid-top-handle'})
+				);
 
 				// right panel:
 				// add handle
 				$(".boxlid-right-panel", this).append(
-					$("<div></div>", {'class': 'boxlid-handle boxlid-vert-handle boxlid-right-handle'})
-				)
-				.addClass("boxlid-panel");
+					$("<div></div>", {'class': 'boxlid-right-handle'})
+				);
 
 				// left panel:
 				// add handle
 				$(".boxlid-left-panel", this).append(
-					$("<div></div>", {'class': 'boxlid-handle boxlid-vert-handle boxlid-left-handle'})
-				)
-				.addClass("boxlid-panel");
+					$("<div></div>", {'class': 'boxlid-left-handle'})
+				);
 
 				// bottom panel:
 				// add handle
 				$(".boxlid-bottom-panel", this).prepend(
-					$("<div></div>", {'class': 'boxlid-handle boxlid-hor-handle boxlid-bottom-handle'})
-				)
-				.addClass("boxlid-panel");
+					$("<div></div>", {'class': 'boxlid-bottom-handle'})
+				);
 
 				this.boxlid("resize");
 

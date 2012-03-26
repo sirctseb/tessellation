@@ -10,7 +10,9 @@
 .boxlid-panel
 	{
 		position:relative;
+		display:inline-block;
 	}
+$handle-size: 10px;
 .boxlid-handle
 	{
 		background-color:white;
@@ -20,22 +22,19 @@
 	}
 .boxlid-hor-handle
 	{
-		height:10px;
+		@extend .boxlid-handle;
+		height:$handle-size;
 		width:100%;
 	}
 .boxlid-vert-handle
 	{
+		@extend .boxlid-handle;
 		height:100%;
-		width:10px;
-	}
-/* to take up the space above the top handle */
-.boxlid-top-content
-	{
-		height:95%;
+		width:$handle-size;
 	}
 .boxlid-top-panel
 	{
-		display:inline-block;
+		@extend .boxlid-panel;
 		background-color:red;
 		width:80%;
 		height:20%;
@@ -44,11 +43,12 @@
 	}
 .boxlid-top-handle
 	{
+		@extend .boxlid-hor-handle;
 		bottom:0%;
 	}
 .boxlid-right-panel
 	{
-		display:inline-block;
+		@extend .boxlid-panel;
 		background-color:green;
 		width:20%;
 		height:80%;
@@ -57,11 +57,12 @@
 	}
 .boxlid-right-handle
 	{
+		@extend .boxlid-vert-handle;
 		left:0%;
 	}
 .boxlid-left-panel
 	{
-		display:inline-block;
+		@extend .boxlid-panel;
 		background-color:blue;
 		width:20%;
 		height:80%;
@@ -70,13 +71,18 @@
 	}
 .boxlid-left-handle
 	{
+		@extend .boxlid-vert-handle;
 		right:0%;
 	}
 .boxlid-bottom-panel
 	{
-		display:inline-block;
+		@extend .boxlid-panel;
 		background-color:yellow;
 		width:80%;
 		height:20%;
 		border-top:1px solid black;
+	}
+.boxlid-bottom-handle
+	{
+		@extend .boxlid-hor-handle;
 	}
