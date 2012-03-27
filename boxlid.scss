@@ -21,7 +21,10 @@ body
 	}
 .boxlid-center
 	{
-		border:1px solid red;
+		@if $debug {
+			border:1px solid red;
+		}
+		float:left;
 	}
 .boxlid-panel
 	{
@@ -37,7 +40,6 @@ $handle-size: 10px;
 			background-color:white;
 			opacity:0.5;
 		}
-		/*background-color:transparent;*/
 		position:absolute;
 	}
 .boxlid-hor-handle
@@ -58,7 +60,6 @@ $handle-size: 10px;
 		@extend .boxlid-panel;
 		width:80%;
 		height:20%;
-		float:left;
 		border-bottom:1px solid black;
 		@if $debug {
 			background-color:red;
