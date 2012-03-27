@@ -19,21 +19,6 @@ h1
 	height:200px;
 	/*border:1px dotted #000000;*/
 }
-.outercontainer
-{
-}
-.rightmenu
-{
-	border-right:1px solid black;
-	/*box-shadow: 3px 3px 5px #888888;*/
-	float:left;
-	width:200px;
-	padding-top:10px;
-	padding-left:30px;
-	/*border:1px dotted;*/
-	text-align:center;
-	padding-right:30px;
-}
 .settinggroup
 {
 	text-align:left;
@@ -77,10 +62,6 @@ h1
 	/*-webkit-transform:rotate(-90deg);*/
 	background-image:url(images/expand_arrow.png);
 }
-.tessUI
-{
-	background
-}
 /* TODO this puts a divider between adjacent headers (if it is correct) */
 div:only-child.tessHeader
 {
@@ -93,14 +74,6 @@ div:only-child.tessHeader
 .tessUI
 {
 	padding-left:8px;
-	/*background-color:#444488;*/
-	/*padding-top:5px;
-	padding-bottom:5px;*/
-}
-#tessdefcontainer
-{
-	/*color:white;
-	background-color:black;*/
 }
 #tessdefcontainer .tessUI
 {
@@ -162,15 +135,6 @@ div:only-child.tessHeader
 {
 	display:block;
 }
-.colorPickerContainer
-{
-	/*position:relative;*/
-}
-.colorpicker
-{
-	/*background-color:white;*/
-	/*border:10px ridge black;*/
-}
 .colorText
 {
 	width:50px;
@@ -227,9 +191,6 @@ canvas
 .commandinfo
 {
 	display:inline;
-	/*display:inline;*/
-	/*display:inline-block;*/
-	/*height:100%;*/
 }
 .savecommand
 {
@@ -238,7 +199,6 @@ canvas
 .loadcommand
 {
 	position:relative;
-	/*left:0;*/ /*top:20px;*/
 }
 .commandinfo>input
 {
@@ -252,12 +212,9 @@ canvas
 	margin-right:8px;
 }
 .gallery-wrapper {
-	/*position: relative;*/
-	/*text-align: center;*/
 }
 .gallery {
 	position:relative;
-	/*text-align: center;*/
 	margin-left:auto;
 	margin-right:auto;
 	text-align:center;
