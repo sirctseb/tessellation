@@ -67,6 +67,12 @@ div:only-child.fade-menu-section-title
 		}
 	}
 }
+.fade-menu-padded-element
+{
+	@extend .fade-menu-element;
+	padding-top:4px;
+	padding-bottom:4px;
+}
 .fade-menu-section
 {
 	@extend .fade-menu-element;
