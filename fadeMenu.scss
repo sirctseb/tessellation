@@ -1,24 +1,20 @@
 .settinggroup
 {
 	text-align:left;
-	padding-top:20px;
-	/*padding-left:30px;*/
+	margin:10px;
 	padding-bottom:20px;
 	width:200px;
 }
 .settinggroup>:first-child
 {
+	border-radius:4px;
 }
 .tessHeader
 {
-	/*background-color:#444488;*/
-	/*background-color:#4444dd;*/
 	margin-left:-8px;
 	padding-left:10px;
 	padding-top:5px;
 	padding-bottom:5px;
-	background-image:url(images/menuOverlay.png);
-	background-repeat:repeat-x;
 }
 .collapseArrow
 {
@@ -31,7 +27,7 @@
 	background-position:center;
 	/*margin-top: -5px;
 	margin-left: -5px;*/
-	margin-left:-8px;
+	margin-left:-6px;
 	float:left;
 	rotation-point:50% 50%;
 	/*rotation:90deg;*/
@@ -52,7 +48,7 @@ div:only-child.tessHeader
 }
 .tessUI
 {
-	padding-left:8px;
+	padding-left:6px;
 }
 #tessdefcontainer
 {
@@ -73,11 +69,22 @@ div:only-child.tessHeader
 		}
 	}
 }
+.tessSection
+{
+	background-image:url(images/menuOverlay.png);
+	background-repeat:repeat-x;
+	padding-right:3px;
+}
 /* the following two add a bottom padding to last sections if they are open */
 /* add the padding to the bottom of last sections if they are open */
 .tessSection:last-child:not(.collapsed)
 {
 	padding-bottom:8px;
+	&>.tessUI:last-child {
+
+		border-bottom-left-radius:4px;
+		border-bottom-right-radius:2px;
+	}
 }
 /* "remove padding" by making negative margin in the child header */
 /* so that sections with no content don't have the extra padding */
@@ -92,6 +99,7 @@ div:only-child.tessHeader
 .editButton
 {
 	float:right;
+	margin-right:4px;
 	/* TODO make this an image */
 }
 .vecEditSubmit
