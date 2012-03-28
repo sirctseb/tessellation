@@ -50,7 +50,7 @@
 				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
 
 				// handler for collapsable clicks
-				/*$("#tessdefcontainer").on("click", ".tessUI.collapsable", function(event) {
+				/*$("#tessdefcontainer").on("click", ".fade-menu-element.collapsable", function(event) {
 					var $this = $(this);
 					if($this.hasClass('collapsed')) {
 						$this.removeClass('collapsed');
@@ -60,10 +60,10 @@
 					return false;
 				});
 				// handler to prevent parent collapsables from collapsing when children are clicked
-				$("#tessdefcontainer").on("click", ".tessUI", function(event) {
+				$("#tessdefcontainer").on("click", ".fade-menu-element", function(event) {
 					return false;
 				});*/
-				$('#tessdefcontainer').on("click", ".collapseArrow", function(event) {
+				$('#tessdefcontainer').on("click", ".fade-menu-collapse-arrow", function(event) {
 					$(this).closest(".collapsable").toggleClass("collapsed");
 				})
 
@@ -120,9 +120,9 @@
 		<input type="text" placeholder="model name" id="deletename">
 	</div>-->
 		<div id="settings" class="boxlid-left-panel">
-			<div id="tessdefcontainer" class="settinggroup">
+			<div id="tessdefcontainer" class="fade-menu">
 			</div>
-			<div id="pathstylecontainer" class="settinggroup">
+			<div id="pathstylecontainer" class="fade-menu">
 				<div>Path Style</div>
 					<form id='pathStyleForm'>
 					<div class='colorPickerContainer'>
@@ -148,36 +148,36 @@
 						<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" />
 					</form>
 			</div>
-			<div id="gridsettingcontainer" class="settinggroup">
+			<div id="gridsettingcontainer" class="fade-menu">
 				<div>Grid lines</div>
 				<input type="radio" name="showgrid" value="show" onclick="$('#tessellation').tessellation('showGrid', true);" checked> Show<br>
 				<input type="radio" name="showgrid" value="hide" onclick="$('#tessellation').tessellation('showGrid', false);"> Hide <br>
 			</div>
-			<div id="pointcontainer" class="settinggroup">
+			<div id="pointcontainer" class="fade-menu">
 				<div>Selected point location</div>
 				<form action="javascript:setpoint();">
 				<input id="pointlocation" type="text" placeholder="(x,y)" pattern="\(\s*[-+]?[0-9]*\.?[0-9]+\s*,\s*[-+]?[0-9]*\.?[0-9]+\s*\)">
 				<input type="submit" value="Set">
 				</form>
 			</div>
-			<div id="keypathcontainer" class="settinggroup">
+			<div id="keypathcontainer" class="fade-menu">
 				<div>Key path emphasis</div>
 				<input type="radio" name="emphasis" value="emphasize" onclick="$('#tessellation').tessellation('setEmphasis',true);" checked> Emphasize<br>
 				<input type="radio" name="emphasis" value="noemphasize" onclick="$('#tessellation').tessellation('setEmphasis',false);"> Do not emphasize<br>
 			</div>
-			<div id="scalecontainer" class="settinggroup">
+			<div id="scalecontainer" class="fade-menu">
 				<div>Scale</div>
 				<!-- TOOD no reason for label unless there's something else here -->
 				<!--<span>Scale:</span>-->
 				<input type="range" min="1" max="100" step="1" value="10" id="scaleslider" onchange="sliderUpdate();">
 				<span id="scale">1.0</span>
 			</div>
-			<div id="paramterizationcontainer" class="settinggroup">
+			<div id="paramterizationcontainer" class="fade-menu">
 				<div>Parameterization</div>
 				<input type="radio" name="parameterization" value="Point-wise" onclick="Path.setParameterization('uniform'); $('#tessellation').tessellation('draw');" checked> Point-wise<br>
 				<input type="radio" name="parameterization" value="Length-wise" onclick="Path.setParameterization('length-wise'); $('#tessellation').tessellation('draw');"> Length-wise
 			</div>
-			<!--<div id="genurlcontainer" class="settinggroup">
+			<!--<div id="genurlcontainer" class="fade-menu">
 				<div><a href="javascript:$('#urltext').val(controller.generateURL());">Generate Link</a></div>
 				<input type="text" id="urltext" class="urltext" onchange="updateCount();">
 			</div>-->

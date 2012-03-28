@@ -1,22 +1,22 @@
-.settinggroup
+.fade-menu
 {
 	text-align:left;
 	margin:10px;
 	padding-bottom:20px;
 	width:200px;
 }
-.settinggroup>:first-child
+.fade-menu>:first-child
 {
 	border-radius:4px;
 }
-.tessHeader
+.fade-menu-section-title
 {
 	margin-left:-8px;
 	padding-left:10px;
 	padding-top:5px;
 	padding-bottom:5px;
 }
-.collapseArrow
+.fade-menu-collapse-arrow
 {
 	width:28px;
 	height:28px;
@@ -31,45 +31,45 @@
 	float:left;
 	rotation-point:50% 50%;
 	/*rotation:90deg;*/
-	&>.collapseArrow {
+	&>.fade-menu-collapse-arrow {
 		/* TODO rotate to create a right facing arrow when collapsed */
 		/*-webkit-transform:rotate(-90deg);*/
 		background-image:url(images/expand_arrow.png);
 	};
 }
 /* TODO this puts a divider between adjacent headers (if it is correct) */
-div:only-child.tessHeader
+div:only-child.fade-menu-section-title
 {
 	/*border-bottom:1px solid #333333;*/
 }
-.tessHeader.selected
+.fade-menu-section-title.selected
 {
 	background-color:#333333;
 }
-.tessUI
+.fade-menu-element
 {
 	padding-left:6px;
 }
-#tessdefcontainer
+.fade-menu
 {
-	.tessUI {
+	.fade-menu-element {
 		color:white;
 	}
-	&>.tessUI
+	&>.fade-menu-element
 	{
 		background-color:#555555;
-		&>.tessUI {
+		&>.fade-menu-element {
 			background-color:#777777;
-			&>.tessUI {
+			&>.fade-menu-element {
 				background-color:#999999;
-				&>.tessUI {
+				&>.fade-menu-element {
 					background-color:#BBBBBB;
 				}
 			}
 		}
 	}
 }
-.tessSection
+.fade-menu-section
 {
 	background-image:url(images/menuOverlay.png);
 	background-repeat:repeat-x;
@@ -77,10 +77,10 @@ div:only-child.tessHeader
 }
 /* the following two add a bottom padding to last sections if they are open */
 /* add the padding to the bottom of last sections if they are open */
-.tessSection:last-child:not(.collapsed)
+.fade-menu-section:last-child:not(.collapsed)
 {
 	padding-bottom:6px;
-	&>.tessUI:last-child {
+	&>.fade-menu-element:last-child {
 
 		border-bottom-left-radius:4px;
 		border-bottom-right-radius:2px;
@@ -88,10 +88,11 @@ div:only-child.tessHeader
 }
 /* "remove padding" by making negative margin in the child header */
 /* so that sections with no content don't have the extra padding */
-.tessSection:last-child:not(.collapsed)>.tessHeader:last-child
+.fade-menu-section:last-child:not(.collapsed)>.fade-menu-section-title:last-child
 {
 	margin-bottom:-6px;
 }
+// TODO css specific to the tessellation menu should be moved to another style sheet
 .vecEditField
 {
 	width:40px;
@@ -115,7 +116,7 @@ div:only-child.tessHeader
 {
 	display:none;
 }
-.collapsed>.collapseArrow,.tessHeader
+.collapsed>.fade-menu-collapse-arrow,.fade-menu-section-title
 {
 	display:block;
 }
