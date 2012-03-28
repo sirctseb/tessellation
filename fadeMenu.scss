@@ -71,9 +71,14 @@ div:only-child.fade-menu-section-title
 }
 .fade-menu-section
 {
+	@extend .fade-menu-element;
 	background-image:url(images/menuOverlay.png);
 	background-repeat:repeat-x;
 	padding-right:3px;
+}
+.fade-menu-collapsable-section
+{
+	@extend .fade-menu-section;
 }
 /* the following two add a bottom padding to last sections if they are open */
 /* add the padding to the bottom of last sections if they are open */

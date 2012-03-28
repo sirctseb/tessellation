@@ -49,8 +49,8 @@
 				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
 				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
 
-				// handler for collapsable clicks
-				/*$("#tessdefcontainer").on("click", ".fade-menu-element.collapsable", function(event) {
+				// handler for fade-menu-collapsable-section clicks
+				/*$("#tessdefcontainer").on("click", ".fade-menu-element.fade-menu-collapsable-section", function(event) {
 					var $this = $(this);
 					if($this.hasClass('collapsed')) {
 						$this.removeClass('collapsed');
@@ -59,12 +59,12 @@
 					}
 					return false;
 				});
-				// handler to prevent parent collapsables from collapsing when children are clicked
+				// handler to prevent parent fade-menu-collapsable-sections from collapsing when children are clicked
 				$("#tessdefcontainer").on("click", ".fade-menu-element", function(event) {
 					return false;
 				});*/
-				$('#tessdefcontainer').on("click", ".fade-menu-collapse-arrow", function(event) {
-					$(this).closest(".collapsable").toggleClass("collapsed");
+				$('.fade-menu').on("click", ".fade-menu-collapse-arrow", function(event) {
+					$(this).closest(".fade-menu-collapsable-section").toggleClass("collapsed");
 				})
 
 				// handler to add a new polygon
@@ -122,32 +122,85 @@
 		<div id="settings" class="boxlid-left-panel">
 			<div id="tessdefcontainer" class="fade-menu">
 			</div>
-			<div id="pathstylecontainer" class="fade-menu">
-				<div>Path Style</div>
-					<form id='pathStyleForm'>
-					<div class='colorPickerContainer'>
-						<input type='text' name='strokeColor' value='black' id='strokeColor' class="colorText strokeColorPickerLinks" />
-							<div class='colorPreview strokeColorPickerLinks' onclick='$("#stroke-colorpicker").dialog("open");'></div>
-							<div id='stroke-colorpicker' class='colorpicker'></div>
-							<label for='strokeColor'>Stroke Color</label><br />
+			<form id='pathStyleForm'>
+				<div id="pathstylecontainer" class="fade-menu">
+					<div class="fade-menu-collapsable-section">
+						<div class="fade-menu-collapse-arrow"></div>
+						<div class="fade-menu-section-title">Path Style</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for="strokeColor" class="fade-menu-section-title">Stroke Color</label>
+								<div class="fade-menu-element">
+									<input type="text" name="strokeColor" value="black" id="strokeColor" class="colorText strokeColorPickerLinks" />
+									<div class='colorPreview strokeColorPickerLinks' onclick="$('#stroke-colorpicker').dialog('open');"></div>
+									<div id='stroke-colorpicker' class='colorpicker'></div>
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='strokeWidth' class="fade-menu-section-title">Stroke Width</label>
+								<div class="fade-menu-element">
+									<input type='text' name='strokeWidth' value='3' id='strokeWidth' />
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='strokeCap' class="fade-menu-section-title">Stroke Cap</label>
+								<div class="fade-menu-element">
+									<input type='text' name='strokeCap' value='butt' id='strokeCap' />
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='strokeJoin' class="fade-menu-section-title">Stroke Join</label>
+								<div class="fade-menu-element">
+									<input type='text' name='strokeJoin' value='miter' id='strokeJoin' />
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='dashOffset' class="fade-menu-section-title">Dash Offset</label>
+								<div class="fade-menu-element">
+									<input type='text' name='dashOffset' value='0' id='dashOffset' />
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='dashArray' class="fade-menu-section-title">Dash Array</label>
+								<div class="fade-menu-element">
+									<input type='text' name='dashArray' value='' id='dashArray' />
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='miterLimit' class="fade-menu-section-title">Miter Limit</label>
+								<div class="fade-menu-element">
+									<input type='text' name='miterLimit' value='10' id='miterLimit' />
+								</div>
+							</div>
+
+							<div class="fade-menu-collapsable-section">
+								<div class="fade-menu-collapse-arrow"></div>
+								<label for='fillColor' class="fade-menu-section-title">Fill Color</label>
+								<div class="fade-menu-element">
+									<input type='text' name='fillColor' value='none' id='fillColor' />
+								</div>
+							</div>
+							<div class="fade-menu-section">
+								<div style="padding-top:6px; margin-left:auto; margin-right:auto; display:table">
+									<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" style=""/>
+								</div>
+							</div>
 					</div>
-						<input type='text' name='strokeWidth' value='3' id='strokeWidth' />
-							<label for='strokeWidth'>Stroke Width</label><br />
-						<input type='text' name='strokeCap' value='butt' id='strokeCap' />
-							<label for='strokeCap'>Stroke Cap</label><br />
-						<input type='text' name='strokeJoin' value='miter' id='strokeJoin' />
-							<label for='strokeJoin'>Stroke Join</label><br />
-						<input type='text' name='dashOffset' value='0' id='dashOffset' />
-							<label for='dashOffset'>Dash Offset</label><br />
-						<input type='text' name='dashArray' value='' id='dashArray' />
-							<label for='dashArray'>Dash Array</label><br />
-						<input type='text' name='miterLimit' value='10' id='miterLimit' />
-							<label for='miterLimit'>Miter Limit</label><br />
-						<input type='text' name='fillColor' value='none' id='fillColor' />
-							<label for='fillColor'>Fill Color</label><br />
-						<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" />
-					</form>
-			</div>
+				</div>
+			</form>
 			<div id="gridsettingcontainer" class="fade-menu">
 				<div>Grid lines</div>
 				<input type="radio" name="showgrid" value="show" onclick="$('#tessellation').tessellation('showGrid', true);" checked> Show<br>
