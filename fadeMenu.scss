@@ -79,7 +79,7 @@ div:only-child.tessHeader
 /* add the padding to the bottom of last sections if they are open */
 .tessSection:last-child:not(.collapsed)
 {
-	padding-bottom:8px;
+	padding-bottom:6px;
 	&>.tessUI:last-child {
 
 		border-bottom-left-radius:4px;
@@ -90,7 +90,7 @@ div:only-child.tessHeader
 /* so that sections with no content don't have the extra padding */
 .tessSection:last-child:not(.collapsed)>.tessHeader:last-child
 {
-	margin-bottom:-8px;
+	margin-bottom:-6px;
 }
 .vecEditField
 {
