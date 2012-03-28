@@ -152,27 +152,6 @@
 				// set height in pixels for left and bottom
 				$(".boxlid-left-panel", this).height(this.height() - $(".boxlid-top-panel").height() - 1);
 				$(".boxlid-bottom-panel", this).height(this.height() - $(".boxlid-right-panel").height() - 1);
-			},
-			// force a height or width of a panel to be specified in pixels at it's current size or a supplied size
-			// options.dimension = ('width' | 'height' | undefined)					both are set to current size if undefined
-			// options.panel = ('top' | 'right' | 'left' | 'bottom' | undefined)	all are set if undefined
-			// options.css = ({width: css-value} | {height: css-value} | undefined)	set to current size if undefined
-			size: function(options) {
-				var that = this;
-				// set to supplied size, if given
-				if(options.css) {
-					$(".boxlid-" + options.panel + "-panel", this).css(options.css);
-				}
-				options.panel = options.panel ? [options.panel] : ['top', 'right', 'left', 'bottom'];
-				options.dimension = options.dimension ? [options.dimension] : ['width', 'height'];
-				$.each(options.panel, function(panel) {
-					$.each(options.dimension, function(dimension) {
-						// force pixels
-						$(".boxlid-" + options.panel + "-panel", this)[options.dimension](
-							$(".boxlid-" + options.panel + "-panel",this)[options.dimension]()
-						);
-					});
-				});
 			}
 		};
 
