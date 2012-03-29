@@ -9,7 +9,11 @@
 
 				// initialize stored data if it doesn't exist
 				if(!that.data("boxlid")) {
-					that.data("boxlid", {callbacks: {}});
+					that.data("boxlid", {callbacks: {},
+											left: {size: 0, dimension: 'width'},
+											right: {size: 0, dimension: 'width'},
+											top: {size: 0, dimension: 'height'},
+											bottom: {size: 0, dimension: 'height'}});
 				}
 
 				// wrapper init
@@ -65,6 +69,30 @@
 						that.boxlid('resize', {left: {width: event.pageX - leftpanel.offset().left}});
 
 						return false;
+					});
+				});
+				var sides = ['left', 'top', 'right', 'bottom'];
+				$.each(sides, function(index, side) {
+					$(".boxlid-" + side + "-handle", that).click(function(event) {
+						var dimension = that.data('boxlid')[side].dimension;
+						// if left is open,
+						if(that.data('boxlid')[side].size === 0) {
+							// store open left size
+							that.data('boxlid')[side].size = $(this).parent()[dimension]();
+							var size = {}; size[side] = {}; size[side][dimension] = 10;
+							that.boxlid('resize',size);
+							// close left panel
+							//$(this).parent()[dimension](10);
+						}
+						// otherwise
+						else {
+							// open left panel to old size
+							//$(this).parent()[dimension](that.data('boxlid')[side].size);
+							var size = {}; size[side] = {}; size[side][dimension] = that.data('boxlid')[side].size;
+							that.boxlid('resize', size);
+							// set left size to 0 to indicate open
+							that.data('boxlid')[side].size = 0;
+						}
 					});
 				});
 				// right handle drag
