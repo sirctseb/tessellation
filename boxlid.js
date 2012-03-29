@@ -151,12 +151,10 @@
 					});
 					// resize center div
 					$(".boxlid-center", that).width(
-						$(".boxlid-right-panel", that).offset().left - $(".boxlid-left-panel", that).offset().left -
-						$(".boxlid-left-panel", that).outerWidth()
+						that.outerWidth() - $(".boxlid-left-panel", that).outerWidth() - $(".boxlid-right-panel", that).outerWidth()
 					);
 					$(".boxlid-center", that).height(
-						$(".boxlid-bottom-panel", that).offset().top - $(".boxlid-top-panel", that).offset().top -
-						$(".boxlid-top-panel", that).outerHeight()
+						that.outerHeight() - $(".boxlid-bottom-panel", that).outerHeight() - $(".boxlid-top-panel", that).outerHeight()
 					);
 					// call center resize callback if it exists
 					if(that.data('boxlid').callbacks.center) {

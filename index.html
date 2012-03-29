@@ -36,16 +36,18 @@
 					$("#tessellation").attr('width', size.width + 'px')
 										.attr('height', size.height + 'px')
 										.css({width: size.width + 'px', height: size.height + 'px'});
+					paper.view.viewSize = [size.width, size.height];
 				};
-				// initialize boxlid layout
-				$(".boxlid-wrapper").boxlid({sizes: {top: {height:"auto"}, left: {width:220}},
-											callbacks: {center: centerResize}});
 
 				// Get a reference to the canvas object
 				var canvas = $("#tessellation").get(0);
 
 				// Create an empty project and view for the canvas
 				paper.setup(canvas);
+
+				// initialize boxlid layout
+				$(".boxlid-wrapper").boxlid({sizes: {top: {height:"auto"}, left: {width:220}},
+												callbacks: {center: centerResize}});
 				
 				app.init();
 				
