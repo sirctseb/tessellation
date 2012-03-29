@@ -31,8 +31,15 @@
 		var $;
 		var app;
 			$(function() {
+				var centerResize = function(size) {
+					log.log('resizing center');
+					$("#tessellation").attr('width', size.width + 'px')
+										.attr('height', size.height + 'px')
+										.css({width: size.width + 'px', height: size.height + 'px'});
+				};
 				// initialize boxlid layout
-				$(".boxlid-wrapper").boxlid({top: {height:"auto"}, left: {width:220}});
+				$(".boxlid-wrapper").boxlid({sizes: {top: {height:"auto"}, left: {width:220}},
+											callbacks: {center: centerResize}});
 
 				// Get a reference to the canvas object
 				var canvas = $("#tessellation").get(0);
@@ -330,7 +337,7 @@
 						</span>
 					</span>
 				</div>
-				<canvas width=801px height=601 id="tessellation" class="tesselation"></canvas>
+				<canvas width=200px height=200px id="tessellation" class="tesselation"></canvas>
 			</div>
 			<!--<div class="gallery-wrapper">-->
 			<div id="gallery" class="boxlid-bottom-panel">
