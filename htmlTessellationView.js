@@ -7,7 +7,10 @@ var htmlView = function(spec, my) {
 
 	// protected variables
 	// the root html element of this view
-	my = $.extend(my, {root: null});
+	my = $.extend(my, {root: null,
+						controller: spec.controller,
+						superview: spec.superview,
+						tessellation: spec.tessellation});
 
 	// create root element
 	if(spec.type) {
@@ -43,7 +46,7 @@ var htmlSectionView = function(spec, my) {
 		var classes = (spec.classes ? spec.classes : "") + "collapsable tessSection tessUI";
 
 		// subclass from htmlView
-		that = htmlView({classes: classes}, my);
+		that = htmlView($.extend({}, spec, {classes: classes}), my);
 
 		// add header
 		my.header = $("<div/>", {"class": "tessHeader", text: spec.headerText}).appendTo(my.root)
@@ -67,12 +70,10 @@ var htmlTessellationView = function(spec, my) {
 
 	var that;
 
-	my = $.extend(my, { controller: spec.controller,
-				  tessellation: spec.tessellation });
+	my = my || {};
 
 	// private members
 	// some main elements
-	//var root,
 	var stampHead,
 		latticeHead,
 		polyHead,
@@ -84,8 +85,7 @@ var htmlTessellationView = function(spec, my) {
 	// shape subviews
 		shapeViews = [];
 
-	//that = htmlView(spec, my);
-	that = htmlSectionView({headerText: "Stamp"}, my);
+	that = htmlSectionView($.extend({headerText: "Stamp"}, spec), my);
 	
 	var construct = function() {
 
@@ -98,15 +98,21 @@ var htmlTessellationView = function(spec, my) {
 		latticeHead = latticeView.root().appendTo(my.root);
 
 		// polygon section
-		polyHead = htmlSectionView({headerText: "Shapes (" + my.tessellation.polygons().length + ")"});
+		polyHead = htmlSectionView(
+						$.extend({}, spec, {	superview: that,
+												headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
 		polyHead.root().appendTo(my.root);
 
 		// substructure section
-		substructureHead = htmlSectionView({headerText: "Substamps (" + my.tessellation.subgroups().length + ")"});
+		substructureHead = htmlSectionView(
+			$.extend({}, spec, {superview: that,
+								headerText: "Substamps (" + my.tessellation.subgroups().length + ")"}));
 		substructureHead.root().appendTo(my.root);
 
 		// transform section
-		transformHead = htmlSectionView({headerText: "Placements (" + my.tessellation.transforms().length + ")"});
+		transformHead = htmlSectionView(
+			$.extend({}, spec, {superview: that,
+								headerText: "Placements (" + my.tessellation.transforms().length + ")"}));
 		transformHead.root().appendTo(my.root);
 
 		// add click handler to stamp header
@@ -133,7 +139,14 @@ var htmlTessellationView = function(spec, my) {
 			});
 		// add polygons
 		$.each(my.tessellation.polygons(), function(index, polygon) {
-			shapeViews.push(htmlShapeView({controller: my.controller, tessellation: my.tessellation, polygon: polygon}));
+			shapeViews.push(
+				htmlShapeView(
+					{	controller: my.controller,
+						tessellation: my.tessellation,
+						polygon: polygon,
+						superview: that}
+					)
+				);
 			shapeViews[shapeViews.length-1].root().appendTo(polyHead.root());
 		});
 		// add polygon entry
@@ -148,7 +161,13 @@ var htmlTessellationView = function(spec, my) {
 		// add subgroup views
 		$.each(my.tessellation.subgroups(), function(index, subgroup) {
 			// create view for subgroup
-			subgroupViews.push(htmlTessellationView({controller:my.controller, tessellation: subgroup}));
+			subgroupViews.push(
+				htmlTessellationView(
+					{	controller: my.controller,
+						tessellation: subgroup,
+						superview: substructureHead}
+					)
+				);
 			// add subgroup root to this view
 			subgroupViews[subgroupViews.length-1].root().appendTo(substructureHead.root());
 		});
@@ -211,16 +230,13 @@ var htmlTessellationView = function(spec, my) {
 
 /* class for lattice subview */
 var htmlLatticeView = function(spec, my) {
-	var that = {};
-	my = { controller: spec.controller,
-			tessellation: spec.tessellation,
-			superview: spec.superview };
+	var that;
 
-	//that = htmlView(spec, my);
+	my = my || {};
+
 	that = htmlSectionView($.extend(spec, {headerText: "Lattice"}), my);
 
 	// private members
-	//var latticeHead,
 	var v1display,
 		v2display; // TODO contain all vector displays in these outer divs
 	var vdisplays;
@@ -371,9 +387,7 @@ var htmlLatticeView = function(spec, my) {
 var htmlShapeView = function(spec, my) {
 
 	var that;
-	var my = {	controller: spec.controller,
-				tessellation: spec.tessellation,
-				superview: spec.superview };
+	var my = my || {};
 	
 	// private members
 	// the paperjs path
