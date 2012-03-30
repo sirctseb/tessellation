@@ -71,30 +71,6 @@
 						return false;
 					});
 				});
-				var sides = ['left', 'top', 'right', 'bottom'];
-				$.each(sides, function(index, side) {
-					$(".boxlid-" + side + "-handle", that).click(function(event) {
-						var dimension = that.data('boxlid')[side].dimension;
-						// if left is open,
-						if(that.data('boxlid')[side].size === 0) {
-							// store open left size
-							that.data('boxlid')[side].size = $(this).parent()[dimension]();
-							var size = {}; size[side] = {}; size[side][dimension] = 10;
-							that.boxlid('resize',size);
-							// close left panel
-							//$(this).parent()[dimension](10);
-						}
-						// otherwise
-						else {
-							// open left panel to old size
-							//$(this).parent()[dimension](that.data('boxlid')[side].size);
-							var size = {}; size[side] = {}; size[side][dimension] = that.data('boxlid')[side].size;
-							that.boxlid('resize', size);
-							// set left size to 0 to indicate open
-							that.data('boxlid')[side].size = 0;
-						}
-					});
-				});
 				// right handle drag
 				$(".boxlid-right-handle", that).mousedown(function(event) {
 					$("body").on("mousemove.boxlid", function(event) {
@@ -112,8 +88,32 @@
 						that.boxlid('resize', {bottom: {height: bottompanel.offset().top + bottompanel.height() - event.pageY}});
 
 						return false;
-					})
-				})
+					});
+				});
+
+				// click on handles to open / close them
+				var sides = ['left', 'top', 'right', 'bottom'];
+				$.each(sides, function(index, side) {
+					$(".boxlid-" + side + "-handle", that).click(function(event) {
+						var dimension = that.data('boxlid')[side].dimension;
+						// if panel is open,
+						if(that.data('boxlid')[side].size === 0) {
+							// store open size
+							that.data('boxlid')[side].size = $(this).parent()[dimension]();
+							// close panel
+							var size = {}; size[side] = {}; size[side][dimension] = 10;
+							that.boxlid('resize',size);
+						}
+						// otherwise
+						else {
+							// open panel to old size
+							var size = {}; size[side] = {}; size[side][dimension] = that.data('boxlid')[side].size;
+							that.boxlid('resize', size);
+							// set size to 0 to indicate open
+							that.data('boxlid')[side].size = 0;
+						}
+					});
+				});
 
 				// up handlers
 				$("body").mouseup(function(event) {
