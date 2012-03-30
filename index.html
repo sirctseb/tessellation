@@ -6,6 +6,8 @@
 		<link rel="stylesheet" href="style.css" />
 		<link rel="stylesheet" href="farbtastic/farbtastic.css" type="text/css" />
 		<link rel="stylesheet" href="jqueryui/css/ui-lightness/jquery-ui-1.8.17.custom.css" />
+		<link rel="stylesheet" href="boxlid.css" type="text/css" />
+		<link rel="stylesheet" href="fadeMenu.css" type="text/css" />
 		<script type="text/javascript" src="utility.js"></script>
 		<script type="text/javascript" src="timer.js"></script>
 		<script type="text/javascript" src="jquery-1.7.1.js"></script>
@@ -22,17 +24,30 @@
 		<script type="text/javascript" src="js.js"></script>
 		<script type="text/javascript" src="farbtastic/farbtastic.js"></script>
 		<script type="text/javascript" src="jqueryui/js/jquery-ui-1.8.17.custom.min.js"></script>
+		<script type="text/javascript" src="boxlid.js"></script>
 		<script type="text/javascript">
 		// declarations of library variables for jslint
 		var paper;
 		var $;
 		var app;
 			$(function() {
+				var centerResize = function(size) {
+					log.log('resizing center');
+					$("#tessellation").attr('width', size.width + 'px')
+										.attr('height', size.height + 'px')
+										.css({width: size.width + 'px', height: size.height + 'px'});
+					paper.view.viewSize = [size.width, size.height];
+				};
+
 				// Get a reference to the canvas object
 				var canvas = $("#tessellation").get(0);
 
 				// Create an empty project and view for the canvas
 				paper.setup(canvas);
+
+				// initialize boxlid layout
+				$(".boxlid-wrapper").boxlid({sizes: {top: {height:"auto"}, left: {width:220}},
+												callbacks: {center: centerResize}});
 				
 				app.init();
 				
@@ -43,8 +58,8 @@
 				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
 				$('#stroke-colorpicker').dialog({autoOpen:false, title: 'Select Color'});
 
-				// handler for collapsable clicks
-				/*$("#tessdefcontainer").on("click", ".tessUI.collapsable", function(event) {
+				// handler for fade-menu-collapsable-section clicks
+				/*$("#tessdefcontainer").on("click", ".fade-menu-element.fade-menu-collapsable-section", function(event) {
 					var $this = $(this);
 					if($this.hasClass('collapsed')) {
 						$this.removeClass('collapsed');
@@ -53,12 +68,12 @@
 					}
 					return false;
 				});
-				// handler to prevent parent collapsables from collapsing when children are clicked
-				$("#tessdefcontainer").on("click", ".tessUI", function(event) {
+				// handler to prevent parent fade-menu-collapsable-sections from collapsing when children are clicked
+				$("#tessdefcontainer").on("click", ".fade-menu-element", function(event) {
 					return false;
 				});*/
-				$('#tessdefcontainer').on("click", ".collapseArrow", function(event) {
-					$(this).closest(".collapsable").toggleClass("collapsed");
+				$('.fade-menu').on("click", ".fade-menu-collapse-arrow", function(event) {
+					$(this).closest(".fade-menu-collapsable-section").toggleClass("collapsed");
 				})
 
 				// handler to add a new polygon
@@ -103,153 +118,236 @@
 		</script>
 	</head>
 	<body>
-		 <header ><h1>Tessellation<span class="visibleWhenLoaded"> - <span id="titlename"></span></span></h1></header>
-	<!--
-	<div id="delete">
-		<input type="button" onclick="del($('#deletename').val());" value="Delete">
-		<input type="text" placeholder="model name" id="deletename">
-	</div>-->
-	<div class="outercontainer">
-		
-		<div id="settings" class="rightmenu">
-			<div id="tessdefcontainer" class="settinggroup">
+		<div class="boxlid-wrapper" style="width:100%; height:100%">
+			<div class="boxlid-right-panel">
 			</div>
-			<div id="pathstylecontainer" class="settinggroup">
-				<div>Path Style</div>
-					<form id='pathStyleForm'>
-					<div class='colorPickerContainer'>
-						<input type='text' name='strokeColor' value='black' id='strokeColor' class="colorText strokeColorPickerLinks" />
-							<div class='colorPreview strokeColorPickerLinks' onclick='$("#stroke-colorpicker").dialog("open");'></div>
-							<div id='stroke-colorpicker' class='colorpicker'></div>
-							<label for='strokeColor'>Stroke Color</label><br />
-					</div>
-						<input type='text' name='strokeWidth' value='3' id='strokeWidth' />
-							<label for='strokeWidth'>Stroke Width</label><br />
-						<input type='text' name='strokeCap' value='butt' id='strokeCap' />
-							<label for='strokeCap'>Stroke Cap</label><br />
-						<input type='text' name='strokeJoin' value='miter' id='strokeJoin' />
-							<label for='strokeJoin'>Stroke Join</label><br />
-						<input type='text' name='dashOffset' value='0' id='dashOffset' />
-							<label for='dashOffset'>Dash Offset</label><br />
-						<input type='text' name='dashArray' value='' id='dashArray' />
-							<label for='dashArray'>Dash Array</label><br />
-						<input type='text' name='miterLimit' value='10' id='miterLimit' />
-							<label for='miterLimit'>Miter Limit</label><br />
-						<input type='text' name='fillColor' value='none' id='fillColor' />
-							<label for='fillColor'>Fill Color</label><br />
-						<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" />
-					</form>
+			<div class="boxlid-top-panel">
+				<h1>Tessellation<span class="visibleWhenLoaded"> - <span id="titlename"></span></span></h1>
 			</div>
-			<div id="gridsettingcontainer" class="settinggroup">
-				<div>Grid lines</div>
-				<input type="radio" name="showgrid" value="show" onclick="$('#tessellation').tessellation('showGrid', true);" checked> Show<br>
-				<input type="radio" name="showgrid" value="hide" onclick="$('#tessellation').tessellation('showGrid', false);"> Hide <br>
-			</div>
-			<div id="pointcontainer" class="settinggroup">
-				<div>Selected point location</div>
-				<form action="javascript:setpoint();">
-				<input id="pointlocation" type="text" placeholder="(x,y)" pattern="\(\s*[-+]?[0-9]*\.?[0-9]+\s*,\s*[-+]?[0-9]*\.?[0-9]+\s*\)">
-				<input type="submit" value="Set">
-				</form>
-			</div>
-			<div id="keypathcontainer" class="settinggroup">
-				<div>Key path emphasis</div>
-				<input type="radio" name="emphasis" value="emphasize" onclick="$('#tessellation').tessellation('setEmphasis',true);" checked> Emphasize<br>
-				<input type="radio" name="emphasis" value="noemphasize" onclick="$('#tessellation').tessellation('setEmphasis',false);"> Do not emphasize<br>
-			</div>
-			<div id="scalecontainer" class="settinggroup">
-				<div>Scale</div>
-				<!-- TOOD no reason for label unless there's something else here -->
-				<!--<span>Scale:</span>-->
-				<input type="range" min="1" max="100" step="1" value="10" id="scaleslider" onchange="sliderUpdate();">
-				<span id="scale">1.0</span>
-			</div>
-			<div id="paramterizationcontainer" class="settinggroup">
-				<div>Parameterization</div>
-				<input type="radio" name="parameterization" value="Point-wise" onclick="Path.setParameterization('uniform'); $('#tessellation').tessellation('draw');" checked> Point-wise<br>
-				<input type="radio" name="parameterization" value="Length-wise" onclick="Path.setParameterization('length-wise'); $('#tessellation').tessellation('draw');"> Length-wise
-			</div>
-			<!--<div id="genurlcontainer" class="settinggroup">
-				<div><a href="javascript:$('#urltext').val(controller.generateURL());">Generate Link</a></div>
-				<input type="text" id="urltext" class="urltext" onchange="updateCount();">
+			<!--
+			<div id="delete">
+				<input type="button" onclick="del($('#deletename').val());" value="Delete">
+				<input type="text" placeholder="model name" id="deletename">
 			</div>-->
-		</div>
-		<!--<div onclick="$('.error-wrap').toggle();">blah</div>-->
-		<div id="centralui" class="centralui">
-			<!-- TODO menu and command and stuff don't seem to be working -->
-			<div id="toolbar" class="toolbar">
-				
-				<span class="visibleWhenLoaded">
-					<span class="menucommand" onclick="clicksave();">
-						Save
-					</span>
-					<span class="commanddivider">|</span>
-				</span>
-				
-				<span class="menucommand" onclick="$('.savecommand').toggle(); $('.commandinfo').not('.savecommand').hide();">Save As...</span>
-				<div class="commandinfo savecommand">
-					<form action="javascript:clicksaveas();">
-						<input type="text" placeholder="name" id="savecommandname" onkeydown="$('#saveasnameerror').hide();">
-						<!-- TODO display:inline-block solves the floating problem of the icon, but i don't understand why -->
-						<span class="error-wrap" id="saveasnameerror">
-							<span class="ui-state-error" style="display:inline-block;">
-								<span class="ui-icon ui-icon-alert" style="float:left;"></span>
-								<!-- TODO any whitespace after the text and before </span> makes the element jump up for some reason -->
-								Name already taken</span>
-						</span>
-						<input type="submit" value="Go" id="savebutton">
-					</form>
+			<div id="settings" class="boxlid-left-panel">
+				<div id="tessdefcontainer" class="fade-menu">
 				</div>
-				
-				<span class="commanddivider">|</span>
-				
-				<span class="menucommand" onclick="$('.loadcommand').toggle(); $('.commandinfo').not('.loadcommand').hide();">Load...</span>
-				<div class="commandinfo loadcommand">
-					<form action="javascript:clickload();">
-						<input type="text" placeholder="name" id="loadcommandname" onkeydown="$('#loadnameerror').hide();">
-						<!-- TODO display:inline-block solves the floating problem of the icon, but i don't understand why -->
-						<span class="error-wrap" id="loadnameerror">
-							<span class="ui-state-error" style="display:inline-block;">
-								<span class="ui-icon ui-icon-alert" style="float:left;"></span>
-								<!-- TODO any whitespace after the text and before </span> makes the element jump up for some reason -->
-								No such tessellation</span>
-						</span>
-						<input type="submit" value="Go" id="loadbutton">
-					</form>
+				<form id='pathStyleForm'>
+					<div id="pathstylecontainer" class="fade-menu">
+						<div class="fade-menu-collapsable-section collapsed">
+							<div class="fade-menu-collapse-arrow"></div>
+							<div class="fade-menu-section-title">Path Style</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for="strokeColor" class="fade-menu-section-title">Stroke Color</label>
+									<div class="fade-menu-element">
+										<input type="text" name="strokeColor" value="black" id="strokeColor" class="colorText strokeColorPickerLinks" />
+										<div class='colorPreview strokeColorPickerLinks' onclick="$('#stroke-colorpicker').dialog('open');"></div>
+										<div id='stroke-colorpicker' class='colorpicker'></div>
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='strokeWidth' class="fade-menu-section-title">Stroke Width</label>
+									<div class="fade-menu-element">
+										<input type='text' name='strokeWidth' value='3' id='strokeWidth' />
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='strokeCap' class="fade-menu-section-title">Stroke Cap</label>
+									<div class="fade-menu-element">
+										<input type='text' name='strokeCap' value='butt' id='strokeCap' />
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='strokeJoin' class="fade-menu-section-title">Stroke Join</label>
+									<div class="fade-menu-element">
+										<input type='text' name='strokeJoin' value='miter' id='strokeJoin' />
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='dashOffset' class="fade-menu-section-title">Dash Offset</label>
+									<div class="fade-menu-element">
+										<input type='text' name='dashOffset' value='0' id='dashOffset' />
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='dashArray' class="fade-menu-section-title">Dash Array</label>
+									<div class="fade-menu-element">
+										<input type='text' name='dashArray' value='' id='dashArray' />
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='miterLimit' class="fade-menu-section-title">Miter Limit</label>
+									<div class="fade-menu-element">
+										<input type='text' name='miterLimit' value='10' id='miterLimit' />
+									</div>
+								</div>
+
+								<div class="fade-menu-collapsable-section">
+									<div class="fade-menu-collapse-arrow"></div>
+									<label for='fillColor' class="fade-menu-section-title">Fill Color</label>
+									<div class="fade-menu-element">
+										<input type='text' name='fillColor' value='none' id='fillColor' />
+									</div>
+								</div>
+								<div class="fade-menu-section">
+									<div style="padding-top:6px; margin-left:auto; margin-right:auto; display:table">
+										<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" style=""/>
+									</div>
+								</div>
+						</div>
+					</div>
+				</form>
+				<div id="gridsettingcontainer" class="fade-menu">
+					<div class="fade-menu-collapsable-section">
+						<div class="fade-menu-collapse-arrow"></div>
+						<div class="fade-menu-section-title">Grid lines</div>
+						<div class="fade-menu-padded-element">
+							<input type="radio" name="showgrid" value="show" onclick="$('#tessellation').tessellation('showGrid', true);" checked> Show<br>
+							<input type="radio" name="showgrid" value="hide" onclick="$('#tessellation').tessellation('showGrid', false);"> Hide <br>
+						</div>
+					</div>
 				</div>
-				
-				<span class="visibleWhenLoaded" id="likeToolbarCommands">
-				
-					<span class="commanddivider">|</span>
-					
-					<span class="menucommand" onclick="like(true);">
-						Like
-					</span><span class="likes">(<span  id="likes"></span>)</span>
-					
-					<span class="commanddivider">|</span>
-					
-					<span class="menucommand" onclick="like(false);">
-						Dislike
-					</span><span class="dislikes">(<span  id="dislikes"></span>)</span>
-					
-					<span class="commanddivider">|</span>
-					
-					<span class="menucommand">
-						<a id="modellink" href="./" >Link to here</a>
-					</span>
-				</span>
+
+				<div id="pointcontainer" class="fade-menu">
+					<div class="fade-menu-collapsable-section">
+						<div class="fade-menu-collapse-arrow"></div>
+						<div class="fade-menu-section-title">Selected point location</div>
+						<div class="fade-menu-padded-element">
+							<form action="javascript:setpoint();">
+							<input id="pointlocation" type="text" placeholder="(x,y)" pattern="\(\s*[-+]?[0-9]*\.?[0-9]+\s*,\s*[-+]?[0-9]*\.?[0-9]+\s*\)">
+							<input type="submit" value="Set">
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div id="keypathcontainer" class="fade-menu">
+					<div class="fade-menu-collapsable-section">
+						<div class="fade-menu-collapse-arrow"></div>
+						<div class="fade-menu-section-title">Key path emphasis</div>
+						<div class="fade-menu-padded-element">
+							<input type="radio" name="emphasis" value="emphasize" onclick="$('#tessellation').tessellation('setEmphasis',true);" checked> Emphasize<br>
+							<input type="radio" name="emphasis" value="noemphasize" onclick="$('#tessellation').tessellation('setEmphasis',false);"> Do not emphasize<br>
+						</div>
+					</div>
+				</div>
+
+				<div id="scalecontainer" class="fade-menu">
+					<div class="fade-menu-collapsable-section">
+						<div class="fade-menu-collapse-arrow"></div>
+						<div class="fade-menu-section-title">Scale</div>
+						<div class="fade-menu-padded-element">
+							<!-- TOOD no reason for label unless there's something else here -->
+							<!--<span>Scale:</span>-->
+							<input type="range" min="1" max="100" step="1" value="10" id="scaleslider" onchange="sliderUpdate();">
+							<span id="scale">1.0</span>
+						</div>
+					</div>
+				</div>
+
+				<div id="paramterizationcontainer" class="fade-menu">
+					<div class="fade-menu-collapsable-section">
+						<div class="fade-menu-collapse-arrow"></div>
+						<div class="fade-menu-section-title">Parameterization</div>
+						<div class="fade-menu-padded-element">
+							<input type="radio" name="parameterization" value="Point-wise" onclick="Path.setParameterization('uniform'); $('#tessellation').tessellation('draw');" checked> Point-wise<br>
+							<input type="radio" name="parameterization" value="Length-wise" onclick="Path.setParameterization('length-wise'); $('#tessellation').tessellation('draw');"> Length-wise
+						</div>
+					</div>
+				</div>
+				<!--<div id="genurlcontainer" class="fade-menu">
+					<div><a href="javascript:$('#urltext').val(controller.generateURL());">Generate Link</a></div>
+					<input type="text" id="urltext" class="urltext" onchange="updateCount();">
+				</div>-->
 			</div>
-			<canvas width=801px height=601 id="tessellation" class="tesselation"></canvas>
+			<!--<div onclick="$('.error-wrap').toggle();">blah</div>-->
+			<div id="centralui" class="boxlid-center">
+				<!-- TODO menu and command and stuff don't seem to be working -->
+				<div id="toolbar" class="toolbar">
+					
+					<span class="visibleWhenLoaded">
+						<span class="menucommand" onclick="clicksave();">
+							Save
+						</span>
+						<span class="commanddivider">|</span>
+					</span>
+					
+					<span class="menucommand" onclick="$('.savecommand').toggle(); $('.commandinfo').not('.savecommand').hide();">Save As...</span>
+					<div class="commandinfo savecommand">
+						<form action="javascript:clicksaveas();">
+							<input type="text" placeholder="name" id="savecommandname" onkeydown="$('#saveasnameerror').hide();">
+							<!-- TODO display:inline-block solves the floating problem of the icon, but i don't understand why -->
+							<span class="error-wrap" id="saveasnameerror">
+								<span class="ui-state-error" style="display:inline-block;">
+									<span class="ui-icon ui-icon-alert" style="float:left;"></span>
+									<!-- TODO any whitespace after the text and before </span> makes the element jump up for some reason -->
+									Name already taken</span>
+							</span>
+							<input type="submit" value="Go" id="savebutton">
+						</form>
+					</div>
+					
+					<span class="commanddivider">|</span>
+					
+					<span class="menucommand" onclick="$('.loadcommand').toggle(); $('.commandinfo').not('.loadcommand').hide();">Load...</span>
+					<div class="commandinfo loadcommand">
+						<form action="javascript:clickload();">
+							<input type="text" placeholder="name" id="loadcommandname" onkeydown="$('#loadnameerror').hide();">
+							<!-- TODO display:inline-block solves the floating problem of the icon, but i don't understand why -->
+							<span class="error-wrap" id="loadnameerror">
+								<span class="ui-state-error" style="display:inline-block;">
+									<span class="ui-icon ui-icon-alert" style="float:left;"></span>
+									<!-- TODO any whitespace after the text and before </span> makes the element jump up for some reason -->
+									No such tessellation</span>
+							</span>
+							<input type="submit" value="Go" id="loadbutton">
+						</form>
+					</div>
+					
+					<span class="visibleWhenLoaded" id="likeToolbarCommands">
+					
+						<span class="commanddivider">|</span>
+						
+						<span class="menucommand" onclick="like(true);">
+							Like
+						</span><span class="likes">(<span  id="likes"></span>)</span>
+						
+						<span class="commanddivider">|</span>
+						
+						<span class="menucommand" onclick="like(false);">
+							Dislike
+						</span><span class="dislikes">(<span  id="dislikes"></span>)</span>
+						
+						<span class="commanddivider">|</span>
+						
+						<span class="menucommand">
+							<a id="modellink" href="./" >Link to here</a>
+						</span>
+					</span>
+				</div>
+				<canvas width=200px height=200px id="tessellation" class="tesselation"></canvas>
+			</div>
+			<!--<div class="gallery-wrapper">-->
+			<div id="gallery" class="boxlid-bottom-panel">
+				Popular<br>
+				<!--<a href="javascript:loadGallery();">Load Gallery</a>-->
+				<!--- gallery of existing tessellations -->
+			</div>
 		</div>
-		<!--<div class="gallery-wrapper">-->
-		<div id="gallery" class="gallery">
-			Popular<br>
-			<!--<a href="javascript:loadGallery();">Load Gallery</a>-->
-			<!--- gallery of existing tessellations -->
-		</div>
-		
-		<div id="output"></div>
-	</div>
-	<footer>&copy; sirctseb</footer>
+		<footer>&copy; sirctseb</footer>
 	</body>
 </html>

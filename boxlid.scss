@@ -1,0 +1,118 @@
+$debug:false;
+html
+{
+	height:100%;
+}
+body
+{
+	height:100%;
+}
+.boxlid-wrapper
+	{
+		@if $debug {
+			width:600px;
+			height:600px;
+			padding:5px;
+			border:1px solid black;
+			resize:both;
+			overflow:hidden;
+		} @else {
+		}
+	}
+.boxlid-center
+	{
+		@if $debug {
+			border:1px solid red;
+		}
+		float:left;
+	}
+.boxlid-panel
+	{
+		position:relative;
+		display:inline-block;
+		overflow:hidden;
+		background-color:transparent;
+	}
+$handle-size: 10px;
+.boxlid-handle
+	{
+		@if $debug {
+			background-color:white;
+			opacity:0.5;
+		}
+		position:absolute;
+	}
+.boxlid-hor-handle
+	{
+		@extend .boxlid-handle;
+		height:$handle-size;
+		width:100%;
+	}
+.boxlid-vert-handle
+	{
+		@extend .boxlid-handle;
+		height:100%;
+		width:$handle-size;
+		top:0%;
+	}
+.boxlid-top-panel
+	{
+		@extend .boxlid-panel;
+		width:80%;
+		height:20%;
+		border-bottom:1px solid black;
+		@if $debug {
+			background-color:red;
+		}
+	}
+.boxlid-top-handle
+	{
+		@extend .boxlid-hor-handle;
+		bottom:0%;
+	}
+.boxlid-right-panel
+	{
+		@extend .boxlid-panel;
+		width:20%;
+		height:80%;
+		float:right;
+		border-left:1px solid black;
+		@if $debug {
+			background-color:green;
+		}
+	}
+.boxlid-right-handle
+	{
+		@extend .boxlid-vert-handle;
+		left:0%;
+	}
+.boxlid-left-panel
+	{
+		@extend .boxlid-panel;
+		width:20%;
+		height:80%;
+		float:left;
+		border-right:1px solid black;
+		@if $debug {
+			background-color:blue;
+		}
+	}
+.boxlid-left-handle
+	{
+		@extend .boxlid-vert-handle;
+		right:0%;
+	}
+.boxlid-bottom-panel
+	{
+		@extend .boxlid-panel;
+		width:80%;
+		height:20%;
+		border-top:1px solid black;
+		@if $debug {
+			background-color:yellow;
+		}
+	}
+.boxlid-bottom-handle
+	{
+		@extend .boxlid-hor-handle;
+	}

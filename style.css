@@ -1,12 +1,14 @@
-
+body {
+	margin:0;
+	padding:0;
+}
 #testcanvas {
 	border:solid black 1px;
 }
 
-header
+h1
 {
 	text-align:center;
-	border-bottom:1px solid black;
 }
 .visibleWhenLoaded
 {
@@ -14,162 +16,13 @@ header
 }
 #tessellation
 {
-	width:801px;
-	height:601px;
+	/*width:801px;
+	height:601px;*/
+	/*width:200px;
+	height:200px;*/
 	/*border:1px dotted #000000;*/
 }
-.outercontainer
-{
-}
-.rightmenu
-{
-	border-right:1px solid black;
-	/*box-shadow: 3px 3px 5px #888888;*/
-	float:left;
-	width:200px;
-	padding-top:10px;
-	padding-left:30px;
-	/*border:1px dotted;*/
-	text-align:center;
-	padding-right:30px;
-}
-.settinggroup
-{
-	text-align:left;
-	padding-top:20px;
-	/*padding-left:30px;*/
-	padding-bottom:20px;
-}
-.settinggroup>:first-child
-{
-}
-.tessHeader
-{
-	/*background-color:#444488;*/
-	/*background-color:#4444dd;*/
-	margin-left:-8px;
-	padding-left:10px;
-	padding-top:5px;
-	padding-bottom:5px;
-	background-image:url(images/menuOverlay.png);
-	background-repeat:repeat-x;
-}
-.collapseArrow
-{
-	width:28px;
-	height:28px;
-	/*background-color:white;*/
-	background-image:url(images/collapse_arrow.png);
-	background-size:20px 20px;
-	background-repeat:no-repeat;
-	background-position:center;
-	/*margin-top: -5px;
-	margin-left: -5px;*/
-	margin-left:-8px;
-	float:left;
-	rotation-point:50% 50%;
-	/*rotation:90deg;*/
-}
-.collapsed>.collapseArrow
-{
-	/* TODO rotate to create a right facing arrow when collapsed */
-	/*-webkit-transform:rotate(-90deg);*/
-	background-image:url(images/expand_arrow.png);
-}
-.tessUI
-{
-	background
-}
-/* TODO this puts a divider between adjacent headers (if it is correct) */
-div:only-child.tessHeader
-{
-	/*border-bottom:1px solid #333333;*/
-}
-.tessHeader.selected
-{
-	background-color:#333333;
-}
-.tessUI
-{
-	padding-left:8px;
-	/*background-color:#444488;*/
-	/*padding-top:5px;
-	padding-bottom:5px;*/
-}
-#tessdefcontainer
-{
-	/*color:white;
-	background-color:black;*/
-}
-#tessdefcontainer .tessUI
-{
-	color:white;
-	/* TODO to round edges which helps separate sections pretty well */
-	/*border-radius:8px;*/
-}
-#tessdefcontainer>.tessUI
-{
-	background-color:#555555;
-}
-#tessdefcontainer>.tessUI>.tessUI
-{
-	background-color:#777777;
-}
-#tessdefcontainer>.tessUI>.tessUI>.tessUI
-{
-	background-color:#999999;
-}
-#tessdefcontainer>.tessUI>.tessUI>.tessUI>.tessUI
-{
-	background-color:#BBBBBB;
-}
-/* the following two add a bottom padding to last sections if they are open */
-/* add the padding to the bottom of last sections if they are open */
-.tessSection:last-child:not(.collapsed)
-{
-	padding-bottom:8px;
-}
-/* "remove padding" by making negative margin in the child header */
-/* so that sections with no content don't have the extra padding */
-.tessSection:last-child:not(.collapsed)>.tessHeader:last-child
-{
-	margin-bottom:-8px;
-}
-.vecEditField
-{
-	width:40px;
-}
-.editButton
-{
-	float:right;
-	/* TODO make this an image */
-}
-.vecEditSubmit
-{
-	float:right;
-	/* TODO make this an image */
-}
-.collapsed
-{
-	background-color:#888888;
-}
-.collapsed>*
-{
-	display:none;
-}
-.collapsed>.collapseArrow,.tessHeader
-{
-	display:block;
-}
-.colorPickerContainer
-{
-	/*position:relative;*/
-}
-.colorpicker
-{
-	/*background-color:white;*/
-	/*border:10px ridge black;*/
-}
+
 .colorText
 {
 	width:50px;
@@ -226,9 +79,6 @@ canvas
 .commandinfo
 {
 	display:inline;
-	/*display:inline;*/
-	/*display:inline-block;*/
-	/*height:100%;*/
 }
 .savecommand
 {
@@ -237,7 +87,6 @@ canvas
 .loadcommand
 {
 	position:relative;
-	/*left:0;*/ /*top:20px;*/
 }
 .commandinfo>input
 {
@@ -251,12 +100,9 @@ canvas
 	margin-right:8px;
 }
 .gallery-wrapper {
-	/*position: relative;*/
-	/*text-align: center;*/
 }
 .gallery {
 	position:relative;
-	/*text-align: center;*/
 	margin-left:auto;
 	margin-right:auto;
 	text-align:center;

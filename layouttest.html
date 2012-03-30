@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Paper.js stuff</title>
+		<script type="text/javascript" src="jquery-1.7.1.js"></script>
+		<script type="text/javascript" src="log.js"></script>
+		<script type="text/javascript" src="boxlid.js"></script>
+		<script type="text/javascript">
+			// turn on logging for handles
+			log.enable('handle');
+
+			$(function() {
+				$(".boxlid-wrapper").boxlid();
+				$(".handle").click(function(event) {
+					log.log($(this).attr('id'), 'handle');
+				});
+			});
+		</script>
+		<link rel="stylesheet" href="boxlid.css" type="text/css" />
+	</head>
+	<body>
+		<div class="boxlid-wrapper" style="width:600px; height:600px">
+			<div class="boxlid-right-panel">
+				right
+			</div>
+			<div class="boxlid-top-panel">
+				top
+			</div>
+			<div class="boxlid-left-panel">
+				left
+			</div>
+			<div class="boxlid-center">
+				center
+			</div>
+			<div class="boxlid-bottom-panel">
+				bottom
+			</div>
+		</div>
+	</body>
+</html>
