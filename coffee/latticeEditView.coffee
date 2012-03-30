@@ -79,12 +79,17 @@ class window.LatticeEditView
 
 	hide: ->
 		# remove display group
-		@display.remove()
+		#@display.remove()
+		# make display group invisible
+		@display.visible = false
+		# TODO any advantages / disadvantages between the two methods
 
 	show: (component) ->
 		# TODO make sure visible objects are up to date?
 		# add display group back to lattice edit layer
-		paper.project.layers[@my.latticeEditLayer].addChild(@display)
+		#paper.project.layers[@my.latticeEditLayer].addChild(@display)
+		# make display group visible
+		@display.visible = true
 
 		# if a component was passed in, show the handle as selected
 		if component?
