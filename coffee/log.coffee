@@ -1,7 +1,7 @@
 # a logging module
+defaultLevel = 0
 window.log =
 	level: 0
-	defaultLevel: 0
 	groups: {}
 	log: (content, level = defaultLevel) ->
 		# if level is a number and it is more than current level, print it
