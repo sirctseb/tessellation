@@ -390,7 +390,7 @@ var app = (function () {
 		if(this.latticeView) {
 			this.latticeView.show(component);
 		} else {
-			this.latticeView = latticeEditView({controller: app,
+			this.latticeView = new LatticeEditView({controller: app,
 												tessellation: app.tess,
 												latticeEditLayer: settings.latticeEditLayer,
 												component: component});
