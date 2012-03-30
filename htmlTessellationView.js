@@ -131,9 +131,10 @@ var htmlTessellationView = function(spec, my) {
 		// click handler to show polygon info
 		polyHead.header().click(function(event) {
 				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
-				my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation.polygons() : null);
+				//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation.polygons() : null);
 				// take selected state off any other selected item
 				$(".selected").not($(this)).removeClass("selected");
+				polyHead.root().addClass("selected");
 				//tess.setRenderHead(tess.polygons());
 				paper.view.draw();
 				return false;

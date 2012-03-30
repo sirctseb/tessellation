@@ -37,7 +37,7 @@ div:only-child.fade-menu-section-title
 }
 .fade-menu-section.selected
 {
-	background-color:#333333;
+	background-color:#333333 !important; // !important to override more specific rule with nested elements
 }
 .fade-menu-section-title.selected
 {
