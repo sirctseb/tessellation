@@ -43,7 +43,7 @@ var htmlSectionView = function(spec, my) {
 
 	var construct = function() {
 		// prepare classes
-		var classes = (spec.classes ? spec.classes : "") + "fade-menu-collapsable-section fade-menu-section fade-menu-element";
+		var classes = (spec.classes ? spec.classes : "") + "fade-menu-collapsable-section";
 
 		// subclass from htmlView
 		that = htmlView($.extend({}, spec, {classes: classes}), my);
