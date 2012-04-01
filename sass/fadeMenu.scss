@@ -9,8 +9,6 @@
 }
 .fade-menu-section-title
 {
-	margin-left:-8px;
-	padding-left:10px;
 	padding-top:5px;
 	padding-bottom:5px;
 }
@@ -18,13 +16,10 @@
 {
 	width:28px;
 	height:28px;
-	/*background-color:white;*/
 	background-image:url(images/collapse_arrow.png);
 	background-size:20px 20px;
 	background-repeat:no-repeat;
 	background-position:center;
-	/*margin-top: -5px;
-	margin-left: -5px;*/
 	margin-left:-6px;
 	float:left;
 	rotation-point:50% 50%;
@@ -40,29 +35,31 @@ div:only-child.fade-menu-section-title
 {
 	/*border-bottom:1px solid #333333;*/
 }
+.fade-menu-section.selected
+{
+	background-color:#333333 !important; // !important to override more specific rule with nested elements
+}
 .fade-menu-section-title.selected
 {
 	background-color:#333333;
 }
+
 .fade-menu-element
 {
 	padding-left:6px;
 }
-.fade-menu
+.fade-menu-element {
+	color:white;
+}
+.fade-menu-element
 {
-	.fade-menu-element {
-		color:white;
-	}
-	&>.fade-menu-element
-	{
-		background-color:#555555;
+	background-color:#555555;
+	&>.fade-menu-element {
+		background-color:#777777;
 		&>.fade-menu-element {
-			background-color:#777777;
+			background-color:#999999;
 			&>.fade-menu-element {
-				background-color:#999999;
-				&>.fade-menu-element {
-					background-color:#BBBBBB;
-				}
+				background-color:#BBBBBB;
 			}
 		}
 	}
@@ -116,10 +113,6 @@ div:only-child.fade-menu-section-title
 {
 	float:right;
 	/* TODO make this an image */
-}
-.collapsed
-{
-	background-color:#888888;
 }
 .collapsed>*
 {

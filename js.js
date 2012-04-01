@@ -346,6 +346,34 @@ var app = (function () {
 		return ldTool;
 	}());
 
+	log.enable('sketch');
+	var sketchTool = ( function() {
+		var sketchTool = new paper.Tool();
+		var path = null;
+		var mousedrag = function(event) {
+			if(!path) {
+				path = new paper.Path([event.point, event.lastPoint]);
+				path.strokeColor = 'black';
+				path.strokeWidth = 3;
+				app.tessellationView.addPath(path);
+			}
+			if(path) {
+				log.log('adding new point', 'sketch');
+				path.add(event.point);
+			}
+		}
+		var mouseup = function(event) {
+			if(path) {
+				log.log('simplifying path');
+				path.simplify();
+			}
+			path = null;
+		}
+		sketchTool.onMouseDrag = mousedrag;
+		sketchTool.onMouseUp = mouseup;
+		return sketchTool;
+	}());
+
 	app.noopTool = ( function() {
 		return new paper.Tool();
 	}());
@@ -390,7 +418,7 @@ var app = (function () {
 		if(this.latticeView) {
 			this.latticeView.show(component);
 		} else {
-			this.latticeView = latticeEditView({controller: app,
+			this.latticeView = new LatticeEditView({controller: app,
 												tessellation: app.tess,
 												latticeEditLayer: settings.latticeEditLayer,
 												component: component});
@@ -443,7 +471,8 @@ var app = (function () {
 		this.tessellationView = tessellationView({controller: this, tessellation: this.tess});
 		this.tessellationView.render(paper.view);
 
-		stockTool.activate();
+		sketchTool.activate();
+		//stockTool.activate();
 		//testHitTool.activate();
 		//latticeDebugTool.activate();
 	};
@@ -451,6 +480,7 @@ var app = (function () {
 	return $.extend(app, {
 		stockTool : stockTool,
 		editTool : editTool,
+		sketchTool : sketchTool,
 		init: init,
 		viewInfo: function() {
 			console.log("view.size: ", paper.view.size.toString());
