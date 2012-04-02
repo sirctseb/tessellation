@@ -43,16 +43,16 @@ var htmlSectionView = function(spec, my) {
 
 	var construct = function() {
 		// prepare classes
-		var classes = (spec.classes ? spec.classes : "") + "collapsable tessSection tessUI";
+		var classes = (spec.classes ? spec.classes : "") + "fade-menu-collapsable-section";
 
 		// subclass from htmlView
 		that = htmlView($.extend({}, spec, {classes: classes}), my);
 
 		// add header
-		my.header = $("<div/>", {"class": "tessHeader", text: spec.headerText}).appendTo(my.root)
+		my.header = $("<div/>", {"class": "fade-menu-section-title", text: spec.headerText}).appendTo(my.root)
 
 		// add collapse button
-		.before($("<div/>", {"class": "collapseArrow"}));
+		.before($("<div/>", {"class": "fade-menu-collapse-arrow"}));
 	}
 
 	construct();
@@ -118,10 +118,11 @@ var htmlTessellationView = function(spec, my) {
 		// add click handler to stamp header
 		// header click handler to set tess as render head
 		my.header.click(function(event) {
+			my.root.toggleClass("selected");
 			// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
-			my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation : null);
+			//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation : null);
 			// take selected state off any other selected item
-			$(".selected").not($(this)).removeClass("selected");
+			//$(".selected").not($(this)).removeClass("selected");
 			paper.view.draw();
 			return false;
 		});
@@ -130,9 +131,10 @@ var htmlTessellationView = function(spec, my) {
 		// click handler to show polygon info
 		polyHead.header().click(function(event) {
 				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
-				my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation.polygons() : null);
+				//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation.polygons() : null);
 				// take selected state off any other selected item
 				$(".selected").not($(this)).removeClass("selected");
+				polyHead.root().addClass("selected");
 				//tess.setRenderHead(tess.polygons());
 				paper.view.draw();
 				return false;
@@ -150,7 +152,7 @@ var htmlTessellationView = function(spec, my) {
 			shapeViews[shapeViews.length-1].root().appendTo(polyHead.root());
 		});
 		// add polygon entry
-		$("<div/>", {"class": "addPolyEntry tessUI", text: "Add new shape"}).appendTo(polyHead);
+		$("<div/>", {"class": "addPolyEntry fade-menu-element", text: "Add new shape"}).appendTo(polyHead);
 
 		// add substructure info
 		substructureHead.header().click(function(event) {
@@ -180,7 +182,7 @@ var htmlTessellationView = function(spec, my) {
 							});
 		// add trasnform UI's
 		$.each(my.tessellation.transforms(), function(index, transform) {
-			$("<div/>", {"class": "tessUI transform", text: transform.toString()}).appendTo(transformHead.root())
+			$("<div/>", {"class": "fade-menu-element transform", text: transform.toString()}).appendTo(transformHead.root())
 			.click(function(event) {
 				my.tessellation.setRenderHead(transform);
 				paper.view.draw();
@@ -250,8 +252,8 @@ var htmlLatticeView = function(spec, my) {
 					paper.view.draw();
 					return false;
 				});
-			v1display = $("<div/>", {"class": "tessUI v1display vdisplay"}).appendTo(my.root);
-			v2display = $("<div/>", {"class": "tessUI v2display vdisplay"}).appendTo(my.root);
+			v1display = $("<div/>", {"class": "fade-menu-element v1display vdisplay"}).appendTo(my.root);
+			v2display = $("<div/>", {"class": "fade-menu-element v2display vdisplay"}).appendTo(my.root);
 			vdisplays = {v1: v1display, v2: v2display};
 
 			addDefaultVectorView(["v1"]);
@@ -408,7 +410,7 @@ var htmlShapeView = function(spec, my) {
 	// add user-drawn content to the view
 	var addContent = function(path) {
 		// TODO this thing will probably be collapseable and have it's own view class
-		$("<div/>", {"class": "contentPath tessUI", text: path.toString()})
+		$("<div/>", {"class": "contentPath fade-menu-element", text: path.toString()})
 			.appendTo(my.root);
 	};
 	// test if the supplied polygon is the polygon that this view represents

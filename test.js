@@ -6,6 +6,16 @@ Object.create = function(o) {
 	return new F();
 };
 
+var missing = {one: 'one'};
+if([missing.two]) {
+	console.log('falsy');
+} else {
+	console.log('truthy');
+}
+console.log([missing.two] || 'should be this');
+var missingResult = [missing.two] || 'should be this';
+console.log(missingResult);
+
 var objWithBlank = {};
 objWithBlank[''] = 4;
 console.log(objWithBlank['']);

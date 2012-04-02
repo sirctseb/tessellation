@@ -1,0 +1,124 @@
+.fade-menu
+{
+	margin:10px 10px 0px 10px;
+	width:200px;
+}
+.fade-menu>:first-child
+{
+	border-radius:4px;
+}
+.fade-menu-section-title
+{
+	padding-top:5px;
+	padding-bottom:5px;
+}
+.fade-menu-collapse-arrow
+{
+	width:28px;
+	height:28px;
+	background-image:url(images/collapse_arrow.png);
+	background-size:20px 20px;
+	background-repeat:no-repeat;
+	background-position:center;
+	margin-left:-6px;
+	float:left;
+	rotation-point:50% 50%;
+	/*rotation:90deg;*/
+	&>.fade-menu-collapse-arrow {
+		/* TODO rotate to create a right facing arrow when collapsed */
+		/*-webkit-transform:rotate(-90deg);*/
+		background-image:url(images/expand_arrow.png);
+	};
+}
+/* TODO this puts a divider between adjacent headers (if it is correct) */
+div:only-child.fade-menu-section-title
+{
+	/*border-bottom:1px solid #333333;*/
+}
+.fade-menu-section.selected
+{
+	background-color:#333333 !important; // !important to override more specific rule with nested elements
+}
+.fade-menu-section-title.selected
+{
+	background-color:#333333;
+}
+
+.fade-menu-element
+{
+	padding-left:6px;
+}
+.fade-menu-element {
+	color:white;
+}
+.fade-menu-element
+{
+	background-color:#555555;
+	&>.fade-menu-element {
+		background-color:#777777;
+		&>.fade-menu-element {
+			background-color:#999999;
+			&>.fade-menu-element {
+				background-color:#BBBBBB;
+			}
+		}
+	}
+}
+.fade-menu-padded-element
+{
+	@extend .fade-menu-element;
+	padding-top:4px;
+	padding-bottom:4px;
+}
+.fade-menu-section
+{
+	@extend .fade-menu-element;
+	background-image:url(images/menuOverlay.png);
+	background-repeat:repeat-x;
+	padding-right:3px;
+}
+.fade-menu-collapsable-section
+{
+	@extend .fade-menu-section;
+}
+/* the following two add a bottom padding to last sections if they are open */
+/* add the padding to the bottom of last sections if they are open */
+.fade-menu-section:last-child:not(.collapsed)
+{
+	padding-bottom:6px;
+	&>.fade-menu-element:last-child {
+
+		border-bottom-left-radius:4px;
+		border-bottom-right-radius:2px;
+	}
+}
+/* "remove padding" by making negative margin in the child header */
+/* so that sections with no content don't have the extra padding */
+.fade-menu-section:last-child:not(.collapsed)>.fade-menu-section-title:last-child
+{
+	margin-bottom:-6px;
+}
+// TODO css specific to the tessellation menu should be moved to another style sheet
+.vecEditField
+{
+	width:40px;
+}
+.editButton
+{
+	float:right;
+	margin-right:4px;
+	/* TODO make this an image */
+}
+.vecEditSubmit
+{
+	float:right;
+	/* TODO make this an image */
+}
+.collapsed>*
+{
+	display:none;
+}
+.collapsed>.fade-menu-collapse-arrow,.fade-menu-section-title
+{
+	display:block;
+}
