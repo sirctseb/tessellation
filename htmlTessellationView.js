@@ -63,7 +63,7 @@ var fadeMenuCollapsableSectionView = function(spec, my) {
 	}
 
 	return that;
-}
+};
 
 /* a view class to display the structure of a tessellation in html */
 var htmlTessellationView = function(spec, my) {
