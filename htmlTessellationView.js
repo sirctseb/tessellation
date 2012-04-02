@@ -35,7 +35,7 @@ var htmlView = function(spec, my) {
 };
 
 /* a super class for menu sections */
-var htmlSectionView = function(spec, my) {
+var fadeMenuCollapsableSectionView = function(spec, my) {
 	var that;
 
 	// protected variables
@@ -85,7 +85,7 @@ var htmlTessellationView = function(spec, my) {
 	// shape subviews
 		shapeViews = [];
 
-	that = htmlSectionView($.extend({headerText: "Stamp"}, spec), my);
+	that = fadeMenuCollapsableSectionView($.extend({headerText: "Stamp"}, spec), my);
 	
 	var construct = function() {
 
@@ -98,19 +98,19 @@ var htmlTessellationView = function(spec, my) {
 		latticeHead = latticeView.root().appendTo(my.root);
 
 		// polygon section
-		polyHead = htmlSectionView(
+		polyHead = fadeMenuCollapsableSectionView(
 						$.extend({}, spec, {	superview: that,
 												headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
 		polyHead.root().appendTo(my.root);
 
 		// substructure section
-		substructureHead = htmlSectionView(
+		substructureHead = fadeMenuCollapsableSectionView(
 			$.extend({}, spec, {superview: that,
 								headerText: "Substamps (" + my.tessellation.subgroups().length + ")"}));
 		substructureHead.root().appendTo(my.root);
 
 		// transform section
-		transformHead = htmlSectionView(
+		transformHead = fadeMenuCollapsableSectionView(
 			$.extend({}, spec, {superview: that,
 								headerText: "Placements (" + my.tessellation.transforms().length + ")"}));
 		transformHead.root().appendTo(my.root);
@@ -236,7 +236,7 @@ var htmlLatticeView = function(spec, my) {
 
 	my = my || {};
 
-	that = htmlSectionView($.extend(spec, {headerText: "Lattice"}), my);
+	that = fadeMenuCollapsableSectionView($.extend(spec, {headerText: "Lattice"}), my);
 
 	// private members
 	var v1display,
@@ -395,7 +395,7 @@ var htmlShapeView = function(spec, my) {
 	// the paperjs path
 	var polygon = spec.polygon;
 
-	that = htmlSectionView($.extend(spec, {headerText: polygon.toString()}), my);
+	that = fadeMenuCollapsableSectionView($.extend(spec, {headerText: polygon.toString()}), my);
 
 	var construct = function() {
 		// add click handler
