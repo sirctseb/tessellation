@@ -123,7 +123,7 @@ var fadeMenuCollapsableSectionView = function(spec, my) {
 	var that;
 
 	// protected variables
-	my = $.extend(my, {header: null});
+	my = my || {};
 
 	var construct = function() {
 		// prepare classes
