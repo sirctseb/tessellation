@@ -34,7 +34,91 @@ var htmlView = function(spec, my) {
 	return that;
 };
 
-/* a super class for menu sections */
+/* a wrapper for fade menu elements */
+var fadeMenuElement = function(spec, my) {
+	var that;
+
+	// protected variables
+	my = $.extend(my, {contents: null});
+
+	var construct = function() {
+		// prepare classes
+		var classes = (spec.classes || "") + " fade-menu-element";
+
+		// subclass from htmlView
+		that = htmlView($.extend({}, spec, {classes: classes}), my);
+
+		// add optional content
+		my.contents = spec.contents;
+		// add contents to dom if it exists
+		if(my.contents) {
+			my.root.append(my.contents);
+		}
+	};
+
+	construct();
+
+	// TODO think a little harder about how to handle contents
+	that.contents = function(contents) {
+		if(contents) {
+			// remove existing contents
+			that.contents.remove();
+			// store new contents
+			my.contents = contents;
+			// add new contents to dom
+			my.root.append(my.contents);
+		}
+		// return current contents
+		return my.contents;
+	};
+
+	return that;
+};
+
+/* a wrapper for sections of a fade menu */
+var fadeMenuSectionView = function(spec, my) {
+	var that;
+
+	// protected variables
+	my = $.extend(my, {header: null, elements: []});
+
+	var construct = function() {
+		// prepare classes
+		var classes = (spec.classes || "") + " fade-menu-section";
+
+		// subclass from htmlView
+		that = fadeMenuElement($.extend({}, spec, {classes: classes}), my);
+
+		// add header
+		my.header = $("<div/>", {"class": "fade-menu-section-title", text: spec.headerText}).appendTo(my.root);
+	};
+
+	construct();
+
+	// public methods
+	that.header = function() {
+		return my.header;
+	};
+
+	that.addElement = function(element, index) {
+		index = index || my.elements.length;
+		// add to the dom
+		if(index === my.elements.length) {
+			my.root.append(element.root());
+		} else {
+			my.root.children("fade-menu-element, fade-menu-section, fade-menu-collapsable-section")
+				.eq(index)
+				.after(element.root());
+		}
+
+		// add to elements array
+		my.elements.splice(index, 0, element);
+	};
+
+	return that;
+};
+
+/* a wrapper for collapsable sections of fade menu */
 var fadeMenuCollapsableSectionView = function(spec, my) {
 	var that;
 
@@ -43,24 +127,45 @@ var fadeMenuCollapsableSectionView = function(spec, my) {
 
 	var construct = function() {
 		// prepare classes
-		var classes = (spec.classes ? spec.classes : "") + "fade-menu-collapsable-section";
+		var classes = (spec.classes || "") + " fade-menu-collapsable-section";
 
-		// subclass from htmlView
-		that = htmlView($.extend({}, spec, {classes: classes}), my);
-
-		// add header
-		my.header = $("<div/>", {"class": "fade-menu-section-title", text: spec.headerText}).appendTo(my.root)
+		// subclass from fadeMenuSectionView
+		that = fadeMenuSectionView($.extend({}, spec, {classes: classes}), my);
 
 		// add collapse button
-		.before($("<div/>", {"class": "fade-menu-collapse-arrow"}));
-	}
+		my.header.before($("<div/>", {"class": "fade-menu-collapse-arrow"}));
+	};
+
+	construct();
+
+	return that;
+};
+
+/* a wrapper for a fade menu */
+var fadeMenu = function(spec, my) {
+	var that;
+
+	// protected variables
+	my = $.extend(my, {topLevel: null});
+
+	var construct = function() {
+		var classes = (spec.classes || "") + " fade-menu";
+
+		// derive from htmlView
+		that = htmlView($.extend({}, spec, {classes: classes}), my);
+
+		// create top level section view
+		my.topLevel = spec.collapsable ? fadeMenuCollapsableSectionView(spec.topLevel) :
+											fadeMenuSectionView(spec.topLevel);
+		my.root.append(my.topLevel.root());
+	};
 
 	construct();
 
 	// public methods
-	that.header = function() {
-		return my.header;
-	}
+	that.addElement = function(element, index) {
+		my.topLevel.addElement(element, index);
+	};
 
 	return that;
 };
@@ -85,7 +190,8 @@ var htmlTessellationView = function(spec, my) {
 	// shape subviews
 		shapeViews = [];
 
-	that = fadeMenuCollapsableSectionView($.extend({headerText: "Stamp"}, spec), my);
+	that = fadeMenu($.extend({collapsable: true,
+							topLevel: $.extend({headerText:"Stamp"}, spec)}, spec), my);
 	
 	var construct = function() {
 
@@ -95,30 +201,30 @@ var htmlTessellationView = function(spec, my) {
 		latticeView = htmlLatticeView({controller: my.controller,
 										tessellation: my.tessellation,
 										superview: that});
-		latticeHead = latticeView.root().appendTo(my.root);
+		that.addElement(latticeView);
 
 		// polygon section
 		polyHead = fadeMenuCollapsableSectionView(
 						$.extend({}, spec, {	superview: that,
 												headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
-		polyHead.root().appendTo(my.root);
+		that.addElement(polyHead);
 
 		// substructure section
 		substructureHead = fadeMenuCollapsableSectionView(
 			$.extend({}, spec, {superview: that,
 								headerText: "Substamps (" + my.tessellation.subgroups().length + ")"}));
-		substructureHead.root().appendTo(my.root);
+		that.addElement(substructureHead);
 
 		// transform section
 		transformHead = fadeMenuCollapsableSectionView(
 			$.extend({}, spec, {superview: that,
 								headerText: "Placements (" + my.tessellation.transforms().length + ")"}));
-		transformHead.root().appendTo(my.root);
+		that.addElement(transformHead);
 
 		// add click handler to stamp header
 		// header click handler to set tess as render head
-		my.header.click(function(event) {
-			my.root.toggleClass("selected");
+		my.topLevel.header().click(function(event) {
+			my.topLevel.root().toggleClass("selected");
 			// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
 			//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation : null);
 			// take selected state off any other selected item
