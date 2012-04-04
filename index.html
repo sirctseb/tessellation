@@ -74,17 +74,17 @@
 				$("#tessdefcontainer").on("click", ".fade-menu-element", function(event) {
 					return false;
 				});*/
-				$('.fade-menu').on("click", ".fade-menu-collapse-arrow", function(event) {
-					$(this).closest(".fade-menu-collapsable-section").toggleClass("collapsed");
-				})
-
 				// handler to add a new polygon
 				$("#tessdefcontainer").on("click", ".addPolyentry", function(event) {
 					// TODO add new shape
 				});
 
 				//$("#tessdefcontainer").append(app.generateUI());
-				$("#tessdefcontainer").tessMenu({controller:app});
+				$("#tessdefcontainer").tessMenu({controller:app, tessellation:app.tessellation});
+				
+				// initialize fade menu interactions
+				$('.fade-menu').fadeMenu();
+
 			});
 		var applyStyle = function() {
 			// use jquery to serialize into array
@@ -137,7 +137,7 @@
 				</div>
 				<form id='pathStyleForm'>
 					<div id="pathstylecontainer" class="fade-menu">
-						<div class="fade-menu-collapsable-section collapsed">
+						<div class="fade-menu-collapsable-section">
 							<div class="fade-menu-collapse-arrow"></div>
 							<div class="fade-menu-section-title">Path Style</div>
 

@@ -2,10 +2,14 @@ jQuery.fn.tessMenu = (method) ->
 	methods =
 		init: (options) ->
 			# TODO store controller in data?
-			@data 'tessMenu', {controller: options.controller}
+			@data 'tessMenu',
+				controller: options.controller,
+				tessellation: options.tessellation
+			tessellation = options.tessellation
 
 			# init fade menu
-			@fadeMenu options
+			if !options.suppressTopLevel
+				@fadeMenu options
 
 			# add stamp section
 			stampSection = @fadeMenu "addCollapsableMenuSection", {headerText: "Stamp"}
@@ -16,21 +20,44 @@ jQuery.fn.tessMenu = (method) ->
 
 			# add polygon section
 			polygonSection = stampSection.fadeMenu "addCollapsableMenuSection",
-				{headerText: "Shapes(" + options.controller.tessellation.polygons().length + ")"}
+				{headerText: "Shapes(" + tessellation.polygons().length + ")"}
 
 			# add substructure 
 			substampSection = stampSection.fadeMenu "addCollapsableMenuSection",
-				{headerText: "Substamps (" + options.controller.tessellation.polygons().length + ")"}
+				{headerText: "Substamps (" + tessellation.subgroups().length + ")"}
 
 			# add transform section
 			transformSection = stampSection.fadeMenu "addCollapsableMenuSection",
-				{headerText: "Placements (" + options.controller.tessellation.transforms().length + ")"}
+				{headerText: "Placements (" + tessellation.transforms().length + ")"}
 
-			# add click handler to stamp header
+			# make stamp section selectable
 			stampSection.fadeMenu('selectable')
 
+			# make polygon section selectable
+			polygonSection.fadeMenu('selectable')
+
 			# add polygon info
-			# TODO
+			# TODO test this
+			for polygon in tessellation.polygons()
+				# TODO these were htmlShapeViews before
+				polygonSection.fadeMenu 'addCollapsableMenuSection',
+					{headerText: polygon.toString()}
+
+			# TODO add polygon entry
+
+			# add substructure info
+			# TODO test this
+			for subgroup in tessellation.subgroups()
+				substampSection.tessMenu
+					controller: options.controller,
+					tessellation: subgroup,
+					suppressTopLevel: true
+
+			# add transformation info
+			for transform in tessellation.transforms()
+				transformSection.fadeMenu 'addElement',
+					{contents: transform.toString()}
+
 
 	if methods[method]
 		return methods[method].apply(this, Array.prototype.slice.call(arguments, 1))

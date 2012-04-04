@@ -2,10 +2,18 @@ jQuery.fn.fadeMenu = (method) ->
 	methods =
 		# initialize a fade menu
 		init: (options) ->
-			# initialize data
-			@data('fadeMenu', options)
-			# make sure wrapper has class
-			@addClass('fade-menu')
+			@each(()->
+				$this = $(this)
+				# initialize if not already initialized
+				if !$this.data('fadeMenu')
+					# initialize data
+					$this.data('fadeMenu', options || {})
+					# make sure wrapper has class
+					$this.addClass('fade-menu')
+					# register click handlers for collapsable sections
+					$this.on 'click.fadeMenu', '.fade-menu-collapse-arrow', (event) ->
+						$(this).closest(".fade-menu-collapsable-section").toggleClass("collapsed");
+			)
 
 		# create a section and add it to the menu
 		addMenuSection: (options) ->
@@ -43,6 +51,8 @@ jQuery.fn.fadeMenu = (method) ->
 						{class: (options.classes || "") + " fade-menu-element"})
 			# add to menu
 			this.append(element)
+			# add contents
+			element.append(options.contents)
 			# return the element
 			element
 
@@ -60,6 +70,8 @@ jQuery.fn.fadeMenu = (method) ->
 		selected: () ->
 			this.hasClass("selected")
 		# set whether the section is selectable
+		# TODO add support for radio groups, i.e., groups that are mutually unselectable
+		# TODO this could be bound and delegated from the .fade-menu just like the collapse event
 		selectable: (selectable, callback) ->
 			# set selectable if selectable is (undefined | true | {selectable: true})
 			if !selectable? or selectable == true or selectable?.selectable
