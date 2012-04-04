@@ -191,8 +191,8 @@ var htmlTessellationView = function(spec, my) {
 		shapeViews = [];
 
 	that = htmlView(spec, my);
-	my.root = my.root.fadeMenu(spec, my)
-		.fadeMenu('addCollapsableMenuSection', $.extend({headerText:"Stamp"}, spec));
+	my.root = my.root.fadeMenu(spec);
+	stampHead = my.root.fadeMenu('addCollapsableMenuSection', $.extend({headerText:"Stamp"}, spec));
 	
 	var construct = function() {
 
@@ -200,7 +200,7 @@ var htmlTessellationView = function(spec, my) {
 
 		// lattice section
 		// TODO this was htmlLatticeView before
-		latticeView = my.root.fadeMenu('addCollapsableMenuSection',
+		latticeView = stampHead.fadeMenu('addCollapsableMenuSection',
 										{controller: my.controller,
 										tessellation: my.tessellation,
 										superview: that,
@@ -208,31 +208,23 @@ var htmlTessellationView = function(spec, my) {
 		//that.addElement(latticeView);
 
 		// polygon section
-		//polyHead = fadeMenuCollapsableSectionView(
-		polyHead = my.root.fadeMenu('addCollapsableMenuSection',
-						$.extend({}, spec, {	superview: that,
-												headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
-		//that.addElement(polyHead);
+		polyHead = stampHead.fadeMenu('addCollapsableMenuSection',
+						$.extend({}, spec, {superview: that,
+											headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
 
 		// substructure section
-		//substructureHead = fadeMenuCollapsableSectionView(
-		substructureHead = my.root.fadeMenu('addCollapsableMenuSection',
+		substructureHead = stampHead.fadeMenu('addCollapsableMenuSection',
 			$.extend({}, spec, {superview: that,
 								headerText: "Substamps (" + my.tessellation.subgroups().length + ")"}));
-		//that.addElement(substructureHead);
 
 		// transform section
-		//transformHead = fadeMenuCollapsableSectionView(
-		transformHead = my.root.fadeMenu('addCollapsableMenuSection',
+		transformHead = stampHead.fadeMenu('addCollapsableMenuSection',
 			$.extend({}, spec, {superview: that,
 								headerText: "Placements (" + my.tessellation.transforms().length + ")"}));
-		//that.addElement(transformHead);
 
 		// add click handler to stamp header
 		// header click handler to set tess as render head
-		//my.topLevel.header().click(function(event) {
 		my.root.fadeMenu('getElement', 0).fadeMenu('header').click(function(event) {
-			//my.topLevel.root().toggleClass("selected");
 			my.root.fadeMenu('getElement', 0).toggleClass("selected");
 			// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
 			//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation : null);
