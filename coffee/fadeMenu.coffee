@@ -51,11 +51,36 @@ jQuery.fn.fadeMenu = (method) ->
 			this.children(":not(.fade-menu-section-title, .fade-menu-collapse-arrow)").eq(index)
 
 		# section methods
+		# return a $ of the title div
 		header: () ->
 			# TODO check that this is a section
 			# return $ of title div
 			this.children(".fade-menu-section-title")
+		# returns true if currently selected
+		selected: () ->
+			this.hasClass("selected")
+		# set whether the section is selectable
+		selectable: (selectable, callback) ->
+			# set selectable if selectable is (undefined | true | {selectable: true})
+			if !selectable? or selectable == true or selectable?.selectable
+				# check for callback
+				onSelect = selectable?.onSelect | callback?.onSelect
+				onDeselect = selectable?.onDeselect | callback?.onDeselect
 
+				that = this
+				# register click handler
+				this.fadeMenu('header').on "click.fadeMenu", (event) ->
+					# test if currently selected
+					if that.fadeMenu('selected')
+						# deselect
+						that.removeClass('selected')
+						# call callback
+						onDeselect?()
+					else
+						# select
+						that.addClass('selected')
+						# call callback
+						onSelect?()
 
 	if methods[method]
 		return methods[method].apply(this, Array.prototype.slice.call(arguments, 1))
