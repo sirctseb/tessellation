@@ -17,6 +17,7 @@ jQuery.fn.tessMenu = (method) ->
 			# add lattice view
 			# TODO this was htmlLatticeView before
 			latticeSection = stampSection.fadeMenu "addCollapsableMenuSection", {headerText: "Lattice"}
+			latticeSection.tessMenu "latticeView"
 
 			# add polygon section
 			polygonSection = stampSection.fadeMenu "addCollapsableMenuSection",
@@ -57,6 +58,122 @@ jQuery.fn.tessMenu = (method) ->
 			for transform in tessellation.transforms()
 				transformSection.fadeMenu 'addElement',
 					{contents: transform.toString()}
+		# update lattice display
+		onLatticeChange: () ->
+			# TOOD pass event to lattice display
+		# add a path to the menu
+		addPath: (polygon, path) ->
+			# TODO
+			# search for the view with the path
+		# get the root $ of the menu
+		root: () ->
+			this.closest(".fade-menu")
+		# create a lattice view
+		latticeView: (options) ->
+			that = this
+			# add elements for vector displays
+			vdisplays = {
+				v1: this.fadeMenu('addElement', {classes: "v1display vdisplay"}),
+				v2: this.fadeMenu('addElement', {classes: "v2display vdisplay"})
+			}
+			tessellation = @tessMenu('root').data('tessMenu').tessellation
+			focus.register(that, () -> that.tessMenu 'cancelEditVector')
+			# create default and edit views for each
+			for component in ["v1", "v2"]
+				do (component) ->
+					# create default view
+					view = $("<div/>",
+						{
+							"class": "latticeVec " + component+"default",
+							text: tessellation.lattice()[component]().prettyPrint()
+						}
+					)
+					# append to display
+					view.appendTo(vdisplays[component])
+					# add click handler
+					view.on("click.tessMenu", () ->
+						# notify controller
+						$(this).tessMenu("root").data("tessMenu").controller.beginEditLattice(component)
+					)
+					# add edit button
+					view.before(
+						$("<div />",
+							{
+								"class": "editButton " + component+"default",
+								text:"edit"
+							}
+						).click((event) ->
+							# TODO edit component
+							#editVector(component)
+							that.tessMenu 'startEditVector', component
+						)
+					)
+
+					# create edit view
+					editClass = component+"edit"
+					# add submit button
+					vdisplays[component].append(
+						$("<div/>", {
+							class: "vecEditSubmit " + editClass,
+							text:"submit"
+							}).click((event)->
+								# TODO
+								#finishEditVector(component);
+								that.tessMenu 'finishEditVector', component
+							)
+					)
+					# create first label
+					vdisplays[component].append(
+						$("<label/>", {
+							class: "vecEditLabel " + editClass,
+							text: "x: ",
+							"for": component+"xEdit"
+							})
+					)
+					# create first text box
+					vdisplays[component].append(
+						$("<input/>", {
+							class: "vecEditField " + editClass,
+							type: "text",
+							value: tessellation.lattice()[component]().x.toFixed(2),
+							id: component+"xEdit"
+							})
+					)
+					# create second label
+					vdisplays[component].append(
+						$("<label/>", {
+							class: "vecEditLabel " + editClass,
+							text: "y: ",
+							"for": component+"yEdit"
+							})
+					)
+					# create second text box
+					vdisplays[component].append(
+						$("<input/>", {
+							class: "vecEditField " + editClass,
+							type: "text",
+							value: tessellation.lattice()[component]().y.toFixed(2),
+							id: component + "yEdit"
+							})
+					)
+		# start editing a lattice component
+		startEditVector: (component) ->
+			$("."+component+'display', this).addClass('edit')
+		finishEditVector: (component) ->
+			value = {}
+			value[component] = new paper.Point(
+				parseFloat($("#" + component + "xEdit", this).val()),
+				parseFloat($("#" + component + "yEdit", this).val())
+			)
+			# send value to controller
+			@tessMenu('root').data('tessMenu').controller.setLatticeValues(value)
+
+			# put default displays back
+			@tessMenu 'cancelEditVector'
+		cancelEditVector: () ->
+			for component in ['v1', 'v2']
+				$("."+component+"display", this).removeClass('edit')
+
 
 
 	if methods[method]

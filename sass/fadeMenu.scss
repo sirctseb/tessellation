@@ -98,22 +98,6 @@ div:only-child.fade-menu-section-title
 {
 	margin-bottom:-6px;
 }
-// TODO css specific to the tessellation menu should be moved to another style sheet
-.vecEditField
-{
-	width:40px;
-}
-.editButton
-{
-	float:right;
-	margin-right:4px;
-	/* TODO make this an image */
-}
-.vecEditSubmit
-{
-	float:right;
-	/* TODO make this an image */
-}
 .collapsed>*
 {
 	display:none;
