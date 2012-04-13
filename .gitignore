@@ -3,7 +3,9 @@ focus.js
 latticeEditView.js
 PathHistory.js
 boxlid.css
+tessMenu.css
 .sass-cache/
 fadeMenu.css
 fadeMenu.js
 tessMenu.js
+.DS_Store
