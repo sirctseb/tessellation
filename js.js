@@ -475,6 +475,7 @@ var app = (function () {
 		//stockTool.activate();
 		//testHitTool.activate();
 		//latticeDebugTool.activate();
+		this.tessellation = this.tess;
 	};
 	
 	return $.extend(app, {

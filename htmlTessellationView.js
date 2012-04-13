@@ -2,7 +2,7 @@
 log.enable("vectorEdit");
 
 /* a super class for html views */
-var htmlView = function(spec, my) {
+/*var htmlView = function(spec, my) {
 	var that = {};
 
 	// protected variables
@@ -32,38 +32,8 @@ var htmlView = function(spec, my) {
 	that.root = root;
 
 	return that;
-};
+};*/
 
-/* a super class for menu sections */
-var htmlSectionView = function(spec, my) {
-	var that;
-
-	// protected variables
-	my = $.extend(my, {header: null});
-
-	var construct = function() {
-		// prepare classes
-		var classes = (spec.classes ? spec.classes : "") + "fade-menu-collapsable-section fade-menu-section fade-menu-element";
-
-		// subclass from htmlView
-		that = htmlView($.extend({}, spec, {classes: classes}), my);
-
-		// add header
-		my.header = $("<div/>", {"class": "fade-menu-section-title", text: spec.headerText}).appendTo(my.root)
-
-		// add collapse button
-		.before($("<div/>", {"class": "fade-menu-collapse-arrow"}));
-	}
-
-	construct();
-
-	// public methods
-	that.header = function() {
-		return my.header;
-	}
-
-	return that;
-}
 
 /* a view class to display the structure of a tessellation in html */
 var htmlTessellationView = function(spec, my) {
@@ -85,40 +55,42 @@ var htmlTessellationView = function(spec, my) {
 	// shape subviews
 		shapeViews = [];
 
-	that = htmlSectionView($.extend({headerText: "Stamp"}, spec), my);
+	that = htmlView(spec, my);
+	my.root = my.root.fadeMenu(spec);
+	stampHead = my.root.fadeMenu('addCollapsableMenuSection', $.extend({headerText:"Stamp"}, spec));
 	
 	var construct = function() {
 
 		log.enable("lattUIEvents");
 
 		// lattice section
-		latticeView = htmlLatticeView({controller: my.controller,
+		// TODO this was htmlLatticeView before
+		latticeView = stampHead.fadeMenu('addCollapsableMenuSection',
+										{controller: my.controller,
 										tessellation: my.tessellation,
-										superview: that});
-		latticeHead = latticeView.root().appendTo(my.root);
+										superview: that,
+										headerText: "Lattice"});
+		//that.addElement(latticeView);
 
 		// polygon section
-		polyHead = htmlSectionView(
-						$.extend({}, spec, {	superview: that,
-												headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
-		polyHead.root().appendTo(my.root);
+		polyHead = stampHead.fadeMenu('addCollapsableMenuSection',
+						$.extend({}, spec, {superview: that,
+											headerText: "Shapes (" + my.tessellation.polygons().length + ")"}));
 
 		// substructure section
-		substructureHead = htmlSectionView(
+		substructureHead = stampHead.fadeMenu('addCollapsableMenuSection',
 			$.extend({}, spec, {superview: that,
 								headerText: "Substamps (" + my.tessellation.subgroups().length + ")"}));
-		substructureHead.root().appendTo(my.root);
 
 		// transform section
-		transformHead = htmlSectionView(
+		transformHead = stampHead.fadeMenu('addCollapsableMenuSection',
 			$.extend({}, spec, {superview: that,
 								headerText: "Placements (" + my.tessellation.transforms().length + ")"}));
-		transformHead.root().appendTo(my.root);
 
 		// add click handler to stamp header
 		// header click handler to set tess as render head
-		my.header.click(function(event) {
-			my.root.toggleClass("selected");
+		my.root.fadeMenu('getElement', 0).fadeMenu('header').click(function(event) {
+			my.root.fadeMenu('getElement', 0).toggleClass("selected");
 			// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
 			//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation : null);
 			// take selected state off any other selected item
@@ -129,12 +101,12 @@ var htmlTessellationView = function(spec, my) {
 
 		// add polygon info
 		// click handler to show polygon info
-		polyHead.header().click(function(event) {
+		polyHead.fadeMenu("header").click(function(event) {
 				// toggle the selected state, if it is now selected, set this as render head, otherwise, set lattice
 				//my.tessellation.setRenderHead($(this).toggleClass("selected").hasClass("selected") ? my.tessellation.polygons() : null);
 				// take selected state off any other selected item
 				$(".selected").not($(this)).removeClass("selected");
-				polyHead.root().addClass("selected");
+				polyHead.addClass("selected");
 				//tess.setRenderHead(tess.polygons());
 				paper.view.draw();
 				return false;
@@ -149,13 +121,13 @@ var htmlTessellationView = function(spec, my) {
 						superview: that}
 					)
 				);
-			shapeViews[shapeViews.length-1].root().appendTo(polyHead.root());
+			shapeViews[shapeViews.length-1].root().appendTo(polyHead);
 		});
 		// add polygon entry
 		$("<div/>", {"class": "addPolyEntry fade-menu-element", text: "Add new shape"}).appendTo(polyHead);
 
 		// add substructure info
-		substructureHead.header().click(function(event) {
+		substructureHead.fadeMenu("header").click(function(event) {
 								my.tessellation.setRenderHead(my.tessellation.subgroups());
 								paper.view.draw();
 								return false;
@@ -175,14 +147,14 @@ var htmlTessellationView = function(spec, my) {
 		});
 
 		// add transformation info	
-		transformHead.header().click(function(event) {
+		transformHead.fadeMenu("header").click(function(event) {
 								my.tessellation.setRenderHead(my.tessellation.transforms());
 								paper.view.draw();
 								return false;
 							});
 		// add trasnform UI's
 		$.each(my.tessellation.transforms(), function(index, transform) {
-			$("<div/>", {"class": "fade-menu-element transform", text: transform.toString()}).appendTo(transformHead.root())
+			$("<div/>", {"class": "fade-menu-element transform", text: transform.toString()}).appendTo(transformHead)
 			.click(function(event) {
 				my.tessellation.setRenderHead(transform);
 				paper.view.draw();
@@ -236,7 +208,7 @@ var htmlLatticeView = function(spec, my) {
 
 	my = my || {};
 
-	that = htmlSectionView($.extend(spec, {headerText: "Lattice"}), my);
+	that = fadeMenuCollapsableSectionView($.extend(spec, {headerText: "Lattice"}), my);
 
 	// private members
 	var v1display,
@@ -395,7 +367,7 @@ var htmlShapeView = function(spec, my) {
 	// the paperjs path
 	var polygon = spec.polygon;
 
-	that = htmlSectionView($.extend(spec, {headerText: polygon.toString()}), my);
+	that = fadeMenuCollapsableSectionView($.extend(spec, {headerText: polygon.toString()}), my);
 
 	var construct = function() {
 		// add click handler

@@ -8,6 +8,7 @@
 		<link rel="stylesheet" href="jqueryui/css/ui-lightness/jquery-ui-1.8.17.custom.css" />
 		<link rel="stylesheet" href="boxlid.css" type="text/css" />
 		<link rel="stylesheet" href="fadeMenu.css" type="text/css" />
+		<link rel="stylesheet" href="tessMenu.css" type="text/css" />
 		<script type="text/javascript" src="utility.js"></script>
 		<script type="text/javascript" src="timer.js"></script>
 		<script type="text/javascript" src="jquery-1.7.1.js"></script>
@@ -17,6 +18,8 @@
 		<script type="text/javascript" src="paper.js"></script>
 		<script type="text/javascript" src="paperjsPlugins.js"></script>
 		<script type="text/javascript" src="tessDef.js"></script>
+		<script type="text/javascript" src="fadeMenu.js"></script>
+		<script type="text/javascript" src="tessMenu.js"></script>
 		<script type="text/javascript" src="htmlTessellationView.js"></script>
 		<script type="text/javascript" src="tessellationView.js"></script>
 		<script type="text/javascript" src="tessellations.js"></script>
@@ -72,16 +75,17 @@
 				$("#tessdefcontainer").on("click", ".fade-menu-element", function(event) {
 					return false;
 				});*/
-				$('.fade-menu').on("click", ".fade-menu-collapse-arrow", function(event) {
-					$(this).closest(".fade-menu-collapsable-section").toggleClass("collapsed");
-				})
-
 				// handler to add a new polygon
 				$("#tessdefcontainer").on("click", ".addPolyentry", function(event) {
 					// TODO add new shape
 				});
 
-				$("#tessdefcontainer").append(app.generateUI());
+				//$("#tessdefcontainer").append(app.generateUI());
+				$("#tessdefcontainer").tessMenu({controller:app, tessellation:app.tessellation});
+				
+				// initialize fade menu interactions
+				$('.fade-menu').fadeMenu();
+
 			});
 		var applyStyle = function() {
 			// use jquery to serialize into array
@@ -130,11 +134,11 @@
 				<input type="text" placeholder="model name" id="deletename">
 			</div>-->
 			<div id="settings" class="boxlid-left-panel">
-				<div id="tessdefcontainer" class="fade-menu">
+				<div id="tessdefcontainer">
 				</div>
 				<form id='pathStyleForm'>
 					<div id="pathstylecontainer" class="fade-menu">
-						<div class="fade-menu-collapsable-section collapsed">
+						<div class="fade-menu-collapsable-section">
 							<div class="fade-menu-collapse-arrow"></div>
 							<div class="fade-menu-section-title">Path Style</div>
 
