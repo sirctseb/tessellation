@@ -1,0 +1,28 @@
+.vdisplay {
+	&:not(.edit) {
+		&>.v1edit, .v2edit {
+			display:none;
+		}
+	}
+	&.edit {
+		&>.v1default, .v2default {
+			display:none;
+		}
+	}
+}
+
+.vecEditField
+{
+	width:40px;
+}
+.editButton
+{
+	float:right;
+	margin-right:4px;
+	/* TODO make this an image */
+}
+.vecEditSubmit
+{
+	float:right;
+	/* TODO make this an image */
+}
