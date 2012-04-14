@@ -77,10 +77,25 @@ class PathHistory
 			@redoAll()
 		# callback is called in redoAll(undoTo())
 
+	# duplicate the path at the current index and add it to the top
+	push: () ->
+		# duplicate current path
+		newPath = @pathList[@index].clone()
+		# truncate history
+		@truncate()
+		# add new path to history
+		@pathList.push(newPath)
+		# update index
+		index = pathList.length - 1
+		# return new path
+		newPath
+	current: () ->
+		return @pathList[index]
+
 	# add a new path state to the history after index
 	# if index < pathList.length - 1, then history is chopped off before adding new path
 	# set the current state to the newly added one according to setToNewState
-	addPath: (path, index = @index, setToNewState = true) ->
+	### addPath: (path, index = @index, setToNewState = true) ->
 		# validate index value
 		if index < 0 || pathList.length - 1 < index
 			# return what?
@@ -94,3 +109,4 @@ class PathHistory
 		else
 			# call callback
 			@callCallback()
+	###
