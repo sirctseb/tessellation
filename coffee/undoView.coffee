@@ -5,7 +5,10 @@ jQuery.fn.undoView = (method) ->
 			this.fadeMenu(options)
 
 			# create data structure
-			this.data('undoView', {history: PathHistory({path: options.path})})
+			this.data('undoView', {history: PathHistory({path: options?.path})})
+
+			# add top level
+			this.fadeMenu 'addCollapsableMenuSection', {headerText: "Undo History"}
 		push: () ->
 			# push path onto history and return new path
 			this.data('undoView').history.push()
