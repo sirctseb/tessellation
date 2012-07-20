@@ -2,6 +2,7 @@ log.js
 focus.js
 latticeEditView.js
 PathHistory.js
+undoView.js
 boxlid.css
 tessMenu.css
 .sass-cache/
