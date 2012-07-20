@@ -1,4 +1,4 @@
-class PathHistory
+class window.PathHistory
 
 	# fields
 
