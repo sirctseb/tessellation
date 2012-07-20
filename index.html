@@ -20,6 +20,8 @@
 		<script type="text/javascript" src="tessDef.js"></script>
 		<script type="text/javascript" src="fadeMenu.js"></script>
 		<script type="text/javascript" src="tessMenu.js"></script>
+		<script type="text/javascript" src="PathHistory.js"></script>
+		<script type="text/javascript" src="undoView.js"></script>
 		<script type="text/javascript" src="htmlTessellationView.js"></script>
 		<script type="text/javascript" src="tessellationView.js"></script>
 		<script type="text/javascript" src="tessellations.js"></script>
@@ -85,6 +87,7 @@
 				
 				// initialize fade menu interactions
 				$('.fade-menu').fadeMenu();
+				$('.undo').undoView();
 
 			});
 		var applyStyle = function() {
@@ -124,6 +127,7 @@
 	<body>
 		<div class="boxlid-wrapper" style="width:100%; height:100%">
 			<div class="boxlid-right-panel">
+				<div class="undo"></div>
 			</div>
 			<div class="boxlid-top-panel">
 				<h1>Tessellation<span class="visibleWhenLoaded"> - <span id="titlename"></span></span></h1>
