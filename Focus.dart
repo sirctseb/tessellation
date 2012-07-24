@@ -1,6 +1,8 @@
 /** [Focus] is a class to allow elements to know when they
  *	have lost focus, that is, when a click occurs outside their bounds
  **/
+ #library("Focus");
+ #import("dart:html");
 
 class Focus {
   // The element to watch for loss of focus

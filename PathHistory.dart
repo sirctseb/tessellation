@@ -1,6 +1,8 @@
 /** [PathHistory] is a class to maintain the state
  *  of a path over time
  */
+#library("PathHistory");
+
 class PathHistory {
   // the actual list of paths in the undo history
   List _pathList;
