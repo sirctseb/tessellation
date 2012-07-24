@@ -112,7 +112,7 @@ class FadeMenu {
   }
   
   // create a section and add it to the menu
-  Element addMenuSection(options) {
+  FadeMenuSection addMenuSection(options) {
     FadeMenuSection section = new FadeMenuSection(options);
     // add element to menu
     root.nodes.add(section.root);
@@ -121,7 +121,7 @@ class FadeMenu {
   }
   
   // create a collapsable section and add it to the menu
-  Element addCollapsableMenuSection(options) {
+  FadeMenuCollapsableSection addCollapsableMenuSection(options) {
 
     FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(options);
     // add element to menu
@@ -131,7 +131,7 @@ class FadeMenu {
   }
 
   // create a fade menu element and add it to the menu
-  Element addElement(options) {
+  FadeMenuElement addElement(options) {
     // create element
     FadeMenuElement element = new FadeMenuElement(options);
     // add element to menu
