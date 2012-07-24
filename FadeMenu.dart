@@ -13,6 +13,37 @@ class FadeMenuElement {
     root.nodes.add(options.contents);
     // TODO should FadeMenuSection extend this if we have this contents thing?
   }
+
+  // TODO need to refactor because sections need these methods
+
+  // create a section and add it to the menu
+  FadeMenuSection addMenuSection(options) {
+    FadeMenuSection section = new FadeMenuSection(options);
+    // add element to menu
+    root.nodes.add(section.root);
+    // return the element
+    return section;
+  }
+  
+  // create a collapsable section and add it to the menu
+  FadeMenuCollapsableSection addCollapsableMenuSection(options) {
+
+    FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(options);
+    // add element to menu
+    root.nodes.add(section.root);
+    // return the element
+      return section;
+    }
+
+    // create a fade menu element and add it to the menu
+    FadeMenuElement addElement(options) {
+    // create element
+    FadeMenuElement element = new FadeMenuElement(options);
+    // add element to menu
+    root.nodes.add(element.root);
+    // return the element
+    return element;
+  }
 }
 
 class FadeMenuSection extends FadeMenuElement{
@@ -87,8 +118,7 @@ class FadeMenuCollapsableSection extends FadeMenuSection {
   }
 }
 
-class FadeMenu {
-  Element root;
+class FadeMenu extends FadeMenuElement {
   
   // TODO make factory that checks if an FM has already been constructed
   // for this element and return it from a cache if so
@@ -109,35 +139,6 @@ class FadeMenu {
         event.stopPropagation();
         });
     });
-  }
-  
-  // create a section and add it to the menu
-  FadeMenuSection addMenuSection(options) {
-    FadeMenuSection section = new FadeMenuSection(options);
-    // add element to menu
-    root.nodes.add(section.root);
-    // return the element
-    return section;
-  }
-  
-  // create a collapsable section and add it to the menu
-  FadeMenuCollapsableSection addCollapsableMenuSection(options) {
-
-    FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(options);
-    // add element to menu
-    root.nodes.add(section.root);
-    // return the element
-    return section;
-  }
-
-  // create a fade menu element and add it to the menu
-  FadeMenuElement addElement(options) {
-    // create element
-    FadeMenuElement element = new FadeMenuElement(options);
-    // add element to menu
-    root.nodes.add(element.root);
-    // return the element
-    return element;
   }
 
   // return an element at a given index
