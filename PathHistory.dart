@@ -35,9 +35,11 @@ class PathHistory {
   // move back one in the undo history
   undo() {
     // move index down one if we're not at the butt already
-    if(_index > 0) index--;
-    // call callback
-    _callCallback();
+    if(_index > 0) {
+      index--;
+      // call callback
+      _callCallback();
+    }
     // TODO update references to the path?
     // return the new index
     return _index;
@@ -46,9 +48,11 @@ class PathHistory {
   // move forward one in the undo history
   redo() {
     // move index up one if we're not at the head already
-    if(_index < _pathList.length - 1) _index--;
-    // call callback
-    _callCallback();
+    if(_index < _pathList.length - 1) {
+      _index--;
+      // call callback
+      _callCallback();
+    }
     // return new index
     return _index;
   }
@@ -56,9 +60,11 @@ class PathHistory {
   // set to a specific location in the history
   undoTo(int index) {
     // update index if 
-    if(0 <= index && index < _pathList.length) _index = index;
-    // call callback
-    _callCallback();   
+    if(0 <= index && index < _pathList.length) {
+      _index = index;
+      // call callback
+      _callCallback();
+    }
   }
 
   /// set to most recent path
