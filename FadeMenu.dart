@@ -17,6 +17,8 @@ class FadeMenuElement {
 
 class FadeMenuSection extends FadeMenuElement{
   Element _header;
+  Element get header()            => _header.text;
+          set header(String text) => _header.text = text;
   FadeMenuSection(options) : super(options) {
     // add classes from options
     if(options.classes) {
