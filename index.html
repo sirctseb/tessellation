@@ -9,6 +9,9 @@
 		<link rel="stylesheet" href="boxlid.css" type="text/css" />
 		<link rel="stylesheet" href="fadeMenu.css" type="text/css" />
 		<link rel="stylesheet" href="tessMenu.css" type="text/css" />
+		
+		<script type="application/dart" src="Tessellation.dart"></script>
+		<script src="http://dart.googlecode.com/svn/branches/bleeding_edge/dart/client/dart.js"></script>
 		<script type="text/javascript" src="utility.js"></script>
 		<script type="text/javascript" src="timer.js"></script>
 		<script type="text/javascript" src="jquery-1.7.1.js"></script>
@@ -18,10 +21,9 @@
 		<script type="text/javascript" src="paper.js"></script>
 		<script type="text/javascript" src="paperjsPlugins.js"></script>
 		<script type="text/javascript" src="tessDef.js"></script>
-		<script type="text/javascript" src="fadeMenu.js"></script>
-		<script type="text/javascript" src="tessMenu.js"></script>
+		<!--<script type="text/javascript" src="tessMenu.js"></script>-->
 		<script type="text/javascript" src="PathHistory.js"></script>
-		<script type="text/javascript" src="undoView.js"></script>
+		<!--<script type="text/javascript" src="undoView.js"></script>-->
 		<script type="text/javascript" src="htmlTessellationView.js"></script>
 		<script type="text/javascript" src="tessellationView.js"></script>
 		<script type="text/javascript" src="tessellations.js"></script>
@@ -83,11 +85,11 @@
 				});
 
 				//$("#tessdefcontainer").append(app.generateUI());
-				$("#tessdefcontainer").tessMenu({controller:app, tessellation:app.tessellation});
+				//$("#tessdefcontainer").tessMenu({controller:app, tessellation:app.tessellation});
 				
 				// initialize fade menu interactions
-				$('.fade-menu').fadeMenu();
-				$('.undo').undoView();
+				//$('.fade-menu').fadeMenu();
+				//$('.undo').undoView();
 
 			});
 		var applyStyle = function() {

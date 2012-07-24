@@ -1,12 +1,15 @@
 
 #import('dart:html');
+#import('FadeMenu.dart');
 
 num rotatePos = 0;
 
 void main() {
-  query("#text").text = "Welcome to Dart!";
+  //queryAll(".fade-menu").forEach((el) => new FadeMenu(el));
+  new FadeMenu(query(".fade-menu"));
+  //query("#text").text = "Welcome to Dart!";
 
-  query("#text").on.click.add(rotateText);
+  //query("#text").on.click.add(rotateText);
 }
 
 void rotateText(Event event) {
