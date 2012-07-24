@@ -8,7 +8,7 @@ void main() {
   //queryAll(".fade-menu").forEach((el) => new FadeMenu(el));
   new FadeMenu(query(".fade-menu"));
   FadeMenu menu = new FadeMenu(query("#test-fade-menu"));
-  menu.addMenuSection()
+  //menu.addMenuSection();
   //query("#text").text = "Welcome to Dart!";
 
   //query("#text").on.click.add(rotateText);

@@ -5,12 +5,10 @@
 
 class FadeMenuElement {
   Element root;
-  FadeMenuElement(options) {
-    root = new Element.tag(options.type || "div");
+  FadeMenuElement() {
+    root = new Element.tag("div");
     // add element class
     root.classes.add("fade-menu-element");
-    // add contents
-    root.nodes.add(options.contents);
     // TODO should FadeMenuSection extend this if we have this contents thing?
   }
 
