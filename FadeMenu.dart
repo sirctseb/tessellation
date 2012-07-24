@@ -3,9 +3,55 @@
 #library("FadeMenu");
 #import("dart:html");
 
+class FadeMenuElement {
+  Element root;
+  FadeMenuElement(options) {
+    root = new Element.tag(options.type || "div");
+    // add element class
+    root.classes.add("fade-menu-element");
+    // add contents
+    root.nodes.add(options.contents);
+    // TODO should FadeMenuSection extend this if we have this contents thing?
+  }
+}
+
+class FadeMenuSection extends FadeMenuElement{
+  Element _header;
+  FadeMenuSection(options) : super(options) {
+    // add classes from options
+    if(options.classes) {
+      options.classes.forEach((cls) => element.classes.add(cls));
+    }
+    // add fade menu section class
+    root.classes.add("fade-menu-section");
+    // create header
+    _header = new Element.tag("div");
+    // add header class
+    _header.classes.add("fade-menu-section-title");
+    // add text
+    _header.text = options.headerText;
+    // add header
+    root.nodes.add(_header);
+  }
+}
+
+class FadeMenuCollapsableSection extends FadeMenuSection {
+  FadeMenuCollapsableSection(options) : super(options) {
+    // add collapsable menu section class
+    root.classes.add("fade-menu-collapsable-section");
+    // create collapse arrow
+    Element arrow = new Element.tag("div");
+    arrow.classes.add("fade-menu-collapse-arrow");
+    // add arrow
+    root.nodes.insertBefore(arrow, _header);
+  }
+}
+
 class FadeMenu {
   Element root;
   
+  // TODO make factory that checks if an FM has already been constructed
+  // for this element and return it from a cache if so
   FadeMenu(Element element) {
     // TODO check that it hasn't already been initialized as a fade menu?
     root = element;
@@ -27,67 +73,29 @@ class FadeMenu {
   
   // create a section and add it to the menu
   Element addMenuSection(options) {
-    // TODO test that this is a menu or section
-    Element element = new Element.tag(options.type || "div");
-    // add classes from options
-    if(options.classes) {
-      options.classes.forEach((cls) => element.classes.add(cls));
-    }
-    // add fade menu section class
-    element.classes.add("fade-menu-section");
-    // create header
-    Element header = new Element.tag("div");
-    // add header class
-    header.classes.add("fade-menu-section-title");
-    // add text
-    header.text = options.headerText;
-    // add header
-    element.nodes.add(header);
+    FadeMenuSection section = new FadeMenuSection(options);
     // add element to menu
-    _root.nodes.add(element);
+    root.nodes.add(section.root);
     // return the element
-    return element;
+    return section;
   }
   
   // create a collapsable section and add it to the menu
   Element addCollapsableMenuSection(options) {
-    // TODO test that this is a menu or section
-    // create the element
-    Element element = new Element.tag(options.type || "div");
-    // add classes from options
-    if(options.classes) {
-      options.classes.forEach((cls) => element.classes.add(cls));
-    }
-    // add collapsable menu section class
-    element.classes.add("fade-menu-collapsable-section");
-    // create collapse arrow
-    Element arrow = new Element.tag("div");
-    arrow.classes.add("fade-menu-collapse-arrow");
-    // add arrow
-    element.nodes.add(arrow);
-    // create header
-    Element header = new Element.tag("div");
-    header.classes.add("fade-menu-section-title");
-    header.text = options.headerText;
-    // add header
-    element.nodes.add(header);
+
+    FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(options);
     // add element to menu
-    _root.nodes.add(element);
+    root.nodes.add(section.root);
     // return the element
-    return element;
+    return section;
   }
 
   // create a fade menu element and add it to the menu
   Element addElement(options) {
-    // TODO test that this is a menu or section
     // create element
-    Element element = new Element.tag(options.type || "div");
-    // add element class
-    element.classes.add("fade-menu-element");
-    // add contents
-    element.nodes.add(options.contents);
+    FadeMenuElement element = new FadeMenuElement(options);
     // add element to menu
-    _root.nodes.add(element);
+    root.nodes.add(element.root);
     // return the element
     return element;
   }
