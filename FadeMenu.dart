@@ -11,6 +11,11 @@ class FadeMenuElement {
     root.classes.add("fade-menu-element");
     // TODO should FadeMenuSection extend this if we have this contents thing?
   }
+  FadeMenuElement.fromElement(Element element) {
+    root = element;
+    // add element class
+    root.classes.add("fade-menu-element");
+  }
 
   // TODO need to refactor because sections need these methods
 
@@ -120,9 +125,7 @@ class FadeMenu extends FadeMenuElement {
   
   // TODO make factory that checks if an FM has already been constructed
   // for this element and return it from a cache if so
-  FadeMenu(Element element) {
-    // TODO check that it hasn't already been initialized as a fade menu?
-    root = element;
+  FadeMenu(Element element) : super.fromElement(element) {
     // Add fade-menu class
     root.classes.add("fade-menu");
     // register click handlers for collapsable sections
