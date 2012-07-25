@@ -53,10 +53,6 @@ class FadeMenuSection extends FadeMenuElement{
   Element _header;
   bool _selectable = false;
   FadeMenuSection(options) {
-    // add classes from options
-    if(options.classes) {
-      options.classes.forEach((cls) => root.classes.add(cls));
-    }
     // add fade menu section class
     root.classes.add("fade-menu-section");
     // create header
@@ -64,7 +60,7 @@ class FadeMenuSection extends FadeMenuElement{
     // add header class
     _header.classes.add("fade-menu-section-title");
     // add text
-    _header.text = options.headerText;
+    _header.text = options["headerText"];
     // add header
     root.nodes.add(_header);
   }
