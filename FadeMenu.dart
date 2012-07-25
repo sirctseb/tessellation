@@ -39,11 +39,11 @@ class FadeMenuElement {
     }
 
     // create a fade menu element and add it to the menu
-    FadeMenuElement addElement(options) {
+    FadeMenuElement addElement(element) {
     // create element
-    FadeMenuElement element = new FadeMenuElement(options);
+    FadeMenuElement menuElement = new FadeMenuElement.fromElement(element);
     // add element to menu
-    root.nodes.add(element.root);
+    root.nodes.add(menuElement.root);
     // return the element
     return element;
   }
@@ -52,10 +52,10 @@ class FadeMenuElement {
 class FadeMenuSection extends FadeMenuElement{
   Element _header;
   bool _selectable = false;
-  FadeMenuSection(options) : super(options) {
+  FadeMenuSection(options) {
     // add classes from options
     if(options.classes) {
-      options.classes.forEach((cls) => element.classes.add(cls));
+      options.classes.forEach((cls) => root.classes.add(cls));
     }
     // add fade menu section class
     root.classes.add("fade-menu-section");
@@ -69,7 +69,7 @@ class FadeMenuSection extends FadeMenuElement{
     root.nodes.add(_header);
   }
 
-  Element get header()            => _header.text;
+  String  get header()            => _header.text;
           set header(String text) => _header.text = text;
 
   bool  get selected()          =>  root.classes.contains("selected");
@@ -117,7 +117,7 @@ class FadeMenuCollapsableSection extends FadeMenuSection {
     Element arrow = new Element.tag("div");
     arrow.classes.add("fade-menu-collapse-arrow");
     // add arrow
-    root.nodes.insertBefore(arrow, _header);
+    root.insertBefore(arrow, _header);
   }
 }
 
@@ -129,7 +129,7 @@ class FadeMenu extends FadeMenuElement {
     // Add fade-menu class
     root.classes.add("fade-menu");
     // register click handlers for collapsable sections
-    root.queryAll(".fade-menu-collapsable-section").forEach((el) {
+    root.queryAll(".fade-menu-collapsable-section").forEach((Element el) {
       el.on.click.add((event) {
         // toggle collapsed class
         if(el.classes.contains("collapsed")) {
@@ -144,6 +144,6 @@ class FadeMenu extends FadeMenuElement {
 
   // return an element at a given index
   Element getElement(index) {
-    return nodes[index];
+    return root.nodes[index];
   }
 }
