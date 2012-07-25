@@ -20,8 +20,8 @@ class FadeMenuElement {
   // TODO need to refactor because sections need these methods
 
   // create a section and add it to the menu
-  FadeMenuSection addMenuSection(options) {
-    FadeMenuSection section = new FadeMenuSection(options);
+  FadeMenuSection addMenuSection([String headerText = ""]) {
+    FadeMenuSection section = new FadeMenuSection(headerText);
     // add element to menu
     root.nodes.add(section.root);
     // return the element
@@ -29,9 +29,9 @@ class FadeMenuElement {
   }
   
   // create a collapsable section and add it to the menu
-  FadeMenuCollapsableSection addCollapsableMenuSection(options) {
+  FadeMenuCollapsableSection addCollapsableMenuSection([String headerText = ""]) {
 
-    FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(options);
+    FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(headerText);
     // add element to menu
     root.nodes.add(section.root);
     // return the element
@@ -52,7 +52,7 @@ class FadeMenuElement {
 class FadeMenuSection extends FadeMenuElement{
   Element _header;
   bool _selectable = false;
-  FadeMenuSection(options) {
+  FadeMenuSection([String headerText = ""]) {
     // add fade menu section class
     root.classes.add("fade-menu-section");
     // create header
@@ -60,7 +60,7 @@ class FadeMenuSection extends FadeMenuElement{
     // add header class
     _header.classes.add("fade-menu-section-title");
     // add text
-    _header.text = options["headerText"];
+    _header.text = headerText;
     // add header
     root.nodes.add(_header);
   }
@@ -106,7 +106,7 @@ class FadeMenuSection extends FadeMenuElement{
 }
 
 class FadeMenuCollapsableSection extends FadeMenuSection {
-  FadeMenuCollapsableSection(options) : super(options) {
+  FadeMenuCollapsableSection([String headerText = ""]) : super(headerText) {
     // add collapsable menu section class
     root.classes.add("fade-menu-collapsable-section");
     // create collapse arrow
