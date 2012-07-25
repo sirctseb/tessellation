@@ -36,10 +36,10 @@ class FadeMenuElement {
     root.nodes.add(section.root);
     // return the element
       return section;
-    }
+  }
 
-    // create a fade menu element and add it to the menu
-    FadeMenuElement addElement(element) {
+  // create a fade menu element and add it to the menu
+  FadeMenuElement addElement(element) {
     // create element
     FadeMenuElement menuElement = new FadeMenuElement.fromElement(element);
     // add element to menu
