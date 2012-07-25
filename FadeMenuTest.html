@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FadeMenuTest</title>
+    <link rel="stylesheet" href="fadeMenu.css">
+    <script type="application/dart" src="FadeMenuTest.dart"></script>
+    <script src="http://dart.googlecode.com/svn/branches/bleeding_edge/dart/client/dart.js"></script>
+  </head>
+  <body>
+    <h1>FadeMenuTest</h1>
+    
+    <p>Hello world from Dart!</p>
+    
+    <!-- <div id="left-container" style="float:left">
+    	<div id="fade-menu-test"></div>
+    </div> -->
+    
+    <div id="container">
+	  <div id="pathstylecontainer" class="fade-menu">
+		<div class="fade-menu-collapsable-section">
+			<div class="fade-menu-collapse-arrow"></div>
+			<div class="fade-menu-section-title">Path Style</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for="strokeColor" class="fade-menu-section-title">Stroke Color</label>
+					<div class="fade-menu-element">
+						<input type="text" name="strokeColor" value="black" id="strokeColor" class="colorText strokeColorPickerLinks" />
+						<div class='colorPreview strokeColorPickerLinks' onclick="$('#stroke-colorpicker').dialog('open');"></div>
+						<div id='stroke-colorpicker' class='colorpicker'></div>
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='strokeWidth' class="fade-menu-section-title">Stroke Width</label>
+					<div class="fade-menu-element">
+						<input type='text' name='strokeWidth' value='3' id='strokeWidth' />
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='strokeCap' class="fade-menu-section-title">Stroke Cap</label>
+					<div class="fade-menu-element">
+						<input type='text' name='strokeCap' value='butt' id='strokeCap' />
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='strokeJoin' class="fade-menu-section-title">Stroke Join</label>
+					<div class="fade-menu-element">
+						<input type='text' name='strokeJoin' value='miter' id='strokeJoin' />
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='dashOffset' class="fade-menu-section-title">Dash Offset</label>
+					<div class="fade-menu-element">
+						<input type='text' name='dashOffset' value='0' id='dashOffset' />
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='dashArray' class="fade-menu-section-title">Dash Array</label>
+					<div class="fade-menu-element">
+						<input type='text' name='dashArray' value='' id='dashArray' />
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='miterLimit' class="fade-menu-section-title">Miter Limit</label>
+					<div class="fade-menu-element">
+						<input type='text' name='miterLimit' value='10' id='miterLimit' />
+					</div>
+				</div>
+	
+				<div class="fade-menu-collapsable-section">
+					<div class="fade-menu-collapse-arrow"></div>
+					<label for='fillColor' class="fade-menu-section-title">Fill Color</label>
+					<div class="fade-menu-element">
+						<input type='text' name='fillColor' value='none' id='fillColor' />
+					</div>
+				</div>
+				<div class="fade-menu-section">
+					<div style="padding-top:6px; margin-left:auto; margin-right:auto; display:table">
+						<input type='button' name='applyPathStyle' id='applyPathStyle' value='Apply Style' onclick="applyStyle();" style=""/>
+					</div>
+				</div>
+		</div>
+	</div>
+    </div>
+  </body>
+</html>
