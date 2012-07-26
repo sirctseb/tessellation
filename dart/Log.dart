@@ -10,13 +10,13 @@ class Log {
   Set<String> groups;
   // the name of this log
   String _name;
-  String get name => _name;
+  String get name() => _name;
 
   // the existing named logs
-  static Map<String, Log> logs = {};
+  static Map<String, Log> logs;
 
   factory Log([int level = 0, Collection<String> groups = null]) {
-    return new Log.named("default", level, groups);
+    return new Log._named("default", level, groups);
   }
 
   // create named log
@@ -27,10 +27,15 @@ class Log {
     } else {
       this.groups = new Set();
     }
+    
+    if(logs == null) logs = {};
+    
     // add to map
     logs[_name] = this;
   }
   factory Log.named(String name) {
+    if(logs == null) logs = {};
+    
     if(logs.containsKey(name)) {
       return logs[name];
     }
