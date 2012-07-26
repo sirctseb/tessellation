@@ -6,5 +6,5 @@ void main() {
   FadeMenu menu = new FadeMenu(query("#fade-menu-test"));
   var katsection = menu.addMenuSection("Katharina");
   var lname = katsection.addCollapsableMenuSection("Last Name");
-  lname.addMenuElement();
+  //lname.addMenuElement();
 }

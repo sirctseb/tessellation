@@ -4,16 +4,17 @@
 #import("dart:html");
 
 class FadeMenuElement {
-  Element root;
+  Element _root;
+  Element get root() => _root;
   FadeMenuElement() {
-    root = new Element.tag("div");
+    _root = new Element.tag("div");
     // add element class
-    root.classes.add("fade-menu-element");
+    _root.classes.add("fade-menu-element");
   }
   FadeMenuElement.fromElement(Element element) {
-    root = element;
+    _root = element;
     // add element class
-    root.classes.add("fade-menu-element");
+    _root.classes.add("fade-menu-element");
   }
 
   // TODO need to refactor because sections need these methods
@@ -22,7 +23,7 @@ class FadeMenuElement {
   FadeMenuSection addMenuSection([String headerText = ""]) {
     FadeMenuSection section = new FadeMenuSection(headerText);
     // add element to menu
-    root.nodes.add(section.root);
+    _root.nodes.add(section._root);
     // return the element
     return section;
   }
@@ -32,7 +33,7 @@ class FadeMenuElement {
 
     FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(headerText);
     // add element to menu
-    root.nodes.add(section.root);
+    _root.nodes.add(section._root);
     // return the element
       return section;
   }
@@ -42,7 +43,7 @@ class FadeMenuElement {
     // create element
     FadeMenuElement menuElement = new FadeMenuElement();
     // add element to menu
-    root.nodes.add(menuElement.root);
+    _root.nodes.add(menuElement._root);
     // return the element
     return menuElement;
   }
@@ -53,7 +54,7 @@ class FadeMenuSection extends FadeMenuElement{
   bool _selectable = false;
   FadeMenuSection([String headerText = ""]) {
     // add fade menu section class
-    root.classes.add("fade-menu-section");
+    _root.classes.add("fade-menu-section");
     // create header
     _header = new Element.tag("div");
     // add header class
@@ -61,16 +62,16 @@ class FadeMenuSection extends FadeMenuElement{
     // add text
     _header.text = headerText;
     // add header
-    root.nodes.add(_header);
+    _root.nodes.add(_header);
   }
 
   String  get header()            => _header.text;
           set header(String text) => _header.text = text;
 
-  bool  get selected()          =>  root.classes.contains("selected");
+  bool  get selected()          =>  _root.classes.contains("selected");
         set selected(bool sel)  =>  (sel && _selectable)
-                                      ? root.classes.add("selected")
-                                      : root.classes.remove("selected");
+                                      ? _root.classes.add("selected")
+                                      : _root.classes.remove("selected");
   // TODO a better interface might be public properties for callbacks,
   // and getter/setter for selectable
 
@@ -107,12 +108,12 @@ class FadeMenuSection extends FadeMenuElement{
 class FadeMenuCollapsableSection extends FadeMenuSection {
   FadeMenuCollapsableSection([String headerText = ""]) : super(headerText) {
     // add collapsable menu section class
-    root.classes.add("fade-menu-collapsable-section");
+    _root.classes.add("fade-menu-collapsable-section");
     // create collapse arrow
     Element arrow = new Element.tag("div");
     arrow.classes.add("fade-menu-collapse-arrow");
     // add arrow
-    root.insertBefore(arrow, _header);
+    _root.insertBefore(arrow, _header);
   }
 }
 
@@ -122,9 +123,9 @@ class FadeMenu extends FadeMenuElement {
   // for this element and return it from a cache if so
   FadeMenu(Element element) : super.fromElement(element) {
     // Add fade-menu class
-    root.classes.add("fade-menu");
+    _root.classes.add("fade-menu");
     // register click handlers for collapsable sections
-    root.queryAll(".fade-menu-collapsable-section").forEach((Element el) {
+    _root.queryAll(".fade-menu-collapsable-section").forEach((Element el) {
       el.on.click.add((event) {
         // toggle collapsed class
         if(el.classes.contains("collapsed")) {
@@ -139,6 +140,6 @@ class FadeMenu extends FadeMenuElement {
 
   // return an element at a given index
   Element getElement(index) {
-    return root.nodes[index];
+    return _root.nodes[index];
   }
 }
