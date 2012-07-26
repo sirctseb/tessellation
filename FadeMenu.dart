@@ -114,6 +114,16 @@ class FadeMenuCollapsableSection extends FadeMenuSection {
     arrow.classes.add("fade-menu-collapse-arrow");
     // add arrow
     _root.insertBefore(arrow, _header);
+    // add click handler
+    arrow.on.click.add((event) {
+      // toggle collapsed class
+      if(arrow.parent.classes.contains("collapsed")) {
+        arrow.parent.classes.remove("collapsed");
+      } else {
+        arrow.parent.classes.add("collapsed");
+      }
+      event.stopPropagation();
+    });
   }
 }
 
@@ -125,13 +135,13 @@ class FadeMenu extends FadeMenuElement {
     // Add fade-menu class
     _root.classes.add("fade-menu");
     // register click handlers for collapsable sections
-    _root.queryAll(".fade-menu-collapsable-section").forEach((Element el) {
+    _root.queryAll(".fade-menu-collapse-arrow").forEach((Element el) {
       el.on.click.add((event) {
         // toggle collapsed class
-        if(el.classes.contains("collapsed")) {
-          el.classes.remove("collapsed");
+        if(el.parent.classes.contains("collapsed")) {
+          el.parent.classes.remove("collapsed");
         } else {
-          el.classes.add("collapsed");
+          el.parent.classes.add("collapsed");
         }
         event.stopPropagation();
         });
