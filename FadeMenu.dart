@@ -9,7 +9,6 @@ class FadeMenuElement {
     root = new Element.tag("div");
     // add element class
     root.classes.add("fade-menu-element");
-    // TODO should FadeMenuSection extend this if we have this contents thing?
   }
   FadeMenuElement.fromElement(Element element) {
     root = element;
@@ -39,9 +38,9 @@ class FadeMenuElement {
   }
 
   // create a fade menu element and add it to the menu
-  FadeMenuElement addElement(Element element) {
+  FadeMenuElement addElement() {
     // create element
-    FadeMenuElement menuElement = new FadeMenuElement.fromElement(element);
+    FadeMenuElement menuElement = new FadeMenuElement();
     // add element to menu
     root.nodes.add(menuElement.root);
     // return the element
