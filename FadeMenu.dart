@@ -144,7 +144,7 @@ class FadeMenu extends FadeMenuElement {
           el.parent.classes.add("collapsed");
         }
         event.stopPropagation();
-        });
+      });
     });
   }
 
