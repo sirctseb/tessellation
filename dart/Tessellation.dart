@@ -5,13 +5,7 @@
 num rotatePos = 0;
 
 void main() {
-  //queryAll(".fade-menu").forEach((el) => new FadeMenu(el));
-  new FadeMenu(query(".fade-menu"));
-  FadeMenu menu = new FadeMenu(query("#test-fade-menu"));
-  //menu.addMenuSection();
-  //query("#text").text = "Welcome to Dart!";
-
-  //query("#text").on.click.add(rotateText);
+  queryAll(".fade-menu").forEach((menu) => new FadeMenu(menu));
 }
 
 void rotateText(Event event) {
