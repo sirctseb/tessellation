@@ -18,22 +18,19 @@ class Log {
     }
   }
 
-  bool Log(content, [int level, String group]) {
-    if(level != null) {
-      if(level <= this.level) {
+  bool log(content, [var qualifier]) {
+    if(qualifier != null) {
+      if(qualifier is num && qualifier <= level) {
+        print(content);
+        return true;
+      }
+      if(qualifier is String && groups.contains(qualifier)) {
         print(content);
         return true;
       }
     } else {
-      if(group != null) {
-        if(groups.contains(group)) {
-          print(content);
-          return true;
-        }
-      } else {
         print(content);
         return true;
-      }
     }
     return false;
   }
