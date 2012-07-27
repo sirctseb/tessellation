@@ -9,11 +9,11 @@ class BoxLid {
   Element root;
  
   // convenience accessors to panels
-  Element get _leftPanel => root.query(".boxlid-left-panel");
-  Element get _rightPanel => root.query(".boxlid-right-panel");
-  Element get _topPanel => root.query(".boxlid-top-panel");
-  Element get _bottomPanel => root.query(".boxlid-bottom-panel");
-  Element get _centerPanel => root.query(".boxlid-center");
+  Element get _leftPanel() => root.query(".boxlid-left-panel");
+  Element get _rightPanel() => root.query(".boxlid-right-panel");
+  Element get _topPanel() => root.query(".boxlid-top-panel");
+  Element get _bottomPanel() => root.query(".boxlid-bottom-panel");
+  Element get _centerPanel() => root.query(".boxlid-center");
 
   // the width or height of each panel
   int _left, _right, _top, _bottom;
@@ -24,7 +24,7 @@ class BoxLid {
 
   // accessors for the widths and heights
   // setters automatically update dependent sizes
-  int get left => _left;
+  int get left() => _left;
   int set left (value) {
     _left = value;
     // set sizes of elements
@@ -32,7 +32,7 @@ class BoxLid {
     _bottomPanel.style.width = "${root.style.height.parseInt() - value}px";
     _setCenterSize();
   }
-  int get top => _top;
+  int get top() => _top;
   int set top(value) {
     _top = value;
     // set sizes of elements
@@ -40,7 +40,7 @@ class BoxLid {
     root.query(".boxlid-left-panel").style.height = "${root.style.height.parseInt() - value}px";
     _setCenterSize();
   }
-  int get bottom => _botttom;
+  int get bottom() => _botttom;
   int set bottom(value) {
     _bottom = value;
     // set sizes of elements
@@ -48,7 +48,7 @@ class BoxLid {
     _rightPanel.style.height = "${root.style.height.parseInt() - value}px";
     _setCenterSize();
   }
-  int get right => _right;
+  int get right() => _right;
   int set right(value) {
     _right = value;
     // set sizes of elements
@@ -68,7 +68,6 @@ class BoxLid {
     _centerPanel.style.width = "${width}px";
     _centerPanel.style.height = "${height}px";
   }
-  // TODO setters
 
   BoxLid(Element element) {
     _closedSize = 10;
@@ -98,10 +97,10 @@ class BoxLid {
     // add handle
     Element bottomHandle = new Element.tag("div");
     bottomHandle.classes.add("boxlid-bottom-handle");
-    root.query(".boxlid-left-panel").insertRange(0,1,bottomHandle);
+    _bottomPanel.insertBefore(bottomHandle, _bottomPanel.nodes[0]);
 
     // update sizes
-    this.resize();
+    //this.resize();
 
     // add interaction handlers
     topHandle.on.drag.add((event) {
@@ -123,7 +122,7 @@ class BoxLid {
     // click handles to open / close them
     leftHandle.on.click.add((event) {
       //if(_leftPanel.)
-    })
+    });
 
   }
 }
