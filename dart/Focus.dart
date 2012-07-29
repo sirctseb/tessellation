@@ -16,20 +16,26 @@ class Focus {
   }
 
   // The list of Focus instances watching for focus loss
-  final static List<Focus> registrants = new List<Focus>();
+  static List<Focus> _registrants;
   // Register a new element
   static register(Focus focus) {
-    registrants.add(focus);
+    if(_registrants == null) {
+      _registrants = new List<Focus>();
+      // lazy initialize
+      Init();
+    }
+    _registrants.add(focus);
   }
   // TODO unregister?
   // Initialize monitoring
   static Init() {
     // add click handler to document
+    // TODO mouse down instead of click?
     document.on.click.add((event) {
       // for each registrant,
-      registrants.forEach((focus) {
+      _registrants.forEach((focus) {
         // if click is outside element, call callback
-        if(!focus.element.contains(event.target)) registrant.callback();
+        if(!focus.element.contains(event.target)) focus.callback();
       });
     });
   }
