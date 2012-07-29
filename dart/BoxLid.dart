@@ -21,6 +21,8 @@ class BoxLid {
   int _openLeft, _openRight, _openTop, _openBottom;
   // the width or height of the panels when closed;
   int _closedSize;
+  // mouse move handler storage
+  Map<String, Function> _moveHandlers;
 
   // accessors for the widths and heights
   // setters automatically update dependent sizes
@@ -103,23 +105,36 @@ class BoxLid {
     //this.resize();
     left = _leftPanel.$dom_offsetWidth;
     right = _rightPanel.$dom_offsetWidth;
-    //print(_leftPanel.$dom_offsetHeight);
 
     // add interaction handlers
-    topHandle.on.drag.add((event) {
-      this.top = event.pageY - this._topPanel.offset().top;
+    // store move handler
+    _moveHandlers = {
+      "top": (event) => top = event.pageY - _topPanel.$dom_offsetTop,
+      "left": (event) => left = event.pageX - _leftPanel.$dom_offsetLeft,
+      "right": (event) => right = _rightPanel.offset().left + _rightPanel.width - event.pageX,
+      "bottom": (event) => bottom = _bottomPanel.offset().top + _bottomPanel.height - event.pageY
+    };
+    topHandle.on.mouseDown.add((event) {
+      // add move event
+      root.on.mouseMove.add(_moveHandlers["top"]);
     });
-
-    leftHandle.on.drag.add((event) {
-      this.left = event.pageX - this._leftPanel.offset().left;
+    leftHandle.on.mouseDown.add((event) {
+      root.on.mouseMove.add(_moveHandlers["left"]);
     });
-
-    rightHandle.on.drag.add((event) {
-      this.right = _rightPanel.offset().left + _rightPanel.width - event.pageX;
+    rightHandle.on.mouseDown.add((event) {
+      root.on.mouseMove.add(_moveHandlers["right"]);
     });
-
-    bottomHandle.on.drag.add((event) {
-      this.bottom = _bottomPanel.offset().top + _bottomPanel.height - event.pageY;
+    bottomHandle.on.mouseDown.add((event) {
+      root.on.mouseMove.add(_moveHandlers["bottom"]);
+    });
+    
+    // remove handlers on up
+    root.on.mouseUp.add((event) {
+      // remove move handler
+      //root.on.mouseMove.remove(_moveHandlers["top"]);
+      for(handler in _moveHandlers) {
+        root.on.mouseMove.remove(handler.value);
+      }
     });
 
     // click handles to open / close them
