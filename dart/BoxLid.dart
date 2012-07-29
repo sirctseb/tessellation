@@ -132,8 +132,8 @@ class BoxLid {
     root.on.mouseUp.add((event) {
       // remove move handler
       //root.on.mouseMove.remove(_moveHandlers["top"]);
-      for(handler in _moveHandlers) {
-        root.on.mouseMove.remove(handler.value);
+      for(var handler in _moveHandlers.getValues()) {
+        root.on.mouseMove.remove(handler);
       }
     });
 
