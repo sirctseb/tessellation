@@ -29,15 +29,15 @@ class BoxLid {
     _left = value;
     // set sizes of elements
     _leftPanel.style.width = "${value}px";
-    _bottomPanel.style.width = "${root.style.height.parseInt() - value}px";
+    _bottomPanel.style.width = "${root.$dom_offsetWidth - value - 1}px";
     _setCenterSize();
   }
   int get top() => _top;
   int set top(value) {
     _top = value;
     // set sizes of elements
-    root.query(".boxlid-top-panel").style.height = "${value}px";
-    root.query(".boxlid-left-panel").style.height = "${root.style.height.parseInt() - value}px";
+    _topPanel.style.height = "${value}px";
+    _leftPanel.style.height = "${root.$dom_offsetWidth - value - 1}px";
     _setCenterSize();
   }
   int get bottom() => _botttom;
@@ -45,7 +45,7 @@ class BoxLid {
     _bottom = value;
     // set sizes of elements
     _bottomPanel.style.height = "${value}px";
-    _rightPanel.style.height = "${root.style.height.parseInt() - value}px";
+    _rightPanel.style.height = "${root.$dom_offsetHeight - value - 1}px";
     _setCenterSize();
   }
   int get right() => _right;
@@ -53,18 +53,18 @@ class BoxLid {
     _right = value;
     // set sizes of elements
     _rightPanel.style.width = "${value}px";
-    _topPanel.style.width = "${root.style.width.parseInt() - value}px";
+    _topPanel.style.width = "${root.$dom_offsetWidth - value - 1}px";
     _setCenterSize();
   }
 
   /** Set the size of the center panel from the sizes of the side panels **/
   _setCenterSize() {
-    int width = root.style.width.parseInt() -
-                  root.query(".boxlid-left-panel").style.width.parseInt() -
-                  _rightPanel.style.width.parseInt();
-    int height = root.style.height.parseInt() -
-                  _topPanel.style.height.parseInt() -
-                  _bottomPanel.style.height.parseInt();
+    int width = root.$dom_offsetWidth -
+                  _leftPanel.$dom_offsetWidth -
+                  _rightPanel.$dom_offsetWidth;
+    int height = root.$dom_offsetHeight -
+                  _topPanel.$dom_offsetHeight -
+                  _bottomPanel.$dom_offsetHeight;
     _centerPanel.style.width = "${width}px";
     _centerPanel.style.height = "${height}px";
   }
@@ -101,6 +101,9 @@ class BoxLid {
 
     // update sizes
     //this.resize();
+    left = _leftPanel.$dom_offsetWidth;
+    right = _rightPanel.$dom_offsetWidth;
+    //print(_leftPanel.$dom_offsetHeight);
 
     // add interaction handlers
     topHandle.on.drag.add((event) {

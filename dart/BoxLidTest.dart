@@ -2,5 +2,5 @@
 #import("BoxLid.dart");
 
 void main() {
-  //BoxLid boxlid = new BoxLid(query(".boxlid-wrapper"));
+  BoxLid boxlid = new BoxLid(query(".boxlid-wrapper"));
 }
