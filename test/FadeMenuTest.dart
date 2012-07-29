@@ -1,5 +1,5 @@
 #import("dart:html");
-#import("FadeMenu.dart");
+#import("../dart/FadeMenu.dart");
 
 void main() {
   queryAll(".fade-menu").forEach((element) => new FadeMenu(element));
