@@ -4,31 +4,41 @@
  #library("Focus");
  #import("dart:html");
 
-class Focus {
+class Focus implements Hashable {
   // The element to watch for loss of focus
   Element element;
   // The function to be called when focus is lost
   var callback;
 
   Focus(this.element, this.callback) {
+    // lazy initialize
+    Init();
+    
     // register
-    register(this);
+    register();
+  }
+  
+  // Hashable implementation
+  // TODO is this a reasonable hash?
+  int hashCode() {
+    return "${element.toString()}${callback.toString()}".hashCode();
   }
 
   // The list of Focus instances watching for focus loss
-  static List<Focus> _registrants;
+  static Set _registrants;
   // Register a new element
-  static register(Focus focus) {
-    if(_registrants == null) {
-      _registrants = new List<Focus>();
-      // lazy initialize
-      Init();
-    }
-    _registrants.add(focus);
+  void register() {
+    _registrants.add(this);
+  }
+  // Unregister an element
+  void unregister() {
+    _registrants.remove(this);
   }
   // TODO unregister?
   // Initialize monitoring
   static Init() {
+    if(_registrants != null) return;
+    _registrants = new Set();
     // add click handler to document
     // TODO mouse down instead of click?
     document.on.click.add((event) {
