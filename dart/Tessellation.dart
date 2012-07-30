@@ -1,6 +1,7 @@
 /** [Tessellation] is the representation of a tessellation
  */
- #import("dart:math");
+#library("Tessellation");
+#import("dart:math");
 
 class Tessellation {
   
@@ -62,9 +63,9 @@ class Vector2 {
   }
 
   // length
-  num get length() => return sqrt(this.x*this.x + this.y*this.y);
+  num get length() => sqrt(this.x*this.x + this.y*this.y);
   // length squared
-  num get length2() => return this.x*this.x + this.y*this.y;
+  num get length2() => this.x*this.x + this.y*this.y;
 
   // Arithmetic operations
   // Negation
@@ -75,19 +76,9 @@ class Vector2 {
   Vector2 operator+ (Vector2 v2) {
     return new Vector2(this.x + v2.x, this.y + v2.y);
   }
-  Vector2 operator += (Vector2 v2) {
-    this.x += v2.x;
-    this.y += v2.y;
-    return this;
-  }
   // Subtraction
   Vector2 operator- (Vector2 v2) {
     return new Vector2(this.x - v2.x, this.y - v2.y);
-  }
-  Vector2 operator-= (Vector2 v2) {
-    this.x -= v2.x;
-    this.y -= v2.y;
-    return this;
   }
   // Dot product and scalar product
   var operator*(var multiplicand) {
@@ -97,12 +88,6 @@ class Vector2 {
     }
     // scalar product
     return new Vector2(this.x * multiplicand, this.y * multiplicand);
-  }
-  // scalar product
-  var operator*=(num scalar) {
-    this.x *= scalar;
-    this.y *= scalar;
-    return this;
   }
 
   // return a rounded vector
