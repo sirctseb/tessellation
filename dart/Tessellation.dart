@@ -81,7 +81,7 @@ class Vector2 {
     return new Vector2(this.x - v2.x, this.y - v2.y);
   }
   // Dot product and scalar product
-  var operator*(var multiplicand) {
+  Object operator* (var multiplicand) {
     // dot product
     if(multiplicand is Vector2) {
       return this.x*v2.x + this.y*v2.y;
@@ -346,7 +346,7 @@ class Lattice {
   Vector2 decompose(Vector2 point) {
     return m.inverseTransform(point);
   }
-  var closestTo(Vector2 point) {
+  Map closestTo(Vector2 point) {
     Vector2 closestCoefs = decompose(point).round();
     return {"point": getPoint(closestCoefs), "coefs": closestCoefs};
   }
