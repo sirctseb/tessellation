@@ -17,35 +17,16 @@ class FadeMenuElement {
     _root.classes.add("fade-menu-element");
   }
 
-  // TODO need to refactor because sections need these methods
-
-  // create a section and add it to the menu
-  FadeMenuSection addMenuSection([String headerText = ""]) {
-    FadeMenuSection section = new FadeMenuSection(headerText);
+  // create an element or add an existing one to the menu
+  FadeMenuElement addElement([FadeMenuElement element = null]) {
+    // create element if not supplied
+    if(element == null) {
+      element = new FadeMenuElement();
+    }
     // add element to menu
-    _root.nodes.add(section._root);
+    _root.nodes.add(element._root);
     // return the element
-    return section;
-  }
-  
-  // create a collapsable section and add it to the menu
-  FadeMenuCollapsableSection addCollapsableMenuSection([String headerText = ""]) {
-
-    FadeMenuCollapsableSection section = new FadeMenuCollapsableSection(headerText);
-    // add element to menu
-    _root.nodes.add(section._root);
-    // return the element
-      return section;
-  }
-
-  // create a fade menu element and add it to the menu
-  FadeMenuElement addElement() {
-    // create element
-    FadeMenuElement menuElement = new FadeMenuElement();
-    // add element to menu
-    _root.nodes.add(menuElement._root);
-    // return the element
-    return menuElement;
+    return element;
   }
 }
 

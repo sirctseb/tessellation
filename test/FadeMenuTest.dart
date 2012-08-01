@@ -4,9 +4,9 @@
 void main() {
   queryAll(".fade-menu").forEach((element) => new FadeMenu(element));
   FadeMenu menu = new FadeMenu(query("#fade-menu-test"));
-  var katsection = menu.addMenuSection("Katharina");
-  var lname = katsection.addCollapsableMenuSection("Last Name");
+  var katsection = menu.addElement(new FadeMenuSection("Katharina");
+  var lname = katsection.addElement(new FadeMenuCollapsableSection("Last Name"));
   lname.addElement().root.text = "Ley";
-  var sub = katsection.addCollapsableMenuSection("Something else");
-  sub.addMenuSection("stuff");
+  var sub = katsection.addElement(new FadeMenuCollapsableSection("Something else"));
+  sub.addElement(new FadeMenuSection("stuff"));
 }
