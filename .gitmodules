@@ -1,0 +1,3 @@
+[submodule "dartxjs"]
+	path = dartxjs
+	url = http://github.com/sirctseb/dartxjs
