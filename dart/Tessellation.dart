@@ -6,16 +6,16 @@
 class Tessellation {
   
   // private fields
-  List _polygons;
+  List<List<Vector2>> _polygons;
   List<Tessellation> _subgroups;
-  List _transforms;
+  List<Matrix> _transforms;
   Lattice _lattice;
   Tessellation _parent;
   
   // accessors to fields
-  List get polygons() => _polygons;
+  List<List<Vector2>> get polygons() => _polygons;
   List<Tessellation> get subgroups() => _subgroups;
-  List get transforms() => _transforms;
+  List<Matrix> get transforms() => _transforms;
   Lattice get lattice() => _lattice;
   Lattice set lattice(value) => _lattice = value;
   Tessellation get parent() => _parent;
@@ -38,11 +38,49 @@ class Tessellation {
   }
   
   Tessellation() {
-    _polygons = new List();
-    _subgroups = new List();
-    _transforms = new List();
+    _polygons = new List<List<Vector2>>();
+    _subgroups = new List<Tessellation>();
+    _transforms = new List<Matrix>();
     _lattice = new Lattice();
     _parent = null;
+  }
+
+  Map serialize() {
+    return {
+      "polygons": polygons.map((points) => points.map((point) => point.serialize())),
+
+      "subgroups": subgroups.map((sg) => sg.serialize()),
+
+      "transforms": transforms.map((t) => t.serialize()),
+
+      "lattice" : lattice.serialize()
+    };
+  }
+
+  void deserialize(Map map) {
+    // TODO what are polygons?
+    _polygons = map["polygons"].map((pmap)
+      => pmap.map((point)
+        => new Vector2.fromMap(point)
+      )
+    );
+      
+    _subgroups = map["subgroups"].map((sgmap) {
+      var subgroup = new Tessellation.fromMap(sgmap);
+      subgroup.parent = this;
+      return subgroup;
+    });
+
+    // if we knew that we had the same number of transforms, we could
+    // deserialize existing instances
+    _transforms = map["transforms"].map((tmap) => new Matrix.fromMap(map));
+
+    _lattice.deserialize(map["lattice"]);
+  }
+
+  Tessellation.fromMap(Map map) {
+    lattice = new Lattice();
+    deserialize(map);
   }
 }
 
@@ -94,6 +132,17 @@ class Vector2 {
   Vector2 round() {
     // TODO make sure round does the right thing here
     new Vector2(this.x.round(), this.y.round());
+  }
+
+  Map serialize() {
+    return {"x": x, "y": y};
+  }
+  void deserialize(Map map) {
+    x = map["x"];
+    y = map["y"];
+  }
+  Vector2.fromMap(Map map) {
+    deserialize(map);
   }
 }
 /** [Matrix] is a dart port of the Matrix class from paper.js
@@ -267,6 +316,21 @@ class Matrix {
   num getRotation() {
     return atan2(_b, _d) * 180 / PI;
   }
+
+  Map serialize() {
+    return {"a": _a, "b": _b, "c": _c, "d": _d, "tx": _tx, "ty": _ty};
+  }
+  void deserialize(Map map) {
+    _a = map["a"];
+    _b = map["b"];
+    _c = map["c"];
+    _d = map["d"];
+    _tx = map["tx"];
+    _ty = map["ty"];
+  }
+  Matrix.fromMap(Map map) {
+    deserialize(map);
+  }
 }
 
 class Lattice {
@@ -274,7 +338,7 @@ class Lattice {
   // basis
   Vector2 v1, v2;
   // TODO matrix
-  var m;
+  Matrix m;
 
   void reduceBasis() {
     if(isReduced()) return;
@@ -349,5 +413,19 @@ class Lattice {
   Map closestTo(Vector2 point) {
     Vector2 closestCoefs = decompose(point).round();
     return {"point": getPoint(closestCoefs), "coefs": closestCoefs};
+  }
+
+  // TODO matrix doesn't actually need to be there because it's computed
+  // in fact, it might be a good idea to make it a get property
+  Map serialize() {
+    return {"v1": v1.serialize(), "v2": v2.serialize, "m": m.serialize};
+  }
+  void deserialize(Map map) {
+    v1.deserialize(map["v1"]);
+    v2.deserialize(map["v2"]);
+    m.deserialize(map["m"]);
+  }
+  Lattice.fromMap(Map map) {
+    deserialize(map);
   }
 }

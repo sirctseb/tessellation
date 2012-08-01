@@ -82,6 +82,52 @@ var tessellationModel = function(spec, my) {
 		return lattice;
 	};
 
+	that.serialize() {
+		return {
+			polygons:
+				polygons.map(function(polygon) {
+					polygon.segments.map(function(segment) {
+						return segment.point.serialize();
+					});
+				}),
+
+			subgroups: 
+				subgroups.map(function(subgroup) {
+					return subgroup.serialize();
+				}),
+			transforms;
+				transforms.map(function(transform) {
+					return transform.serialize();
+				});
+			lattice: lattice.serialize()
+		};
+	}
+
+	that.deserialize(map) {
+		polygons = map.polygons.map(function(points) {
+			return paper.Path(
+				points.map(function(point) {
+					return new paper.Point(point);
+				})
+			);
+		});
+
+		subgroups = map.subgroups.map(function(subgroupmap) {
+			var subgroup = tessellationModel();
+			subgroup.deserialize(subgroupmap);
+			subgroup.parent = that;
+			return subgroup;
+		});
+
+		transforms = map.transforms.map(function(transformmap) {
+			var transform = new paper.Matrix();
+			transform.deserialize(trasnformmap);
+			return transform;
+		});
+
+		lattice.deserialize(map.lattice);
+	}
+
 	return that;
 };
 
@@ -207,6 +253,18 @@ var lattice = function(spec, my) {
 		}
 		return v2;
 	}
+
+	that.serialize = function() {
+		return {v1: v1.serialize(), v2: v2.serialize(), m: m.serialize()};
+	};
+
+	that.deserialize = function(map) {
+		v1 = new paper.Point(map.v1);
+		v2 = new paper.Point(map.v2);
+		m = new paper.Matrix();
+		m.deserialize(map.m);
+		return this;
+	};
 	
 	return that;
 };

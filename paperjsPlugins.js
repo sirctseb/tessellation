@@ -19,3 +19,21 @@ paper.Point.inject({
 		return "x: " + this.x.toFixed(2) + " y: " + this.y.toFixed(2);
 	}
 });
+paper.Point.inject({
+	serialize: function() {
+		return {x: this.x, y: this.y};
+	}
+});
+paper.Matrix.inject({
+	serialize: function() {
+		return {a: this.scaleX,
+				b: this.shearY,
+				c: this.shearX,
+				d: this.scaleY, 
+				tx: this.translateX,
+				ty: this.translateY};
+	}
+	deserialize: function(map) {
+		return this.set(map.a, map.c, map.b, map.d, map.tx, map.ty);
+	}
+});
