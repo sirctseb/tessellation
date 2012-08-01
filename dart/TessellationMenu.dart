@@ -19,25 +19,25 @@ class TessellationMenu {
     _fadeMenu = new FadeMenu();
 
     // add stamp section
-    stampSection = _fadeMenu.addCollapsableMenuSection({"headerText": "Stamp"});
+    stampSection = _fadeMenu.addElement(new FadeMenuCollapsableSection("Stamp"));
 
     // add lattice view
     // TODO this was htmlLatticeView before
-    latticeSection = stampSection.addCollapsableMenuSection({"headerText": "Lattice"});
+    latticeSection = stampSection.addElement(new FadeMenuCollapsableSection("Lattice");
     // TODO ?
     //latticeSection.tessMenu "latticeView"
 
     // add polygon section
-    polygonSection = stampSection.addCollapsableMenuSection(
-      {"headerText": "Shapes (${_tessellation.polygons.length})"});
+    polygonSection = stampSection.addElement(
+      new FadeMenuCollapsableSection("Shapes (${_tessellation.polygons.length})");
 
     // add substructure
-    substampsection = stampSection.addCollapsableMenuSection(
-      {"headerText": "Substamps (${_tessellation.subgroups.length})"});
+    substampsection = stampSection.addElement(
+      new FadeMenuCollapsableSection("Substamps (${_tessellation.subgroups.length})");
 
     // add transform section
-    transformSection = stampSection.addCollapsableMenuSection(
-      {"headerText": "Placements (${_tessellation.transforms.length})"});
+    transformSection = stampSection.addElement(
+      new FadeMenuCollapsableSection("Placements (${_tessellation.transforms.length})");
 
     // make stamp section selectable
     stampSection.selectable(true);
@@ -49,8 +49,8 @@ class TessellationMenu {
     // TODO test this
     for(var polygon in tessellation.polygons) {
       // TODO these were htmlShapeViews before
-      polygonSection.addCollapsableMenuSection(
-        {"headerText": polygon.toString()});
+      polygonSection.addElement(new FadeMenuCollapsableSection(
+        polygon.toString()));
     }
 
      // TODO add polygon entry
