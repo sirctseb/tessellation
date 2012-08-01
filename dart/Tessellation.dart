@@ -79,7 +79,7 @@ class Tessellation {
   }
 
   Tessellation.fromMap(Map map) {
-    lattice = new Lattice();
+    _lattice = new Lattice();
     deserialize(map);
   }
 }
