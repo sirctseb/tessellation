@@ -108,7 +108,7 @@ var tessellationModel = function(spec, my) {
 			return paper.Path(
 				points.map(function(point) {
 					return new paper.Point(point);
-				})
+				});
 			);
 		});
 
