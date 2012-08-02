@@ -1,6 +1,7 @@
 #import('dart:html');
 #import('FadeMenu.dart');
 #import('BoxLid.dart');
+#import('Tessellation.dart');
 
 void main() {
   new TessellationWebApp();
