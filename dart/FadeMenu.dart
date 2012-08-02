@@ -44,6 +44,9 @@ class FadeMenuSection extends FadeMenuElement{
     _header.text = headerText;
     // add header
     _root.nodes.add(_header);
+
+    onSelect = null;
+    onDeselect = null;
   }
 
   String  get header()            => _header.text;
@@ -57,15 +60,15 @@ class FadeMenuSection extends FadeMenuElement{
   // and getter/setter for selectable
 
   // selection callbacks
-  var _onSelect = null;
-  var _onDeselect = null;
+  var onSelect;
+  var onDeselect;
+  
   // TODO unregister click handlers for selectable == false
+  bool get selectable => _selectable;
   // make the section selectable or non-selectable
-  setSelectable(bool selectable, [callbacks]) {
-    // set callbacks if supplied
-    _onSelect = callbacks["onSelect"];
-    _onDeselect = callbacks["onDeselect"];
-    if(selectable) {
+  bool set selectable(bool value) {
+    _selectable = value;
+    if(_selectable) {
       // register click handlers
       // TODO should callbacks be called if selection is changed via accessors?
       _header.on.click.add((event) {
@@ -74,12 +77,12 @@ class FadeMenuSection extends FadeMenuElement{
           // deselect
           this.selected = false;
           // call callback
-          if(_onSelect != null) _onSelect();
+          if(onSelect != null) onSelect();
         } else {
           // otherwise, select
           this.selected = true;
           // call callback
-          if(_onDeselect != null) _onDeselect();
+          if(onDeselect != null) onDeselect();
         }
       });
     }
