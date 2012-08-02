@@ -82,7 +82,7 @@ var tessellationModel = function(spec, my) {
 		return lattice;
 	};
 
-	that.serialize() {
+	that.serialize = function() {
 		return {
 			polygons:
 				polygons.map(function(polygon) {
@@ -103,7 +103,7 @@ var tessellationModel = function(spec, my) {
 		};
 	}
 
-	that.deserialize(map) {
+	that.deserialize = function(map) {
 		polygons = map.polygons.map(function(points) {
 			return paper.Path(
 				points.map(function(point) {
