@@ -10,7 +10,7 @@
 		<link rel="stylesheet" href="fadeMenu.css" type="text/css" />
 		<link rel="stylesheet" href="tessMenu.css" type="text/css" />
 		
-		<script type="application/dart" src="dart/Tessellation.dart"></script>
+		<script type="application/dart" src="dart/TessellationApp.dart"></script>
 		<script src="http://dart.googlecode.com/svn/branches/bleeding_edge/dart/client/dart.js"></script>
 		<script type="text/javascript" src="utility.js"></script>
 		<script type="text/javascript" src="timer.js"></script>
@@ -38,6 +38,7 @@
 		var $;
 		var app;
 			$(function() {
+				return;
 				var centerResize = function(size) {
 					log.log('resizing center');
 					$("#tessellation").attr('width', size.width + 'px')
@@ -269,7 +270,7 @@
 					</div>
 				</div>
 
-				<div id="paramterizationcontainer" class="fade-menu">
+				<div id="parameterizationcontainer" class="fade-menu">
 					<div class="fade-menu-collapsable-section">
 						<div class="fade-menu-collapse-arrow"></div>
 						<div class="fade-menu-section-title">Parameterization</div>
