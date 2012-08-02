@@ -56,13 +56,11 @@ class FadeMenuSection extends FadeMenuElement{
         set selected(bool sel)  =>  (sel && _selectable)
                                       ? _root.classes.add("selected")
                                       : _root.classes.remove("selected");
-  // TODO a better interface might be public properties for callbacks,
-  // and getter/setter for selectable
 
   // selection callbacks
   var onSelect;
   var onDeselect;
-  
+
   // TODO unregister click handlers for selectable == false
   bool get selectable => _selectable;
   // make the section selectable or non-selectable
@@ -71,22 +69,25 @@ class FadeMenuSection extends FadeMenuElement{
     if(_selectable) {
       // register click handlers
       // TODO should callbacks be called if selection is changed via accessors?
-      _header.on.click.add((event) {
-        // if currently selected
-        if(this.selected) {
-          // deselect
-          this.selected = false;
-          // call callback
-          if(onSelect != null) onSelect();
-        } else {
-          // otherwise, select
-          this.selected = true;
-          // call callback
-          if(onDeselect != null) onDeselect();
-        }
-      });
+      _header.on.click.add(_headerClickHandler);
+    } else {
+      _header.on.click.remove(_headerClickHandler);
     }
   }
+  void _headerClickHandler(event) {
+    // if currently selected
+    if(this.selected) {
+      // deselect
+      this.selected = false;
+      // call callback
+      if(onSelect != null) onSelect();
+      } else {
+        // otherwise, select
+        this.selected = true;
+        // call callback
+        if(onDeselect != null) onDeselect();
+      }
+    }
 }
 
 class FadeMenuCollapsableSection extends FadeMenuSection {
