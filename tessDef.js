@@ -95,10 +95,10 @@ var tessellationModel = function(spec, my) {
 				subgroups.map(function(subgroup) {
 					return subgroup.serialize();
 				}),
-			transforms;
+			transforms:
 				transforms.map(function(transform) {
 					return transform.serialize();
-				});
+				}),
 			lattice: lattice.serialize()
 		};
 	}
@@ -108,7 +108,7 @@ var tessellationModel = function(spec, my) {
 			return paper.Path(
 				points.map(function(point) {
 					return new paper.Point(point);
-				});
+				})
 			);
 		});
 
