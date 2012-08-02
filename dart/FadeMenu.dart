@@ -62,7 +62,7 @@ class FadeMenuSection extends FadeMenuElement{
   Function onDeselect;
 
   // TODO unregister click handlers for selectable == false
-  bool get selectable => _selectable;
+  bool get selectable() => _selectable;
   // make the section selectable or non-selectable
   bool set selectable(bool value) {
     _selectable = value;
