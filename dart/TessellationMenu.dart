@@ -40,10 +40,10 @@ class TessellationMenu {
       new FadeMenuCollapsableSection("Placements (${_tessellation.transforms.length})");
 
     // make stamp section selectable
-    stampSection.selectable(true);
+    stampSection.setSelectable(true);
 
     // make polygon section selectable
-    polygonSection.selectable(true);
+    polygonSection.setSelectable(true);
 
     // add polygon info
     // TODO test this
