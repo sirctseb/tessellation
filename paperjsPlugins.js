@@ -32,7 +32,7 @@ paper.Matrix.inject({
 				d: this.scaleY, 
 				tx: this.translateX,
 				ty: this.translateY};
-	}
+	},
 	deserialize: function(map) {
 		return this.set(map.a, map.c, map.b, map.d, map.tx, map.ty);
 	}
