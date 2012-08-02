@@ -4,10 +4,12 @@
 #library("TessellationMenu");
 #import("dart:html");
 #import("FadeMenu.dart");
+#import("Tessellation.dart");
 
 class TessellationMenu {
   // TODO type declarations
-  var _controller, _tessellation;
+  TessellationApp _controller;
+  Tessellation _tessellation;
   FadeMenu _fadeMenu;
 
   TessellationMenu(options) {
@@ -49,8 +51,7 @@ class TessellationMenu {
     // TODO test this
     for(var polygon in tessellation.polygons) {
       // TODO these were htmlShapeViews before
-      polygonSection.addElement(new FadeMenuCollapsableSection(
-        polygon.toString()));
+      polygonSection.addElement(new FadeMenuShapeSection(polygon));
     }
 
      // TODO add polygon entry
@@ -62,3 +63,35 @@ class TessellationMenu {
      }
   }
 }
+
+/** [FadeMenuShapeSection] is a custom [FadeMenuCollapsableSection] for
+  * displaying information about polygons in a [Tessellation]
+  */
+class FadeMenuShapeSection {
+  // the polygon of the view
+  var _polygon;
+
+  Object get polygon => _polygon;
+
+  Object set polygon(poly) {
+    _polygon = poly;
+
+    // TODO update view
+  }
+
+  // path views
+  List _pathViews;
+
+  FadeMenuShapeSection(polygon) : super(polygon.toString()) {
+    _polygon = polygon;
+    _pathViews = new List();
+  }
+
+  // add user-drawn content to the view
+  void addContent(path) {
+    FadeMenuElement pathView = this.addElement();
+    pathView.text = path.toString();
+  }
+}
+
+// TODO need a class for a section with a paperjs canvas for shape view and path views
