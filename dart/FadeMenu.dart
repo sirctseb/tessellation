@@ -58,8 +58,8 @@ class FadeMenuSection extends FadeMenuElement{
                                       : _root.classes.remove("selected");
 
   // selection callbacks
-  var onSelect;
-  var onDeselect;
+  Function onSelect;
+  Function onDeselect;
 
   // TODO unregister click handlers for selectable == false
   bool get selectable => _selectable;
