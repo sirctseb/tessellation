@@ -339,6 +339,12 @@ class Lattice {
   Vector2 v1, v2;
   // TODO matrix
   Matrix m;
+  
+  Lattice() {
+    v1 = new Vector2(0,1);
+    v2 = new Vector2(1,0);
+    m = new Matrix();
+  }
 
   void reduceBasis() {
     if(isReduced()) return;
