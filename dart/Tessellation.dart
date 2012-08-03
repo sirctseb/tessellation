@@ -336,7 +336,17 @@ class Matrix {
 class Lattice {
 
   // basis
-  Vector2 v1, v2;
+  Vector2 _v1, _v2;
+  Vector2 get v1() => _v1;
+  Vector2 set v1(Vector2 value) {
+    _v1 = value;
+    _computeMatrix();
+  }
+  Vector2 get v2() => _v2;
+  Vector2 set v2(Vector2 value) {
+    _v2 = value;
+    _computeMatrix();
+  }
   // TODO matrix
   Matrix m;
   
@@ -403,8 +413,10 @@ class Lattice {
   }
 
   void _computeMatrix() {
-    // generate transformation matrix between lattice space and project space
-    m = new Matrix(v1.x, v1.y, v2.x, v2.y, 0, 0);
+    if(v1 != null && v2 != null) {
+      // generate transformation matrix between lattice space and project space
+      m = new Matrix.withValues(v1.x, v1.y, v2.x, v2.y, 0, 0);
+    }
   }
 
   bool isReduced() {
@@ -424,12 +436,15 @@ class Lattice {
   // TODO matrix doesn't actually need to be there because it's computed
   // in fact, it might be a good idea to make it a get property
   Map serialize() {
-    return {"v1": v1.serialize(), "v2": v2.serialize, "m": m.serialize};
+    return {"v1": v1.serialize(), "v2": v2.serialize(), "m": m.serialize()};
   }
   void deserialize(Map map) {
     v1.deserialize(map["v1"]);
     v2.deserialize(map["v2"]);
-    m.deserialize(map["m"]);
+    _computeMatrix();
+    // ignore matrix because it will be set above
+    // TODO it should not be serialized
+    //m.deserialize(map["m"]);
   }
   Lattice.fromMap(Map map) {
     deserialize(map);
