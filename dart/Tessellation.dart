@@ -2,6 +2,7 @@
  */
 #library("Tessellation");
 #import("dart:math");
+#source("Tessellations.dart");
 
 class Tessellation {
   
