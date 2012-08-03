@@ -2,6 +2,7 @@
 #import('FadeMenu.dart');
 #import('BoxLid.dart');
 #import('Tessellation.dart');
+#import('../dartxjs/dartxjs.dart');
 
 void main() {
   new TessellationWebApp();
@@ -29,6 +30,11 @@ class TessellationWebApp {
 		_scaleMenu = new FadeMenu(query("#scalecontainer"));
 		_parameterizationMenu = new FadeMenu(query("#parameterizationcontainer"));
 
-		_mainTessellation = new Tessellation();
+	 	_mainTessellation = Tessellations.PolyGroup44;
+
+	 	print("sending main tessellation to js");
+	 	PostOffice.sendMail("tessellation.js",
+	 		{"cmd": "setMainTessellation",
+	 		 "tessellation": _mainTessellation.serialize()});
 	}
 }
