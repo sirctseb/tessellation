@@ -485,7 +485,7 @@ var app = (function () {
 		log.log("got message at tessellation.js");
 		if(data.cmd == "setMainTessellation") {
 			log.log("got setMainTessellation command");
-			this.tessellation.deserialize(data.tessellation);
+			app.tessellation.deserialize(data.tessellation);
 		}
 	}
 	
