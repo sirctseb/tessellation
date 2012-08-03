@@ -476,7 +476,18 @@ var app = (function () {
 		//testHitTool.activate();
 		//latticeDebugTool.activate();
 		this.tessellation = this.tess;
+
+		// register mailbox at tessellation.js
+		log.log("registering for mail at tessellatin.js");
+		PostOffice.registerMailBox("tessellation.js", listenForCMD);
 	};
+	var listenForCMD = function (data) {
+		log.log("got message at tessellation.js");
+		if(data.cmd == "setMainTessellation") {
+			log.log("got setMainTessellation command");
+			this.tessellation.deserialize(data.tessellation);
+		}
+	}
 	
 	return $.extend(app, {
 		stockTool : stockTool,
