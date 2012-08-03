@@ -28,6 +28,7 @@
 		<script type="text/javascript" src="tessellationView.js"></script>
 		<script type="text/javascript" src="tessellations.js"></script>
 		<script type="text/javascript" src="latticeEditView.js"></script>
+		<script type="text/javascript" src="dartxjs/dartxjs.js"></script>
 		<script type="text/javascript" src="js.js"></script>
 		<script type="text/javascript" src="farbtastic/farbtastic.js"></script>
 		<script type="text/javascript" src="jqueryui/js/jquery-ui-1.8.17.custom.min.js"></script>
@@ -38,7 +39,6 @@
 		var $;
 		var app;
 			$(function() {
-				return;
 				var centerResize = function(size) {
 					log.log('resizing center');
 					$("#tessellation").attr('width', size.width + 'px')
@@ -61,6 +61,7 @@
 				
 				// draw the view
 				paper.view.draw();
+				return;
 
 				// initialize color pickers
 				$('#stroke-colorpicker').farbtastic('.strokeColorPickerLinks');
