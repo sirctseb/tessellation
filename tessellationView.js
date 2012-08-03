@@ -11,8 +11,15 @@ var tessellationView = function(spec, my) {
 		symbol = null,
 		latticeGroup = null,
 		subviews = [];
-	
 
+	var setTessellation = function(tessellation) {
+		my.tessellation = tessellation;
+		// clear rendering
+		group = null;
+		symbol = null;
+		latticeGroup = null;
+		subviews = [];
+	};
 	var onResize = function(view) {
 		// TODO if lattice exists
 		recomputeLattice(view);
