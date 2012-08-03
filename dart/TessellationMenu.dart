@@ -73,12 +73,8 @@ class FadeMenuLatticeSection {
     _lattice = lattice;
 
     // create sub elements
-    _v1display = this.addElement();
-    _v2display = this.addElement();
-
-    // initialize sub elements
-    _v1display.root.classes.addAll(["v1display", "vdisplay"]);
-    _v2display.root.classes.addAll(["v2display", "vdisplay"]);
+    _v1display = this.addElement(new FadeMenuVectorElement(lattice.v1, this, "v1"));
+    _v2display = this.addElement(new FadeMenuVectorElement(lattice.v2, this, "v2"));
   }
 
   Lattice _lattice;
@@ -92,10 +88,12 @@ class FadeMenuLatticeSection {
 
 class FadeMenuVectorElement {
 
-  FadeMenuVectorElement(Vector2 vector, controller) {
+  FadeMenuVectorElement(Vector2 vector, controller, String component) {
     _vector = vector;
+    this.component = component;
 
     // initialize views
+    root.classes.addAll(["${component}display", "vdisplay"]);
 
     // add default views
 
@@ -104,7 +102,7 @@ class FadeMenuVectorElement {
     editButton.classes.addAll(["editButton", "vdefault"]);
     editButton.text = "edit";
     // add click handler
-    editButton.on.click.add((event) { controller.editVector(vector); });
+    editButton.on.click.add((event) { editVector(vector); });
     root.nodes.add(editButton);
 
     // create text display
@@ -113,7 +111,7 @@ class FadeMenuVectorElement {
     // TODO pretty print version
     textDisplay.text = vector.toString();
     // add click handler
-    textDisplay.on.click.add((event) { controller.beginEditLattice(vector); });
+    textDisplay.on.click.add((event) { beginEditLattice(vector); });
     root.nodes.add(textDisplay);
 
 
@@ -123,11 +121,36 @@ class FadeMenuVectorElement {
     Element submitButton = new Element.tag("div");
     submitButton.classes.addAll(["vecEditSubmit", "vedit"]);
     submitButton.text = "submit";
-    submitButton.on.click.add((event) { controller.finishEditVector(vector); });
+    submitButton.on.click.add((event) { finishEditVector(vector); });
 
     // create first label
-    Element xLabel = new Element.tag("div");
-    xlabel
+    Element xLabel = new LabelElement();
+    xLabel.classes.addAll(["vecEditLabel", "vedit"]);
+    xLabel.text = "x: ";
+    xLabel.htmlFor = "${component}xEdit";
+
+    // create first text box
+    Element xEdit = new InputElement("text");
+    xEdit.classes.addAll(["vecEditField", "vedit"]);
+    // TODO vector.toFixed(2);
+    xEdit.value = vector.x.toString();
+    xEdit.id = "${component}xEdit";
+
+
+    // create second label
+    Element yLabel = new LabelElement();
+    yLabel.classes.addAll(["vecEditLabel", "vedit"]);
+    yLabel.text = "y: ";
+    yLabel.htmlFor = "${component}yEdit";
+
+    // create second text box
+    Element yEdit = new InputElement("text");
+    yEdit.classes.addAll(["vecEditField", "vedit"]);
+    // TODO vector.y.toFixed(2);
+    yEdit.value = vector.y.toString();
+    yEdit.id = "${component}yEdit";
+
+    cancelEditVector();
   }
 
   Vector2 _vector;
@@ -135,7 +158,46 @@ class FadeMenuVectorElement {
   Vector2 set vector(Vector2 value) {
     _vector = value;
 
-    // TODO update view
+    // update views when vectors are assigned
+    updateFieldValues();
+  }
+
+  // either "v1" or "v2"
+  String component;
+
+  // inform the view that the vector value has changed
+  void updateFieldValues() {
+    List editBoxes = root.queryAll(".vecEditField");
+    // TODO .toFixed(2);
+    editBoxes[0].value = vector.x.toString();
+    editBoxes[1].value = vector.y.toString();
+  }
+
+  void editVector() {
+    // update fields because they aren't made fresh anymore
+    updateFieldValues();
+
+    // set edit mode on root
+    // TODO do css for this: .vEditMode>.vedit {display:block}, etc.
+    root.classes..remove("vDefaultMode")
+                ..add("vEditMode");
+    // notify controller
+    controller.beginEditLattice(component);
+  }
+
+  void finishEditVector() {
+    // TODO wrap in try for parsing values
+    List values = root.queryAll(".vecEditField").map((input) => Math.parseDouble(input.value));
+    controller.setLatticeValues({
+      component: new Vector2(values[0], values[1]);
+    });
+
+    // put default displays back
+    cancelEditVector();
+  }
+  void cancelEditVector() {
+    root.classes..remove("vEditMode")
+                ..add("vDefaultMode");
   }
 }
 
